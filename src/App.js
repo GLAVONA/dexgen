@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { ethers } from "ethers";
 import Select from "./components/Select";
-import options from './data'
+import options from "./data";
 
-
-const provider = new ethers.providers.Web3Provider(window.ethereum);
+const prov = new ethers.providers.Web3Provider(window.ethereum);
 const ERC20ABI = require("./ERC20.json");
 
 const App = () => {
@@ -15,7 +14,7 @@ const App = () => {
   const [chainName, setChainName] = useState();
   const [select1, setSelect1] = useState();
   const [select2, setSelect2] = useState();
-
+  const [provider, setProvider] = useState(prov);
 
   const BABINU_ADDRESS = "0x417D676A0b5E7c030697DA795f8718C7c823aE89";
   const BABINU = new ethers.Contract(BABINU_ADDRESS, ERC20ABI, provider);
@@ -84,11 +83,18 @@ const App = () => {
     requestAccounts();
   };
 
-
   return (
     <div>
-    <Select options={options.filter(option=>option.label!==select2)} setSelect={setSelect1} />
-    <Select options={options.filter(option=>option.label!==select1)} setSelect={setSelect2}/>
+      <Select
+        options={options.filter((option) => option.label !== select2)}
+        setSelect={setSelect1}
+        currentAccount={currentAccount}
+      />
+      <Select
+        options={options.filter((option) => option.label !== select1)}
+        setSelect={setSelect2}
+        currentAccount={currentAccount}
+      />
       {currentAccount ? null : (
         <button onClick={onClickConnect}>Connect</button>
       )}

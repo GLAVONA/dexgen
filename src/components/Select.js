@@ -1,37 +1,45 @@
 /* eslint-disable import/no-anonymous-default-export */
-import React, { useState } from 'react';
-import { useEffect } from 'react';
-import Select from 'react-select';
-import { ethers } from 'ethers';
-import data from '../data';
-import ABI from ''
+import React, { useState } from "react";
+import { useEffect } from "react";
+import Select from "react-select";
+import { ethers } from "ethers";
+import data from "../data";
+import ERC20ABI from "../ERC20.json";
 
+const prov = new ethers.providers.Web3Provider(window.ethereum);
 
-export default ({children, options, setSelect}) =>
-
- {
+export default ({ children, options, setSelect, currentAccount }) => {
   const [isClearable, setIsClearable] = useState(false);
   const [isSearchable, setIsSearchable] = useState(true);
   const [isDisabled, setIsDisabled] = useState(false);
   const [isLoading, setIsLoading] = useState();
   const [isRtl, setIsRtl] = useState(false);
 
-  const getTokenInfo=async(e)=>{
-    // const token = new Contract()
-    // const symbol = await 
-  }
-
-  const change = async(e)=>{
-
-    if (data.indexOf(e)===-1){
-        getTokenInfo(e.value)
+  const getTokenInfo = async (e) => {
+    try {
+        const addy = e.value
+        const token = new ethers.Contract(addy, ERC20ABI, prov);
+        const symbol = await token.symbol();
+        const balance = await token.balanceOf(currentAccount);
+        const tokenInfo = { value: {symbol}, label: {symbol}, addy: {addy} }
+        setIsLoading(false);
+        return tokenInfo;
+        
+    } catch (error) {
+        console.log(error)
+        
     }
+  };
 
-    const tokenAddy = e;
-    console.log(e);
-    setSelect(e.value);
-    setIsLoading(true)
-  }
+  const change = async (e) => {
+    if (data.indexOf(e) === -1) {
+      setIsLoading(true);
+      const tokenInfo = getTokenInfo(e.value);
+      setSelect(tokenInfo);
+    } else {
+      setSelect(e.value);
+    }
+  };
 
   return (
     <>
@@ -43,10 +51,11 @@ export default ({children, options, setSelect}) =>
         isClearable={isClearable}
         isRtl={isRtl}
         isSearchable={isSearchable}
-        options = {options}
-        onChange={e=>change(e)}
+        options={options}
+        onChange={(e) => change(e)}
       >
-      {children}</Select>
+        {children}
+      </Select>
     </>
   );
 };
