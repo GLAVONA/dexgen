@@ -8,31 +8,75 @@ const ERC20ABI = require("./ERC20.json");
 
 const App = () => {
   const [balance, setBalance] = useState();
-  const [babinuBalance, setBabinuBalance] = useState();
+  const [tokenBalance1, setTokenBalance1] = useState();
+  const [tokenBalance2, setTokenBalance2] = useState();
   const [currentAccount, setCurrentAccount] = useState();
   const [chainId, setChainId] = useState();
   const [chainName, setChainName] = useState();
   const [select1, setSelect1] = useState();
   const [select2, setSelect2] = useState();
   const [provider, setProvider] = useState(prov);
+  const [optionsState, setOptionsState] = useState(options);
 
-  const BABINU_ADDRESS = "0x417D676A0b5E7c030697DA795f8718C7c823aE89";
-  const BABINU = new ethers.Contract(BABINU_ADDRESS, ERC20ABI, provider);
+  useEffect(() => {
+    provider.on("accountsChanged", (accounts) => {
+      setCurrentAccount(accounts[0]);
+    });
+    setSelect1(options[0]);
+    getCoinBalance();
+    listAccounts();
+    getNetwork();
+  }, []);
 
   const getCoinBalance = async () => {
     const coinBalance = await provider.getBalance(currentAccount);
-    setBalance(ethers.utils.formatEther(coinBalance));
+    const normalizeNumber = ethers.utils.formatEther(coinBalance);
+    return normalizeNumber;
   };
 
   const getTokenBalance = async (addy) => {
     try {
-      const tokenBalance = await addy.balanceOf(currentAccount);
-      setBabinuBalance(ethers.utils.formatEther(tokenBalance));
+      const token = new ethers.Contract(addy, ERC20ABI, prov);
+      const tokenBalance = await token.balanceOf(currentAccount);
+      return ethers.utils.formatEther(tokenBalance);
     } catch (error) {
-      setBabinuBalance("0");
       throw new Error(error);
     }
   };
+
+  const switchTokens = () => {
+    const temp = select1;
+    setSelect1(select2);
+    setSelect2(select1);
+  };
+
+  useEffect(() => {
+    if (!currentAccount || !select1) return;
+    const fetchData = async () => {
+      if (select1.value === "AVAX") {
+        const coinBalance = await getCoinBalance();
+        setTokenBalance1(coinBalance);
+        return;
+      }
+      const result = await getTokenBalance(select1.addy);
+      setTokenBalance1(result);
+    };
+    fetchData();
+  }, [currentAccount, select1]);
+
+  useEffect(() => {
+    if (!currentAccount || !select2) return;
+    const fetchData = async () => {
+      if (select2.value === "AVAX") {
+        const coinBalance = await getCoinBalance();
+        setTokenBalance2(coinBalance);
+        return;
+      }
+      const result = await getTokenBalance(select2.addy);
+      setTokenBalance2(result);
+    };
+    fetchData();
+  }, [currentAccount, select2]);
 
   const getNetwork = async () => {
     const network = await provider.getNetwork();
@@ -60,21 +104,6 @@ const App = () => {
     }
   };
 
-  useEffect(() => {
-    if (!currentAccount || !ethers.utils.isAddress(currentAccount)) return;
-    if (!window.ethereum) return;
-    getCoinBalance();
-    getTokenBalance(select1);
-    getNetwork();
-  }, [currentAccount]);
-
-  useEffect(() => {
-    provider.on("accountsChanged", (accounts) => {
-      setCurrentAccount(accounts[0]);
-    });
-    listAccounts();
-  }, []);
-
   const onClickConnect = () => {
     if (!window.ethereum) {
       console.log("Please install MetaMask");
@@ -86,12 +115,25 @@ const App = () => {
   return (
     <div>
       <Select
-        options={options.filter((option) => option.label !== select2)}
+        options={
+          select2
+            ? options.filter((option) => option.addy !== select2.addy)
+            : options
+        }
+        // options={options}
+        select={select1}
         setSelect={setSelect1}
         currentAccount={currentAccount}
       />
+      <button onClick={() => switchTokens()}>Switch</button>
       <Select
-        options={options.filter((option) => option.label !== select1)}
+        options={
+          select1
+            ? options.filter((option) => option.addy !== select1.addy)
+            : options
+        }
+        // options={options}
+        select={select2}
         setSelect={setSelect2}
         currentAccount={currentAccount}
       />
@@ -99,10 +141,13 @@ const App = () => {
         <button onClick={onClickConnect}>Connect</button>
       )}
       <div>Wallet: {currentAccount} </div>
-      <div>Balance: {balance} </div>
-      <div>Babinu Balance: {babinuBalance} </div>
+      <div>Balance 1: {tokenBalance1} </div>
+      <div>Balance 2: {tokenBalance2} </div>
       <div>Chain ID: {chainId}</div>
       <div>Chain Name: {chainName}</div>
+      <button onClick={() => console.log(select1, select2)}>
+        print select
+      </button>
     </div>
   );
 };
