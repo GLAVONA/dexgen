@@ -1,11 +1,8 @@
 /* eslint-disable import/no-anonymous-default-export */
 import React, { useState } from "react";
 import { useEffect } from "react";
-import Select from "react-select";
-import CreatableSelect from "react-select/creatable";
 import AsyncSelect from "react-select/async";
 import { ethers } from "ethers";
-import data from "../data";
 import ERC20ABI from "../ERC20.json";
 
 const prov = new ethers.providers.Web3Provider(window.ethereum);
@@ -14,17 +11,9 @@ export default ({
   select,
   options,
   setSelect,
-  currentAccount,
-  id,
   setOptionsState,
   optionsState,
 }) => {
-  const [isClearable, setIsClearable] = useState(false);
-  const [isSearchable, setIsSearchable] = useState(true);
-  const [isDisabled, setIsDisabled] = useState(false);
-  const [isLoading, setIsLoading] = useState();
-  const [isRtl, setIsRtl] = useState(false);
-
   const handleSearch = async (inputValue) => {
     let newOpts = options;
     if (inputValue) {
@@ -36,26 +25,23 @@ export default ({
     if (ethers.utils.isAddress(inputValue)) {
       const newData = await getTokenInfo(inputValue);
 
-      const optionExists = optionsState.find(option=>option.addy===newData.addy)
+      const optionExists = optionsState.find(
+        (option) => option.addy === newData.addy
+      );
       if (!optionExists) {
         newOpts.push({
           label: newData.label,
           value: newData.value,
           addy: inputValue,
-        })
+        });
         const setMe = [...optionsState, newData];
         setOptionsState(setMe);
-      }
-      else{
-        newOpts.push(optionExists)
+      } else {
+        newOpts.push(optionExists);
       }
     }
     return Promise.resolve(newOpts);
   };
-
-  useEffect(() => {
-    handleSearch("");
-  }, []);
 
   const getTokenInfo = async (addy) => {
     try {

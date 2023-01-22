@@ -123,8 +123,7 @@ const App = () => {
         // options={options}
         select={select1}
         setSelect={setSelect1}
-        currentAccount={currentAccount}
-        optionsState = {optionsState}
+        optionsState={optionsState}
         setOptionsState={setOptionsState}
       />
       <button onClick={() => switchTokens()}>Switch</button>
@@ -137,9 +136,8 @@ const App = () => {
         // options={options}
         select={select2}
         setSelect={setSelect2}
-        currentAccount={currentAccount}
-        optionsState = {optionsState}
-        setOptionsState={setOptionsState} 
+        optionsState={optionsState}
+        setOptionsState={setOptionsState}
       />
       {currentAccount ? null : (
         <button onClick={onClickConnect}>Connect</button>
