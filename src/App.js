@@ -117,25 +117,29 @@ const App = () => {
       <Select
         options={
           select2
-            ? options.filter((option) => option.addy !== select2.addy)
-            : options
+            ? optionsState.filter((option) => option.addy !== select2.addy)
+            : optionsState
         }
         // options={options}
         select={select1}
         setSelect={setSelect1}
         currentAccount={currentAccount}
+        optionsState = {optionsState}
+        setOptionsState={setOptionsState}
       />
       <button onClick={() => switchTokens()}>Switch</button>
       <Select
         options={
           select1
-            ? options.filter((option) => option.addy !== select1.addy)
-            : options
+            ? optionsState.filter((option) => option.addy !== select1.addy)
+            : optionsState
         }
         // options={options}
         select={select2}
         setSelect={setSelect2}
         currentAccount={currentAccount}
+        optionsState = {optionsState}
+        setOptionsState={setOptionsState} 
       />
       {currentAccount ? null : (
         <button onClick={onClickConnect}>Connect</button>

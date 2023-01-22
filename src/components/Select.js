@@ -10,14 +10,20 @@ import ERC20ABI from "../ERC20.json";
 
 const prov = new ethers.providers.Web3Provider(window.ethereum);
 
-export default ({ select, options, setSelect, currentAccount, id }) => {
+export default ({
+  select,
+  options,
+  setSelect,
+  currentAccount,
+  id,
+  setOptionsState,
+  optionsState,
+}) => {
   const [isClearable, setIsClearable] = useState(false);
   const [isSearchable, setIsSearchable] = useState(true);
   const [isDisabled, setIsDisabled] = useState(false);
   const [isLoading, setIsLoading] = useState();
   const [isRtl, setIsRtl] = useState(false);
-  const [newOptions, setNewOptions] = useState();
-  const [inputVal, setInputVal] = useState();
 
   const handleSearch = async (inputValue) => {
     let newOpts = options;
@@ -29,11 +35,20 @@ export default ({ select, options, setSelect, currentAccount, id }) => {
     }
     if (ethers.utils.isAddress(inputValue)) {
       const newData = await getTokenInfo(inputValue);
-      newOpts.push({
-        label: newData.label,
-        value: newData.value,
-        addy: inputValue,
-      });
+
+      const optionExists = optionsState.find(option=>option.addy===newData.addy)
+      if (!optionExists) {
+        newOpts.push({
+          label: newData.label,
+          value: newData.value,
+          addy: inputValue,
+        })
+        const setMe = [...optionsState, newData];
+        setOptionsState(setMe);
+      }
+      else{
+        newOpts.push(optionExists)
+      }
     }
     return Promise.resolve(newOpts);
   };
