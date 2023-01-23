@@ -7,7 +7,6 @@ const prov = new ethers.providers.Web3Provider(window.ethereum);
 const ERC20ABI = require("./ERC20.json");
 
 const App = () => {
-  const [balance, setBalance] = useState();
   const [tokenBalance1, setTokenBalance1] = useState();
   const [tokenBalance2, setTokenBalance2] = useState();
   const [currentAccount, setCurrentAccount] = useState();
@@ -23,8 +22,8 @@ const App = () => {
       setCurrentAccount(accounts[0]);
     });
     setSelect1(options[0]);
-    getCoinBalance();
     listAccounts();
+    getCoinBalance();
     getNetwork();
   }, []);
 
