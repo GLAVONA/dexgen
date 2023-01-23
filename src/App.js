@@ -3,6 +3,27 @@ import { ethers } from "ethers";
 import Select from "./components/Select";
 import options from "./data";
 
+import "@rainbow-me/rainbowkit/styles.css";
+import { getDefaultWallets, RainbowKitProvider } from "@rainbow-me/rainbowkit";
+import { configureChains, createClient, WagmiConfig } from "wagmi";
+import { avalanche,avalancheFuji } from "wagmi/chains";
+import { publicProvider } from "wagmi/providers/public";
+
+import { ConnectButton } from '@rainbow-me/rainbowkit';
+
+const { chains, provider } = configureChains([avalanche,avalancheFuji], [publicProvider()]);
+
+const { connectors } = getDefaultWallets({
+  appName: "DEXgen",
+  chains,
+});
+
+const wagmiClient = createClient({
+  autoConnect: true,
+  connectors,
+  provider,
+});
+
 const prov = new ethers.providers.Web3Provider(window.ethereum);
 const ERC20ABI = require("./ERC20.json");
 
@@ -18,9 +39,6 @@ const App = () => {
   const [optionsState, setOptionsState] = useState(options);
 
   useEffect(() => {
-    provider.on("accountsChanged", (accounts) => {
-      setCurrentAccount(accounts[0]);
-    });
     setSelect1(options[0]);
     listAccounts();
     getCoinBalance();
@@ -112,44 +130,51 @@ const App = () => {
   };
 
   return (
-    <div>
-      <Select
-        options={
-          select2
-            ? optionsState.filter((option) => option.addy !== select2.addy)
-            : optionsState
-        }
-        // options={options}
-        select={select1}
-        setSelect={setSelect1}
-        optionsState={optionsState}
-        setOptionsState={setOptionsState}
-      />
-      <button onClick={() => switchTokens()}>Switch</button>
-      <Select
-        options={
-          select1
-            ? optionsState.filter((option) => option.addy !== select1.addy)
-            : optionsState
-        }
-        // options={options}
-        select={select2}
-        setSelect={setSelect2}
-        optionsState={optionsState}
-        setOptionsState={setOptionsState}
-      />
-      {currentAccount ? null : (
-        <button onClick={onClickConnect}>Connect</button>
-      )}
-      <div>Wallet: {currentAccount} </div>
-      <div>Balance 1: {tokenBalance1} </div>
-      <div>Balance 2: {tokenBalance2} </div>
-      <div>Chain ID: {chainId}</div>
-      <div>Chain Name: {chainName}</div>
-      <button onClick={() => console.log(select1, select2)}>
-        print select
-      </button>
-    </div>
+    <WagmiConfig client={wagmiClient}>
+      <RainbowKitProvider chains={chains}>
+        <div>
+          <Select
+            options={
+              select2
+                ? optionsState.filter((option) => option.addy !== select2.addy)
+                : optionsState
+            }
+            // options={options}
+            select={select1}
+            setSelect={setSelect1}
+            optionsState={optionsState}
+            setOptionsState={setOptionsState}
+          />
+          <button onClick={() => switchTokens()}>Switch</button>
+          <Select
+            options={
+              select1
+                ? optionsState.filter((option) => option.addy !== select1.addy)
+                : optionsState
+            }
+            // options={options}
+            select={select2}
+            setSelect={setSelect2}
+            optionsState={optionsState}
+            setOptionsState={setOptionsState}
+          />
+          {/* {currentAccount ? null : (
+            <button onClick={onClickConnect}>Connect</button>
+          )} */}
+          <ConnectButton chainStatus={"none"} accountStatus={"address"}/>
+
+
+          <div>Wallet: {currentAccount} </div>
+          <div>Balance 1: {tokenBalance1} </div>
+          <div>Balance 2: {tokenBalance2} </div>
+          <div>Chain ID: {chainId}</div>
+          <div>Chain Name: {chainName}</div>
+          <button onClick={() => console.log(select1, select2)}>
+            print select
+          </button>
+        </div>
+      </RainbowKitProvider>
+    </WagmiConfig>
   );
 };
 export default App;
