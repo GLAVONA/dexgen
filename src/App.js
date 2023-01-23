@@ -162,7 +162,7 @@ const App = () => {
           {/* {currentAccount ? null : (
             <button onClick={onClickConnect}>Connect</button>
           )} */}
-          <ConnectButton chainStatus={"icon"} accountStatus={"address"}/>
+          <ConnectButton chainStatus={"none"} accountStatus={"address"}/>
 
 
           <div>Wallet: {currentAccount} </div>
