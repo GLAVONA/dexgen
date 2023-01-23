@@ -1,5 +1,5 @@
 import { ConnectButton } from '@rainbow-me/rainbowkit';
-export const CustomConnect = () => {
+export const CustomConnect = ({setConnected}) => {
   return (
     <ConnectButton.Custom>
       {({
@@ -19,6 +19,7 @@ export const CustomConnect = () => {
           chain &&
           (!authenticationStatus ||
             authenticationStatus === 'authenticated');
+            setConnected(connected)
         return (
           <div
             {...(!ready && {

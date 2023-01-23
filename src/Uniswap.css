@@ -1,0 +1,316 @@
+.nav {
+    background-color: #DBE9EE;
+    box-sizing: border-box;
+    padding: 20px;
+    text-align: center;
+    width: 100%;
+    position: relative;
+    top: 0px;
+    font-size: 45px;
+    font-family: helvetica;
+  }
+  
+  .swap {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 20vh;
+    
+  }
+  /* Filter Bar */
+  
+  .data-table__options {
+    position: sticky;
+    top: 0;
+    padding: 0 20px;
+    height: 80px;
+    z-index: 1;
+    white-space: nowrap;
+    font-weight: 700;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #ffffff;
+    gap: 40px;
+  }
+  
+  .data-table__options-set {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  .data-table__options-values {
+    color: #5667c3;
+    background-color: #eef0ff;
+    border-radius: 100px;
+    padding: 8px;
+    display: flex;
+    gap: 4px;
+    align-items: center;
+    width: min-content;
+  }
+  
+  .data-table__option-value {
+    text-transform: none;
+    letter-spacing: 0em;
+    font-size: 1em;
+    padding: 8px 24px;
+    border-radius: 100px;
+  }
+  
+  .data-table__option-value:hover {
+    background-color: #dde0ff;
+    cursor: pointer;
+  }
+  
+  .active--primary,
+  .active--primary:hover {
+    color: #ffffff;
+    background-color: #5466fd;
+    box-shadow: 0px 3px 6px #dde0ff;
+  }
+  
+  .active--secondary,
+  .active--secondary:hover {
+    color: #5466fd;
+    background-color: #ffffff;
+    box-shadow: 0px 3px 6px #dde0ff;
+  }
+  
+  
+  
+  /* Uniswap font */
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap');
+  
+  *, *::before, *::after {
+    box-sizing: border-box;
+  }
+  
+  *:focus {
+    outline: none;
+  }
+  
+  h1, h2, h3, h4, h5, h6, p, pre {
+    margin: 0;
+  }
+  
+  a {
+    text-decoration: none;
+    color: inherit;
+  }
+  
+  .text-red {
+    color: rgb(232, 0, 111);
+  }
+  
+  .text-orange {
+    color: rgb(243, 132, 30);
+  }
+  
+  .text-green {
+    
+  }
+  
+  body {
+    margin: 0;
+  }
+  
+  input, button {
+    font-family: inherit;
+    font-size: inherit;
+    color: inherit;
+    border: 0;
+    background-color: #0000;
+  }
+  
+  input {
+    width: 100%;
+  }
+  
+  .section {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+  }
+  
+  .uniswapSection {
+    font-family: 'Inter', sans-serif;
+    background-color: #f7f8fa;
+    background-image: radial-gradient(
+      50% 50% at 50% 50%,
+      #fc077d10 0,
+      rgba(255,255,255,0) 100%
+    );
+  }
+  
+  .uniswap {
+    max-width: 480px;
+    width: 100%;
+    border-radius: 24px;
+    background: rgb(255, 255, 255);
+    box-shadow:
+      rgb(0 0 0 / 1%) 0px 0px 1px,
+      rgb(0 0 0 / 4%) 0px 4px 8px,
+      rgb(0 0 0 / 4%) 0px 16px 24px,
+      rgb(0 0 0 / 1%) 0px 24px 32px;
+  }
+  
+  .uniswapHead {
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.25rem 0.5rem;
+  }
+  
+  .uniswapSettings {
+    position: absolute;
+    top: 48px;
+    right: 16px;
+    z-index: 999;
+    display: none;
+    grid-gap: 16px;
+    padding: 16px;
+    border-radius: 12px;
+    background-color: rgb(237, 238, 242);
+    border: 1px solid rgb(206, 208, 217);
+    box-shadow:
+      rgb(0 0 0 / 1%) 0px 0px 1px,
+      rgb(0 0 0 / 4%) 0px 4px 8px,
+      rgb(0 0 0 / 4%) 0px 16px 24px,
+      rgb(0 0 0 / 1%) 0px 24px 32px;
+  }
+  
+  #uniswapSettingsTrigger:checked ~ .uniswapSettings {
+    display: grid;
+  }
+  
+  .settingField, .settingFieldInline {
+    font-size: 14px;
+  }
+  
+  .settingField {
+    display: grid;
+    grid-gap: 8px;
+  }
+  
+  .settingFieldInline {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .uniswapSettingsSwitch {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0.15rem;
+    border-radius: 12px;
+    background: rgb(255, 255, 255);
+  }
+  
+  .uniswapSettingsSwitch::before, .uniswapSettingsSwitch::after {
+    padding: .3rem .4rem;
+    border-radius: 9px;
+  }
+  
+  .uniswapSettingsSwitch::before {
+    content: "On";
+  }
+  
+  #toggleExpertMode:not(:checked) ~ label[for="toggleExpertMode"]::after {
+    color: #ffff;
+    background-color: rgb(136, 141, 155);
+  }
+  
+  #toggleExpertMode:checked ~ label[for="toggleExpertMode"]::before {
+    color: #ffff;
+    background-color: rgb(136, 141, 155);
+  }
+  
+  #disableMultiHops:not(:checked) ~ label[for="disableMultiHops"]::after {
+    color: #ffff;
+    background-color: rgb(136, 141, 155);
+  }
+  
+  #disableMultiHops:checked ~ label[for="disableMultiHops"]::before {
+    color: #ffff;
+    background-color: rgb(136, 141, 155);
+  }
+  
+  .uniswapSettingsSwitch::after {
+    content: "Off";
+  }
+  
+  .settingField input {
+    padding: 8px 16px;
+    font-size: 16px;
+    text-align: right;
+    border-radius: 36px;
+    border: 1px solid rgb(206, 208, 217);
+    background-color: rgb(247, 248, 250);
+  }
+  
+  .uniswapBody {
+    display: grid;
+    grid-gap: 12px;
+    padding: 8px;
+  }
+  
+  .uniswapArrow {
+    position: relative;
+    left: 50%;
+    left: calc(50% - 16px);
+    height: 32px;
+    width: 32px;
+    margin-top: -14px;
+    margin-bottom: -14px;
+    padding: 4px;
+    border-radius: 12px;
+    border: 4px solid rgb(255, 255, 255);
+    background-color: rgb(247, 248, 250);
+  }
+  
+  .uniswapField {
+    display: flex;
+    padding: 1rem 1rem 1.75rem;
+    border-radius: 20px;
+    border: 1px solid rgb(237, 238, 242);
+    background-color: rgb(247, 248, 250);
+  }
+  
+  .uniswapSelector {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    height: 2.4rem;
+    padding: 0px 8px;
+    border-radius: 16px;
+    background-color: rgb(255, 255, 255);
+    box-shadow: rgb(0 0 0 / 8%) 0px 6px 10px;
+  }
+  
+  .uniswapSelectorLogo {
+    width: 24px;
+    height: 24px;
+    box-shadow: rgb(0 0 0 / 8%) 0px 6px 10px;
+    border-radius: 24px;
+  }
+  
+  .uniswapTextInput {
+    flex: 1 1 auto;
+    font-size: 24px;
+    text-align: right;
+  }
+  
+  .uniswapButton {
+    width: 100%;
+    padding: 16px;
+    border-radius: 20px;
+    background-color: rgb(253, 234, 241);
+    color: rgb(213, 0, 102);
+  }
+  
+  

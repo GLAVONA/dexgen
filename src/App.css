@@ -1,0 +1,58 @@
+@font-face {
+  font-family: LibreBaskerville;
+  src: url(../fonts/LibreBaskerville-Bold.ttf);
+}
+
+.App {
+  display: grid;
+  grid-template-columns: repeat(10, auto);
+  grid-template-rows: repeat(4, auto);
+}
+
+#navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  grid-row: 1/2;
+  grid-column: 3/-3;
+}
+
+#logo {
+  font-family: LibreBaskerville;
+  font-size: 3rem;
+  cursor: grab;
+}
+
+#choose-mode{
+    display: flex;
+    justify-content: center;
+    gap:.3rem;
+    grid-row: 2/3;
+    grid-column: 5/7;
+    margin-top: 2rem;
+}
+
+#swap-card {
+  display: flex;
+  flex-direction: column;
+  grid-row: 3/4;
+  grid-column: 4/-4;
+  gap: .3rem;
+  margin-top: 1rem;
+}
+
+.switch-button {
+  display: flex;
+  align-self: center;
+  height: 21px;
+}
+
+#swap{
+    align-self: center;
+}
+
+#info {
+  grid-row: 4/5;
+  grid-column: 4/-4;
+}

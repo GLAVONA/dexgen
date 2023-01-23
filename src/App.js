@@ -3,14 +3,16 @@ import { ethers } from "ethers";
 import Select from "./components/Select";
 import options from "./data";
 import Navbar from "./components/Navbar";
-import { CustomConnect } from "./components/CustomConnect";
+import "./App.css";
 
+import { CustomConnect } from "./components/CustomConnect";
 import "@rainbow-me/rainbowkit/styles.css";
 import { getDefaultWallets, RainbowKitProvider } from "@rainbow-me/rainbowkit";
 import { configureChains, createClient, WagmiConfig } from "wagmi";
 import { avalanche, avalancheFuji } from "wagmi/chains";
 import { publicProvider } from "wagmi/providers/public";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
+import Uniswap from "./components/Uniswap";
 
 const { chains, provider } = configureChains(
   [avalanche, avalancheFuji],
@@ -40,6 +42,7 @@ const App = () => {
   const [select2, setSelect2] = useState();
   const [provider, setProvider] = useState(prov);
   const [optionsState, setOptionsState] = useState(options);
+  const [connected, setConnected] = useState();
 
   useEffect(() => {
     setSelect1(options[0]);
@@ -120,47 +123,73 @@ const App = () => {
       <RainbowKitProvider chains={chains}>
         <div className="App">
           <Navbar>
-            <ConnectButton
-              chainStatus={"icon"}
-              accountStatus={"address"}
-              id={"wallet-connect"}
-            />
+            <div id="logo">DEXGEN</div>
+            <div id="connect">
+              <ConnectButton
+                chainStatus={"icon"}
+                accountStatus={"address"}
+                id={"wallet-connect"}
+              />
+            </div>
           </Navbar>
+<div id="choose-mode">
+  
+            <button>Swap</button>
+            <button>Liquidity</button>
+</div>
 
-          <Select
-            options={
-              select2
-                ? optionsState.filter((option) => option.addy !== select2.addy)
-                : optionsState
-            }
-            // options={options}
-            select={select1}
-            setSelect={setSelect1}
-            optionsState={optionsState}
-            setOptionsState={setOptionsState}
-          />
-          <button onClick={() => switchTokens()}>Switch</button>
-          <Select
-            options={
-              select1
-                ? optionsState.filter((option) => option.addy !== select1.addy)
-                : optionsState
-            }
-            // options={options}
-            select={select2}
-            setSelect={setSelect2}
-            optionsState={optionsState}
-            setOptionsState={setOptionsState}
-          />
+          <div id="swap-card">
+            <Select
+              options={
+                select2
+                  ? optionsState.filter(
+                      (option) => option.addy !== select2.addy
+                    )
+                  : optionsState
+              }
+              // options={options}
+              select={select1}
+              setSelect={setSelect1}
+              optionsState={optionsState}
+              setOptionsState={setOptionsState}
+            />
+            {
+              <div className="switch-button">
+                {
+                select2?
+                <button id="switch" onClick={() => switchTokens()}>
+                  Switch
+                </button>
+                :null}
+              </div>
+            }{" "}
+            <Select
+              options={
+                select1
+                  ? optionsState.filter(
+                      (option) => option.addy !== select1.addy
+                    )
+                  : optionsState
+              }
+              // options={options}
+              select={select2}
+              setSelect={setSelect2}
+              optionsState={optionsState}
+              setOptionsState={setOptionsState}
+            />
+            <CustomConnect setConnected={setConnected}></CustomConnect>
+            {connected ? <button id="swap">Swap</button> : null}
+          </div>
 
-          <CustomConnect></CustomConnect>
-
-          <div>Wallet: {currentAccount} </div>
-          <div>Balance 1: {tokenBalance1} </div>
-          <div>Balance 2: {tokenBalance2} </div>
-          <div>Chain ID: {chainId}</div>
-          <div>Chain Name: {chainName}</div>
+          <div id="info">
+            <div>Wallet: {currentAccount} </div>
+            <div>Balance 1: {tokenBalance1} </div>
+            <div>Balance 2: {tokenBalance2} </div>
+            <div>Chain ID: {chainId}</div>
+            <div>Chain Name: {chainName}</div>
+          </div>
         </div>
+        <Uniswap/>
       </RainbowKitProvider>
     </WagmiConfig>
   );
