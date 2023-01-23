@@ -2,15 +2,20 @@ import React, { useEffect, useState } from "react";
 import { ethers } from "ethers";
 import Select from "./components/Select";
 import options from "./data";
+import Navbar from "./components/Navbar";
+import { CustomConnect } from "./components/CustomConnect";
 
 import "@rainbow-me/rainbowkit/styles.css";
 import { getDefaultWallets, RainbowKitProvider } from "@rainbow-me/rainbowkit";
 import { configureChains, createClient, WagmiConfig } from "wagmi";
-import { avalanche,avalancheFuji } from "wagmi/chains";
+import { avalanche, avalancheFuji } from "wagmi/chains";
 import { publicProvider } from "wagmi/providers/public";
-import { ConnectButton } from '@rainbow-me/rainbowkit';
+import { ConnectButton } from "@rainbow-me/rainbowkit";
 
-const { chains, provider } = configureChains([avalanche,avalancheFuji], [publicProvider()]);
+const { chains, provider } = configureChains(
+  [avalanche, avalancheFuji],
+  [publicProvider()]
+);
 const { connectors } = getDefaultWallets({
   appName: "DEXgen",
   chains,
@@ -113,7 +118,15 @@ const App = () => {
   return (
     <WagmiConfig client={wagmiClient}>
       <RainbowKitProvider chains={chains}>
-        <div>
+        <div className="App">
+          <Navbar>
+            <ConnectButton
+              chainStatus={"icon"}
+              accountStatus={"address"}
+              id={"wallet-connect"}
+            />
+          </Navbar>
+
           <Select
             options={
               select2
@@ -139,20 +152,14 @@ const App = () => {
             optionsState={optionsState}
             setOptionsState={setOptionsState}
           />
-          {/* {currentAccount ? null : (
-            <button onClick={onClickConnect}>Connect</button>
-          )} */}
-          <ConnectButton chainStatus={"none"} accountStatus={"address"}/>
 
+          <CustomConnect></CustomConnect>
 
           <div>Wallet: {currentAccount} </div>
           <div>Balance 1: {tokenBalance1} </div>
           <div>Balance 2: {tokenBalance2} </div>
           <div>Chain ID: {chainId}</div>
           <div>Chain Name: {chainName}</div>
-          <button onClick={() => console.log(select1, select2)}>
-            print select
-          </button>
         </div>
       </RainbowKitProvider>
     </WagmiConfig>
