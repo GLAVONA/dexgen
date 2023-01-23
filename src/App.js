@@ -8,11 +8,9 @@ import { getDefaultWallets, RainbowKitProvider } from "@rainbow-me/rainbowkit";
 import { configureChains, createClient, WagmiConfig } from "wagmi";
 import { avalanche,avalancheFuji } from "wagmi/chains";
 import { publicProvider } from "wagmi/providers/public";
-
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 
 const { chains, provider } = configureChains([avalanche,avalancheFuji], [publicProvider()]);
-
 const { connectors } = getDefaultWallets({
   appName: "DEXgen",
   chains,
@@ -110,23 +108,6 @@ const App = () => {
     } catch (error) {
       console.log(error);
     }
-  };
-
-  const requestAccounts = async () => {
-    const accounts = await provider.send("eth_requestAccounts", []);
-    try {
-      if (accounts.length > 0) setCurrentAccount(accounts[0]);
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  const onClickConnect = () => {
-    if (!window.ethereum) {
-      console.log("Please install MetaMask");
-      return;
-    }
-    requestAccounts();
   };
 
   return (
