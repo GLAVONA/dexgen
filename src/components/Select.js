@@ -13,6 +13,7 @@ export default ({
   setSelect,
   setOptionsState,
   optionsState,
+  children
 }) => {
   const handleSearch = async (inputValue) => {
     let newOpts = options;
@@ -59,6 +60,7 @@ export default ({
   };
 
   return (
+    <>
     <AsyncSelect
       defaultOptions={options}
       value={select}
@@ -66,5 +68,7 @@ export default ({
       loadOptions={handleSearch}
       isSearchable
     />
+    {children}
+    </>
   );
 };

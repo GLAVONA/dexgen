@@ -36,8 +36,6 @@ const App = () => {
   const [tokenBalance1, setTokenBalance1] = useState();
   const [tokenBalance2, setTokenBalance2] = useState();
   const [currentAccount, setCurrentAccount] = useState();
-  const [chainId, setChainId] = useState();
-  const [chainName, setChainName] = useState();
   const [select1, setSelect1] = useState();
   const [select2, setSelect2] = useState();
   const [provider, setProvider] = useState(prov);
@@ -48,7 +46,6 @@ const App = () => {
     setSelect1(options[0]);
     listAccounts();
     getCoinBalance();
-    getNetwork();
   }, []);
 
   const getCoinBalance = async () => {
@@ -101,12 +98,6 @@ const App = () => {
     fetchData();
   }, [currentAccount, select2]);
 
-  const getNetwork = async () => {
-    const network = await provider.getNetwork();
-    setChainId(network.chainId);
-    setChainName(network.name);
-  };
-
   const listAccounts = async () => {
     const accounts = await provider.listAccounts();
     try {
@@ -117,6 +108,26 @@ const App = () => {
       console.log(error);
     }
   };
+
+  let style = {
+    input: (styles) => ({
+      ...styles,
+      display: "inline-flex",
+      alignItems: "center",
+      backgroundColor: "red",
+      border: "10px red",
+    }),
+    option:(styles)=>({color:"red"})
+  };
+
+  // display: inline-flex;
+  // align-items: center;
+  // gap: 8px;
+  // height: 2.4rem;
+  // padding: 0px 8px;
+  // border-radius: 16px;
+  // background-color: rgb(255, 255, 255);
+  // box-shadow: rgb(0 0 0 / 8%) 0px 6px 10px;
 
   return (
     <WagmiConfig client={wagmiClient}>
@@ -132,64 +143,82 @@ const App = () => {
               />
             </div>
           </Navbar>
-<div id="choose-mode">
-  
-            <button>Swap</button>
-            <button>Liquidity</button>
-</div>
-
-          <div id="swap-card">
-            <Select
-              options={
-                select2
-                  ? optionsState.filter(
-                      (option) => option.addy !== select2.addy
-                    )
-                  : optionsState
-              }
-              // options={options}
-              select={select1}
-              setSelect={setSelect1}
-              optionsState={optionsState}
-              setOptionsState={setOptionsState}
-            />
-            {
-              <div className="switch-button">
-                {
-                select2?
-                <button id="switch" onClick={() => switchTokens()}>
-                  Switch
-                </button>
-                :null}
+          <div id="main-bg">
+            <div id="choose-mode">
+              <button>Swap</button>
+              <button>Liquidity</button>
+            </div>
+            <div id="main">
+              <div id="swap-card">
+                <div className="head">Trade</div>
+                <div className="body">
+                  <div id="select-fields">
+                    <div className="select-field">
+                      <Select
+                        options={
+                          select2
+                            ? optionsState.filter(
+                                (option) => option.addy !== select2.addy
+                              )
+                            : optionsState
+                        }
+                        select={select1}
+                        setSelect={setSelect1}
+                        optionsState={optionsState}
+                        setOptionsState={setOptionsState}
+                        styles={style}
+                      >
+                        <div className="balance">
+                          {select1 ? tokenBalance1 : 0}
+                        </div>
+                      </Select>
+                    </div>
+                    {
+                      <div id="switch-arrow" onClick={switchTokens}>
+                        <svg
+                          width="12"
+                          height="7"
+                          viewBox="0 0 12 7"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                          class="sc-33m4yg-8 khlnVY"
+                        >
+                          <path
+                            d="M0.97168 1L6.20532 6L11.439 1"
+                            stroke="#AEAEAE"
+                          ></path>
+                        </svg>
+                      </div>
+                    }{" "}
+                    <div className="select-field">
+                      <Select
+                        options={
+                          select1
+                            ? optionsState.filter(
+                                (option) => option.addy !== select1.addy
+                              )
+                            : optionsState
+                        }
+                        select={select2}
+                        setSelect={setSelect2}
+                        optionsState={optionsState}
+                        setOptionsState={setOptionsState}
+                      >
+                        {" "}
+                        <div className="balance">
+                          {select2 ? tokenBalance2 : 0}
+                        </div>{" "}
+                      </Select>
+                    </div>
+                  </div>
+                  <CustomConnect setConnected={setConnected}></CustomConnect>
+                  {connected ? <button id="swap">Swap</button> : null}
+                </div>
               </div>
-            }{" "}
-            <Select
-              options={
-                select1
-                  ? optionsState.filter(
-                      (option) => option.addy !== select1.addy
-                    )
-                  : optionsState
-              }
-              // options={options}
-              select={select2}
-              setSelect={setSelect2}
-              optionsState={optionsState}
-              setOptionsState={setOptionsState}
-            />
-            <CustomConnect setConnected={setConnected}></CustomConnect>
-            {connected ? <button id="swap">Swap</button> : null}
-          </div>
-
-          <div id="info">
-            <div>Wallet: {currentAccount} </div>
-            <div>Balance 1: {tokenBalance1} </div>
-            <div>Balance 2: {tokenBalance2} </div>
-            <div>Chain ID: {chainId}</div>
-            <div>Chain Name: {chainName}</div>
+            </div>
           </div>
         </div>
-        <Uniswap/>
+        <Uniswap />
       </RainbowKitProvider>
     </WagmiConfig>
   );
