@@ -12,7 +12,8 @@ import { configureChains, createClient, WagmiConfig } from "wagmi";
 import { avalanche, avalancheFuji } from "wagmi/chains";
 import { publicProvider } from "wagmi/providers/public";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
-import Uniswap from "./components/Uniswap";
+import SettingsModal from "./components/SettingsModal";
+import CurrencyInput from 'react-currency-input-field';
 
 const { chains, provider } = configureChains(
   [avalanche, avalancheFuji],
@@ -41,6 +42,13 @@ const App = () => {
   const [provider, setProvider] = useState(prov);
   const [optionsState, setOptionsState] = useState(options);
   const [connected, setConnected] = useState();
+  const [showSettings, setShowSettings] = useState(false);
+  const [value1, setValue1] = useState();
+  const [value2, setValue2] = useState();
+
+  const closeSettings = () => {
+    setShowSettings(false);
+  };
 
   useEffect(() => {
     setSelect1(options[0]);
@@ -117,6 +125,7 @@ const App = () => {
       justifyContent: "center",
       width: "60px",
       gap: "8px",
+      cursor: "grab",
     }),
     control: (styles) => ({
       ...styles,
@@ -125,31 +134,25 @@ const App = () => {
     }),
     container: (styles) => ({
       ...styles,
-      maxWidth: "100px",
+      maxWidth: "130px",
     }),
-    indicatorsContainer:styles=>({
+    indicatorsContainer: (styles) => ({
       ...styles,
-      cursor:"grab"
+      cursor: "grab",
     }),
-    valueContainer:styles=>({
+    valueContainer: (styles) => ({
       ...styles,
-      cursor:"grab",
-      
+      cursor: "grab",
     }),
-    input:styles=>({
+    singleValue: (styles) => ({
       ...styles,
-      cursor:"grab"
-    })
+      cursor: "grab",
+    }),
   };
 
-  // display: inline-flex;
-  // align-items: center;
-  // gap: 8px;
-  // height: 2.4rem;
-  // padding: 0px 8px;
-  // border-radius: 16px;
-  // background-color: rgb(255, 255, 255);
-  // box-shadow: rgb(0 0 0 / 8%) 0px 6px 10px;
+  const handleInputChange1 = (event)=>{
+
+  }
 
   return (
     <WagmiConfig client={wagmiClient}>
@@ -172,7 +175,38 @@ const App = () => {
             </div>
             <div id="main">
               <div id="swap-card">
-                <div className="head">Trade</div>
+                <div className="head">
+                  <SettingsModal close={closeSettings} shown={showSettings}>
+                    {" "}
+                  </SettingsModal>
+                  <div className="head-title">Trade</div>
+                  <div
+                    className="head-button"
+                    onClick={() => {
+                      setShowSettings(!showSettings);
+                      console.log(showSettings);
+                    }}
+                  >
+                    <div>
+                      {" "}
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="24"
+                        height="24"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        class="sc-1ndknrv-0 fZuPAR"
+                      >
+                        <circle cx="12" cy="12" r="3"></circle>
+                        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                      </svg>
+                    </div>
+                  </div>
+                </div>
                 <div className="body">
                   <div id="select-fields">
                     <div className="select-field">
@@ -194,7 +228,7 @@ const App = () => {
                           {select1 ? tokenBalance1 : 0}
                         </div>
                       </Select>
-                      <input type="text" className="amount-input" placeholder="0.0" />
+                      <CurrencyInput decimalsLimit={18} allowNegativeValue={false} onChange={(e)=>{setValue1(e.target.value)}} className="amount-input" placeholder="0.0"/>
                     </div>
                     {
                       <div id="switch-arrow" onClick={switchTokens}>
@@ -234,7 +268,7 @@ const App = () => {
                           {select2 ? tokenBalance2 : 0}
                         </div>{" "}
                       </Select>
-                      <input type="text" className="amount-input" placeholder="0.0" />
+                      <CurrencyInput decimalsLimit={18} allowNegativeValue={false} onChange={(e)=>setValue2(e.target.value)} className="amount-input" placeholder="0.0"/>
                     </div>
                   </div>
                   <CustomConnect setConnected={setConnected}></CustomConnect>
@@ -244,7 +278,6 @@ const App = () => {
             </div>
           </div>
         </div>
-        <Uniswap />
       </RainbowKitProvider>
     </WagmiConfig>
   );
