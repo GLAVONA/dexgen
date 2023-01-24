@@ -13,7 +13,8 @@ export default ({
   setSelect,
   setOptionsState,
   optionsState,
-  children
+  children,
+  styles
 }) => {
   const handleSearch = async (inputValue) => {
     let newOpts = options;
@@ -67,6 +68,7 @@ export default ({
       onChange={setSelect}
       loadOptions={handleSearch}
       isSearchable
+      styles={styles}
     />
     {children}
     </>

@@ -100,33 +100,14 @@
     color: inherit;
   }
   
-  .text-red {
-    color: rgb(232, 0, 111);
-  }
+ 
+
   
-  .text-orange {
-    color: rgb(243, 132, 30);
-  }
+
   
-  .text-green {
-    
-  }
+
   
-  body {
-    margin: 0;
-  }
-  
-  input, button {
-    font-family: inherit;
-    font-size: inherit;
-    color: inherit;
-    border: 0;
-    background-color: #0000;
-  }
-  
-  input {
-    width: 100%;
-  }
+ 
   
   .section {
     display: flex;

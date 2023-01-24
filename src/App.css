@@ -126,3 +126,18 @@
     background-color: rgb(247, 248, 250);
 }
 
+.amount-input{
+    flex: 1;
+    text-align: right;
+}
+
+input, button {
+    font-family: inherit;
+    font-size: inherit;
+    color: inherit;
+    border: 0;
+    background-color: #0000;
+  }
+  body {
+    margin: 0;
+  }
