@@ -45,6 +45,9 @@ const App = () => {
   const [showSettings, setShowSettings] = useState(false);
   const [value1, setValue1] = useState();
   const [value2, setValue2] = useState();
+  const [slippage, setSlippage] = useState();
+  const [deadline, setDeadline] = useState();
+
 
   const closeSettings = () => {
     setShowSettings(false);
@@ -73,9 +76,12 @@ const App = () => {
   };
 
   const switchTokens = () => {
-    const temp = select1;
+    const tempSelect = select1;
+    const tempValue = value1;
     setSelect1(select2);
-    setSelect2(select1);
+    setSelect2(tempSelect);
+    setValue1(value2);
+    setValue2(tempValue);
   };
 
   useEffect(() => {
@@ -151,16 +157,14 @@ const App = () => {
   };
 
   const handleMax1 = (e) => {
-    if(e.target.textContent!==0)
-    {
-      setValue1(e.target.textContent)
+    if (e.target.textContent !== 0) {
+      setValue1(e.target.textContent);
     }
   };
 
   const handleMax2 = (e) => {
-    if(e.target.textContent!==0)
-    {
-      setValue2(e.target.textContent)
+    if (e.target.textContent !== 0) {
+      setValue2(e.target.textContent);
     }
   };
 
@@ -178,136 +182,137 @@ const App = () => {
               />
             </div>
           </Navbar>
-          <div id="main-bg">
-            <div id="choose-mode">
-              <button>Swap</button>
-              <button>Liquidity</button>
+          <div id="choose-mode">
+            <div className="wrapper">
+              <div className="swap-mode">Swap</div>
+              <div className="liq-mode">Liquidity</div>
             </div>
-            <div id="main">
-              <div id="swap-card">
-                <div className="head">
-                  <SettingsModal close={closeSettings} shown={showSettings}>
+          </div>
+          <div id="main-bg"></div>
+          <div id="main">
+            <div id="swap-card">
+              <div className="head">
+                <SettingsModal close={closeSettings} shown={showSettings} slippage={slippage} setSlippage={setSlippage} deadline={deadline} setDeadline={setDeadline}>
+                  {" "}
+                </SettingsModal>
+                <div className="head-title">Trade</div>
+                <div
+                  className="head-button"
+                  onClick={() => {
+                    setShowSettings(!showSettings);
+                    console.log(showSettings);
+                  }}
+                >
+                  <div>
                     {" "}
-                  </SettingsModal>
-                  <div className="head-title">Trade</div>
-                  <div
-                    className="head-button"
-                    onClick={() => {
-                      setShowSettings(!showSettings);
-                      console.log(showSettings);
-                    }}
-                  >
-                    <div>
-                      {" "}
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      class="sc-1ndknrv-0 fZuPAR"
+                    >
+                      <circle cx="12" cy="12" r="3"></circle>
+                      <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                    </svg>
+                  </div>
+                </div>
+              </div>
+              <div className="body">
+                <div id="select-fields">
+                  <div className="select-field">
+                    <Select
+                      options={
+                        select2
+                          ? optionsState.filter(
+                              (option) => option.addy !== select2.addy
+                            )
+                          : optionsState
+                      }
+                      select={select1}
+                      setSelect={setSelect1}
+                      optionsState={optionsState}
+                      setOptionsState={setOptionsState}
+                      styles={style}
+                    >
+                      <div
+                        className="balance"
+                        onClick={(e) => {
+                          handleMax1(e);
+                        }}
+                      >
+                        {select1 ? tokenBalance1 : 0}
+                      </div>
+                    </Select>
+                    <CurrencyInput
+                      decimalsLimit={18}
+                      allowNegativeValue={false}
+                      onValueChange={(e) => setValue1(e)}
+                      className="amount-input"
+                      placeholder="0.0"
+                      value={value1}
+                    />
+                  </div>
+                  {
+                    <div id="switch-arrow" onClick={switchTokens}>
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
-                        width="24"
-                        height="24"
+                        width="16"
+                        height="16"
                         viewBox="0 0 24 24"
                         fill="none"
-                        stroke="currentColor"
+                        stroke="#6E727D"
                         stroke-width="2"
                         stroke-linecap="round"
                         stroke-linejoin="round"
-                        class="sc-1ndknrv-0 fZuPAR"
                       >
-                        <circle cx="12" cy="12" r="3"></circle>
-                        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                        <polyline points="19 12 12 19 5 12"></polyline>
                       </svg>
                     </div>
+                  }{" "}
+                  <div className="select-field">
+                    <Select
+                      options={
+                        select1
+                          ? optionsState.filter(
+                              (option) => option.addy !== select1.addy
+                            )
+                          : optionsState
+                      }
+                      select={select2}
+                      setSelect={setSelect2}
+                      optionsState={optionsState}
+                      setOptionsState={setOptionsState}
+                      styles={style}
+                    >
+                      {" "}
+                      <div
+                        className="balance"
+                        onClick={(e) => {
+                          handleMax2(e);
+                        }}
+                      >
+                        {select2 ? tokenBalance2 : 0}
+                      </div>{" "}
+                    </Select>
+                    <CurrencyInput
+                      decimalsLimit={18}
+                      allowNegativeValue={false}
+                      onValueChange={(e) => setValue2(e)}
+                      className="amount-input"
+                      placeholder="0.0"
+                      value={value2}
+                    />
                   </div>
                 </div>
-                <div className="body">
-                  <div id="select-fields">
-                    <div className="select-field">
-                      <Select
-                        options={
-                          select2
-                            ? optionsState.filter(
-                                (option) => option.addy !== select2.addy
-                              )
-                            : optionsState
-                        }
-                        select={select1}
-                        setSelect={setSelect1}
-                        optionsState={optionsState}
-                        setOptionsState={setOptionsState}
-                        styles={style}
-                      >
-                        <div
-                          className="balance"
-                          onClick={(e) => {
-                            handleMax1(e)
-                          }}
-                        >
-                          {select1 ? tokenBalance1 : 0}
-                        </div>
-                      </Select>
-                      <CurrencyInput
-                        decimalsLimit={18}
-                        allowNegativeValue={false}
-                        onValueChange={(e) => setValue1(e)}
-                        className="amount-input"
-                        placeholder="0.0"
-                        value={value1}
-                      />
-                    </div>
-                    {
-                      <div id="switch-arrow" onClick={switchTokens}>
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          width="16"
-                          height="16"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="#6E727D"
-                          stroke-width="2"
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                        >
-                          <line x1="12" y1="5" x2="12" y2="19"></line>
-                          <polyline points="19 12 12 19 5 12"></polyline>
-                        </svg>
-                      </div>
-                    }{" "}
-                    <div className="select-field">
-                      <Select
-                        options={
-                          select1
-                            ? optionsState.filter(
-                                (option) => option.addy !== select1.addy
-                              )
-                            : optionsState
-                        }
-                        select={select2}
-                        setSelect={setSelect2}
-                        optionsState={optionsState}
-                        setOptionsState={setOptionsState}
-                        styles={style}
-                      >
-                        {" "}
-                        <div
-                          className="balance"
-                          onClick={(e) => {
-                            handleMax2(e);
-                          }}
-                        >
-                          {select2 ? tokenBalance2 : 0}
-                        </div>{" "}
-                      </Select>
-                      <CurrencyInput
-                        decimalsLimit={18}
-                        allowNegativeValue={false}
-                        onValueChange={(e) => setValue2(e)}
-                        className="amount-input"
-                        placeholder="0.0"
-                        value={value2}
-                      />
-                    </div>
-                  </div>
-                  <CustomConnect setConnected={setConnected}></CustomConnect>
-                  {connected ? <button id="swap">Swap</button> : null}
-                </div>
+                <CustomConnect setConnected={setConnected}></CustomConnect>
+                {connected ? <button id="swap">Swap</button> : null}
               </div>
             </div>
           </div>

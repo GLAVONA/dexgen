@@ -6,31 +6,66 @@
 .App {
   display: grid;
   grid-template-columns: repeat(10, auto);
-  grid-template-rows: repeat(4, auto);
+  grid-template-rows: auto auto repeat(3, 1fr);
+  height: 100vh;
 }
 
 #navbar {
   display: flex;
-  justify-content: space-between;
+  justify-content: space-evenly;
   align-items: center;
   flex-wrap: wrap;
   grid-row: 1/2;
-  grid-column: 3/-3;
+  grid-column: 1/-1;
+  box-shadow: 0px 3px 10px gray;
+  z-index: 100;
+  padding-bottom: 1rem;
 }
 
 #logo {
   font-family: LibreBaskerville;
   font-size: 3rem;
-  cursor: grab;
+  cursor: grab;  
 }
+
+
 
 #choose-mode{
     display: flex;
     justify-content: center;
-    gap:.3rem;
+    align-items: center;
     grid-row: 2/3;
     grid-column: 5/7;
     margin-top: 2rem;
+    margin-bottom: 2rem;
+    z-index: 10;
+}
+
+#choose-mode>.wrapper{
+    display: flex;
+    background-color:rgb(253, 234, 241);
+    background-color: #fff;
+    padding: 10px;
+    gap: 1rem;
+    border-radius: 20px;
+
+}
+
+.swap-mode{
+    text-align: center;
+    background-color:rgb(253, 234, 241);
+    border: 1px solid palevioletred; 
+    border-radius: 10px;
+    padding: 0.3rem;
+    cursor:grab;
+}
+
+.liq-mode{
+    text-align: center;
+    background-color:rgb(247, 248, 250);
+    border-radius: 20px;
+    padding: 0.3rem;
+    cursor:grab;
 }
 
 #swap-card {
@@ -60,14 +95,23 @@
     border-radius: 20px;
     background-color: rgb(253, 234, 241);
     color: rgb(213, 0, 102);
+    border: 1px solid transparent;
+    cursor: grab;
+}
+
+#swap:hover{
+    border: palevioletred 1px solid;
 }
 
 #main{
     max-width: 480px;
+    justify-self: center;
     width: 100%;
     border-radius: 24px;
     background: rgb(255, 255, 255);
     box-shadow: rgb(0 0 0 / 1%) 0px 0px 1px, rgb(0 0 0 / 4%) 0px 4px 8px, rgb(0 0 0 / 4%) 0px 16px 24px, rgb(0 0 0 / 1%) 0px 24px 32px;
+    grid-row: 3/4;
+    grid-column: 5/7;
 }
 
 #main-bg{
@@ -77,9 +121,10 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    height: 50vh;
+    height: 100%;
     grid-row: 2/-1;
     grid-column: 1/-1;
+    z-index: -1;
 }
 
 .head{
@@ -111,7 +156,7 @@
     position: absolute;
     z-index:10;
     right: 0;
-    top:0;
+    top:5px;
     bottom: 0;
     margin-right: 15px;
     cursor:grab;
@@ -183,7 +228,7 @@ input{
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 100;
+    z-index: 20;
   }
 
   .modal-content{
@@ -200,6 +245,21 @@ input{
       rgb(0 0 0 / 4%) 0px 4px 8px,
       rgb(0 0 0 / 4%) 0px 16px 24px,
       rgb(0 0 0 / 1%) 0px 24px 32px;
+      z-index: 20;
+  }
+
+  .modal-content>h4{
+    margin-bottom: .5rem;
+  }
+
+  .settingField{
+    display: flex;
+    flex-direction: column;
+    gap:5px;
+    margin-bottom: 1rem;
+  }
+
+  .settingField>input{
   }
 
   h1, h2, h3, h4, h5, h6, p, pre {
