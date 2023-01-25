@@ -44,20 +44,30 @@
 #choose-mode>.wrapper{
     display: flex;
     background-color:rgb(253, 234, 241);
+    border-radius: 20px;
     background-color: #fff;
     padding: 10px;
     gap: 1rem;
-    border-radius: 20px;
 
+}
+
+.swap-mode.active{
+    background-color:rgb(253, 234, 241);
+    border: 1px solid palevioletred; 
+}
+
+.liq-mode.active{
+    background-color:rgb(253, 234, 241);
+    border: 1px solid palevioletred; 
 }
 
 .swap-mode{
     text-align: center;
-    background-color:rgb(253, 234, 241);
-    border: 1px solid palevioletred; 
+    background-color:rgb(247, 248, 250);
     border-radius: 10px;
     padding: 0.3rem;
     cursor:grab;
+    border:1px solid transparent;
 }
 
 .liq-mode{
@@ -66,6 +76,7 @@
     border-radius: 20px;
     padding: 0.3rem;
     cursor:grab;
+    border:1px solid transparent;
 }
 
 #swap-card {
@@ -220,6 +231,7 @@ input{
   }
 
   .modal-backdrop {
+    background-color: rgba(73, 73, 73, 0.39);
     position: fixed;
     top: 0;
     bottom: 0;
@@ -228,7 +240,7 @@ input{
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 20;
+    z-index: 100;
   }
 
   .modal-content{
@@ -252,6 +264,22 @@ input{
     margin-bottom: .5rem;
   }
 
+.alert-slippage{
+    width: 231px;
+    color: palevioletred;
+}
+
+.alert-deadline{
+    width: 231px;
+    color: palevioletred;
+}
+
+  #close-modal-button{
+    background-color:rgb(253, 234, 241);
+    border-radius: 20px;
+    border:1px solid palevioletred;
+  }
+
   .settingField{
     display: flex;
     flex-direction: column;
@@ -260,6 +288,7 @@ input{
   }
 
   .settingField>input{
+    
   }
 
   h1, h2, h3, h4, h5, h6, p, pre {

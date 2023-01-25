@@ -47,7 +47,7 @@ const App = () => {
   const [value2, setValue2] = useState();
   const [slippage, setSlippage] = useState();
   const [deadline, setDeadline] = useState();
-
+  const [mode, setMode] = useState("swap");
 
   const closeSettings = () => {
     setShowSettings(false);
@@ -184,8 +184,8 @@ const App = () => {
           </Navbar>
           <div id="choose-mode">
             <div className="wrapper">
-              <div className="swap-mode">Swap</div>
-              <div className="liq-mode">Liquidity</div>
+              <div className={`swap-mode ${mode==="swap"?"active":null}`} onClick={()=>setMode("swap")}>Swap</div>
+              <div className={`liq-mode ${mode==="liq"?"active":null}`} onClick={()=>setMode("liq")}>Liquidity</div>
             </div>
           </div>
           <div id="main-bg"></div>
