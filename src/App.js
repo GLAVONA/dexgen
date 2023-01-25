@@ -5,6 +5,8 @@ import options from "./data";
 import Navbar from "./components/Navbar";
 import "./App.css";
 
+import ABI from "./SwapABI.json";
+
 import { CustomConnect } from "./components/CustomConnect";
 import "@rainbow-me/rainbowkit/styles.css";
 import { getDefaultWallets, RainbowKitProvider } from "@rainbow-me/rainbowkit";
@@ -48,6 +50,14 @@ const App = () => {
   const [slippage, setSlippage] = useState();
   const [deadline, setDeadline] = useState();
   const [mode, setMode] = useState("swap");
+
+
+  const Swap = () => {
+    const routerAddress = "0xd7f655E3376cE2D7A2b08fF01Eb3B1023191A901";
+    const contract = new ethers.Contract(routerAddress, ABI, provider);
+    const signer = provider.getSigner();
+    const contractWithWallet = contract.connect(signer);
+  };
 
   const closeSettings = () => {
     setShowSettings(false);
@@ -184,15 +194,32 @@ const App = () => {
           </Navbar>
           <div id="choose-mode">
             <div className="wrapper">
-              <div className={`swap-mode ${mode==="swap"?"active":null}`} onClick={()=>setMode("swap")}>Swap</div>
-              <div className={`liq-mode ${mode==="liq"?"active":null}`} onClick={()=>setMode("liq")}>Liquidity</div>
+              <div
+                className={`swap-mode ${mode === "swap" ? "active" : null}`}
+                onClick={() => setMode("swap")}
+              >
+                Swap
+              </div>
+              <div
+                className={`liq-mode ${mode === "liq" ? "active" : null}`}
+                onClick={() => setMode("liq")}
+              >
+                Liquidity
+              </div>
             </div>
           </div>
           <div id="main-bg"></div>
           <div id="main">
             <div id="swap-card">
               <div className="head">
-                <SettingsModal close={closeSettings} shown={showSettings} slippage={slippage} setSlippage={setSlippage} deadline={deadline} setDeadline={setDeadline}>
+                <SettingsModal
+                  close={closeSettings}
+                  shown={showSettings}
+                  slippage={slippage}
+                  setSlippage={setSlippage}
+                  deadline={deadline}
+                  setDeadline={setDeadline}
+                >
                   {" "}
                 </SettingsModal>
                 <div className="head-title">Trade</div>
