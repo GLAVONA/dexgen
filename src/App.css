@@ -130,9 +130,20 @@
 .amount-input{
     flex: 1;
     text-align: right;
+    font-family: inherit;
+    font-size: inherit;
+    color: inherit;
+    border: 0;
+    background-color: #0000;
+}
+input{
+    font-family: inherit;
+    font-size: inherit;
+    color: inherit;
+    border: 0;
 }
 
-input, button {
+ button {
     font-family: inherit;
     font-size: inherit;
     color: inherit;
@@ -177,7 +188,7 @@ input, button {
 
   .modal-content{
     position: absolute;
-
+    top: 15rem;
     z-index: 999;
     grid-gap: 16px;
     padding: 16px;

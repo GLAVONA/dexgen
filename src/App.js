@@ -13,7 +13,7 @@ import { avalanche, avalancheFuji } from "wagmi/chains";
 import { publicProvider } from "wagmi/providers/public";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import SettingsModal from "./components/SettingsModal";
-import CurrencyInput from 'react-currency-input-field';
+import CurrencyInput from "react-currency-input-field";
 
 const { chains, provider } = configureChains(
   [avalanche, avalancheFuji],
@@ -150,9 +150,19 @@ const App = () => {
     }),
   };
 
-  const handleInputChange1 = (event)=>{
+  const handleMax1 = (e) => {
+    if(e.target.textContent!==0)
+    {
+      setValue1(e.target.textContent)
+    }
+  };
 
-  }
+  const handleMax2 = (e) => {
+    if(e.target.textContent!==0)
+    {
+      setValue2(e.target.textContent)
+    }
+  };
 
   return (
     <WagmiConfig client={wagmiClient}>
@@ -224,11 +234,23 @@ const App = () => {
                         setOptionsState={setOptionsState}
                         styles={style}
                       >
-                        <div className="balance">
+                        <div
+                          className="balance"
+                          onClick={(e) => {
+                            handleMax1(e)
+                          }}
+                        >
                           {select1 ? tokenBalance1 : 0}
                         </div>
                       </Select>
-                      <CurrencyInput decimalsLimit={18} allowNegativeValue={false} onChange={(e)=>{setValue1(e.target.value)}} className="amount-input" placeholder="0.0"/>
+                      <CurrencyInput
+                        decimalsLimit={18}
+                        allowNegativeValue={false}
+                        onValueChange={(e) => setValue1(e)}
+                        className="amount-input"
+                        placeholder="0.0"
+                        value={value1}
+                      />
                     </div>
                     {
                       <div id="switch-arrow" onClick={switchTokens}>
@@ -264,11 +286,23 @@ const App = () => {
                         styles={style}
                       >
                         {" "}
-                        <div className="balance">
+                        <div
+                          className="balance"
+                          onClick={(e) => {
+                            handleMax2(e);
+                          }}
+                        >
                           {select2 ? tokenBalance2 : 0}
                         </div>{" "}
                       </Select>
-                      <CurrencyInput decimalsLimit={18} allowNegativeValue={false} onChange={(e)=>setValue2(e.target.value)} className="amount-input" placeholder="0.0"/>
+                      <CurrencyInput
+                        decimalsLimit={18}
+                        allowNegativeValue={false}
+                        onValueChange={(e) => setValue2(e)}
+                        className="amount-input"
+                        placeholder="0.0"
+                        value={value2}
+                      />
                     </div>
                   </div>
                   <CustomConnect setConnected={setConnected}></CustomConnect>
