@@ -1,6 +1,6 @@
 @font-face {
   font-family: LibreBaskerville;
-  src: url(../fonts/LibreBaskerville-Bold.ttf);
+  src: url(./fonts/LibreBaskerville-Bold.ttf);
 }
 
 .App {
@@ -25,278 +25,284 @@
 #logo {
   font-family: LibreBaskerville;
   font-size: 3rem;
-  cursor: grab;  
+  cursor: grab;
 }
 
-
-
-#choose-mode{
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    grid-row: 2/3;
-    grid-column: 5/7;
-    margin-top: 2rem;
-    margin-bottom: 2rem;
-    z-index: 10;
+#choose-mode {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  grid-row: 2/3;
+  grid-column: 5/7;
+  margin-top: 2rem;
+  margin-bottom: 2rem;
+  z-index: 10;
 }
 
-#choose-mode>.wrapper{
-    display: flex;
-    background-color:rgb(253, 234, 241);
-    border-radius: 20px;
-    background-color: #fff;
-    padding: 10px;
-    gap: 1rem;
-
+#choose-mode > .wrapper {
+  display: flex;
+  background-color: rgb(253, 234, 241);
+  border-radius: 20px;
+  background-color: #fff;
+  padding: 10px;
+  gap: 1rem;
 }
 
-.swap-mode.active{
-    background-color:rgb(253, 234, 241);
-    border: 1px solid palevioletred; 
+.swap-mode.active {
+  background-color: rgb(253, 234, 241);
+  border: 1px solid palevioletred;
 }
 
-.liq-mode.active{
-    background-color:rgb(253, 234, 241);
-    border: 1px solid palevioletred; 
+.liq-mode.active {
+  background-color: rgb(253, 234, 241);
+  border: 1px solid palevioletred;
 }
 
-.swap-mode{
-    text-align: center;
-    background-color:rgb(247, 248, 250);
-    border-radius: 10px;
-    padding: 0.3rem;
-    cursor:grab;
-    border:1px solid transparent;
+.swap-mode {
+  text-align: center;
+  background-color: rgb(247, 248, 250);
+  border-radius: 10px;
+  padding: 0.3rem;
+  cursor: grab;
+  border: 1px solid transparent;
 }
 
-.liq-mode{
-    text-align: center;
-    background-color:rgb(247, 248, 250);
-    border-radius: 20px;
-    padding: 0.3rem;
-    cursor:grab;
-    border:1px solid transparent;
+.liq-mode {
+  text-align: center;
+  background-color: rgb(247, 248, 250);
+  border-radius: 20px;
+  padding: 0.3rem;
+  cursor: grab;
+  border: 1px solid transparent;
 }
 
 #swap-card {
-    display: flex;
-    flex-direction: column;
+  display: flex;
+  flex-direction: column;
 }
 
-#switch-arrow{
-    position: relative;
-    left: 50%;
-    left: calc(50% - 16px);
-    height: 32px;
-    width: 32px;
-    margin-top: -14px;
-    margin-bottom: -14px;
-    padding: 4px;
-    border-radius: 12px;
-    border: 4px solid rgb(255, 255, 255);
-    background-color: rgb(247, 248, 250);
-    z-index: 10;
-    cursor: grab;
+#switch-arrow {
+  position: relative;
+  left: 50%;
+  left: calc(50% - 16px);
+  height: 32px;
+  width: 32px;
+  margin-top: -14px;
+  margin-bottom: -14px;
+  padding: 4px;
+  border-radius: 12px;
+  border: 4px solid rgb(255, 255, 255);
+  background-color: rgb(247, 248, 250);
+  z-index: 10;
+  cursor: grab;
 }
 
-#swap{
-    width: 100%;
-    padding: 16px;
-    border-radius: 20px;
-    background-color: rgb(253, 234, 241);
-    color: rgb(213, 0, 102);
-    border: 1px solid transparent;
-    cursor: grab;
+#swap {
+  width: 100%;
+  padding: 16px;
+  border-radius: 20px;
+  background-color: rgb(253, 234, 241);
+  color: rgb(213, 0, 102);
+  border: 1px solid transparent;
+  cursor: grab;
 }
 
-#swap:hover{
-    border: palevioletred 1px solid;
+#swap:hover {
+  border: palevioletred 1px solid;
 }
 
-#main{
-    max-width: 480px;
-    justify-self: center;
-    width: 100%;
-    border-radius: 24px;
-    background: rgb(255, 255, 255);
-    box-shadow: rgb(0 0 0 / 1%) 0px 0px 1px, rgb(0 0 0 / 4%) 0px 4px 8px, rgb(0 0 0 / 4%) 0px 16px 24px, rgb(0 0 0 / 1%) 0px 24px 32px;
-    grid-row: 3/4;
-    grid-column: 5/7;
+#main {
+  max-width: 480px;
+  justify-self: center;
+  width: 100%;
+  border-radius: 24px;
+  background: rgb(255, 255, 255);
+  box-shadow: rgb(0 0 0 / 1%) 0px 0px 1px, rgb(0 0 0 / 4%) 0px 4px 8px,
+    rgb(0 0 0 / 4%) 0px 16px 24px, rgb(0 0 0 / 1%) 0px 24px 32px;
+  grid-row: 3/4;
+  grid-column: 5/7;
 }
 
-#main-bg{
-    background-color: #f7f8fa;
-    background-image: radial-gradient( 50% 50% at 50% 50%, #fc077d10 0, rgba(255,255,255,0) 100% );
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    height: 100%;
-    grid-row: 2/-1;
-    grid-column: 1/-1;
-    z-index: -1;
+#main-bg {
+  background-color: #f7f8fa;
+  background-image: radial-gradient(
+    50% 50% at 50% 50%,
+    #fc077d10 0,
+    rgba(255, 255, 255, 0) 100%
+  );
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  grid-row: 2/-1;
+  grid-column: 1/-1;
+  z-index: -1;
 }
 
-.head{
-    position: relative;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 1rem 1.25rem 0.5rem;
+.head {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.25rem 0.5rem;
 }
 
-.body{
-        display: grid;
-        grid-gap: 6px;
-        padding: 8px;
+.body {
+  display: grid;
+  grid-gap: 6px;
+  padding: 8px;
 }
 
-.css-b62m3t-container{
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    height: 2.4rem;
-    padding: 0px 8px;
-    border-radius: 16px;
-    background-color: rgb(255, 255, 255);
-    box-shadow: rgb(0 0 0 / 8%) 0px 6px 10px;
+.css-b62m3t-container {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 2.4rem;
+  padding: 0px 8px;
+  border-radius: 16px;
+  background-color: rgb(255, 255, 255);
+  box-shadow: rgb(0 0 0 / 8%) 0px 6px 10px;
 }
 
-.balance{
-    position: absolute;
-    z-index:10;
-    right: 0;
-    top:5px;
-    bottom: 0;
-    margin-right: 15px;
-    cursor:grab;
-    height: 16px;
+.balance {
+  position: absolute;
+  z-index: 10;
+  right: 0;
+  top: 5px;
+  bottom: 0;
+  margin-right: 15px;
+  cursor: grab;
+  height: 16px;
 }
 
-.select-field{
-    position:relative;
-    display: flex;
-    padding: 1.5rem 1rem 1.5rem;
-    border-radius: 20px;
-    border: 1px solid rgb(237, 238, 242);
-    background-color: rgb(247, 248, 250);
+.select-field {
+  position: relative;
+  display: flex;
+  padding: 1.5rem 1rem 1.5rem;
+  border-radius: 20px;
+  border: 1px solid rgb(237, 238, 242);
+  background-color: rgb(247, 248, 250);
 }
 
-.amount-input{
-    flex: 1;
-    text-align: right;
-    font-family: inherit;
-    font-size: inherit;
-    color: inherit;
-    border: 0;
-    background-color: #0000;
+.amount-input {
+  flex: 1;
+  text-align: right;
+  font-family: inherit;
+  font-size: inherit;
+  color: inherit;
+  border: 0;
+  background-color: #0000;
 }
-input{
-    font-family: inherit;
-    font-size: inherit;
-    color: inherit;
-    border: 0;
-}
-
- button {
-    font-family: inherit;
-    font-size: inherit;
-    color: inherit;
-    border: 0;
-    background-color: #0000;
-  }
-  body {
-    margin: 0;
-  }
-    
-  *, *::before, *::after {
-    box-sizing: border-box;
-  }
-  *:focus {
-    outline: none;
-  }
-
-  #react-select-3-input{
-    cursor:grab;
-  }
-
-
-  #react-select-5-input{
-    cursor:grab;
-  }
-
-  .head-button{
-    cursor: grab;
-  }
-
-  .modal-backdrop {
-    background-color: rgba(73, 73, 73, 0.39);
-    position: fixed;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 100;
-  }
-
-  .modal-content{
-    position: absolute;
-    top: 15rem;
-    z-index: 999;
-    grid-gap: 16px;
-    padding: 16px;
-    border-radius: 12px;
-    background-color: rgb(237, 238, 242);
-    border: 1px solid rgb(206, 208, 217);
-    box-shadow:
-      rgb(0 0 0 / 1%) 0px 0px 1px,
-      rgb(0 0 0 / 4%) 0px 4px 8px,
-      rgb(0 0 0 / 4%) 0px 16px 24px,
-      rgb(0 0 0 / 1%) 0px 24px 32px;
-      z-index: 20;
-  }
-
-  .modal-content>h4{
-    margin-bottom: .5rem;
-  }
-
-.alert-slippage{
-    width: 231px;
-    color: palevioletred;
+input {
+  font-family: inherit;
+  font-size: inherit;
+  color: inherit;
+  border: 0;
 }
 
-.alert-deadline{
-    width: 231px;
-    color: palevioletred;
+button {
+  font-family: inherit;
+  font-size: inherit;
+  color: inherit;
+  border: 0;
+  background-color: #0000;
+}
+body {
+  margin: 0;
 }
 
-  #close-modal-button{
-    background-color:rgb(253, 234, 241);
-    border-radius: 20px;
-    border:1px solid palevioletred;
-  }
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+*:focus {
+  outline: none;
+}
 
-  .settingField{
-    display: flex;
-    flex-direction: column;
-    gap:5px;
-    margin-bottom: 1rem;
-  }
+#react-select-3-input {
+  cursor: grab;
+}
 
-  .settingField>input{
-    
-  }
+#react-select-5-input {
+  cursor: grab;
+}
 
-  h1, h2, h3, h4, h5, h6, p, pre {
-    margin: 0;
-    font-family: sans-serif;
-  }
+.head-button {
+  cursor: grab;
+}
 
-  input::-webkit-outer-spin-button,
+.modal-backdrop {
+  background-color: rgba(73, 73, 73, 0.39);
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 100;
+}
+
+.modal-content {
+  position: absolute;
+  top: 15rem;
+  z-index: 999;
+  grid-gap: 16px;
+  padding: 16px;
+  border-radius: 12px;
+  background-color: rgb(237, 238, 242);
+  border: 1px solid rgb(206, 208, 217);
+  box-shadow: rgb(0 0 0 / 1%) 0px 0px 1px, rgb(0 0 0 / 4%) 0px 4px 8px,
+    rgb(0 0 0 / 4%) 0px 16px 24px, rgb(0 0 0 / 1%) 0px 24px 32px;
+  z-index: 20;
+}
+
+.modal-content > h4 {
+  margin-bottom: 0.5rem;
+}
+
+.alert-slippage {
+  width: 231px;
+  color: palevioletred;
+}
+
+.alert-deadline {
+  width: 231px;
+  color: palevioletred;
+}
+
+#close-modal-button {
+  background-color: rgb(253, 234, 241);
+  border-radius: 20px;
+  border: 1px solid palevioletred;
+}
+
+.settingField {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-bottom: 1rem;
+}
+
+.settingField > input {
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+pre {
+  margin: 0;
+  font-family: sans-serif;
+}
+
+input::-webkit-outer-spin-button,
 input::-webkit-inner-spin-button {
   -webkit-appearance: none;
   margin: 0;

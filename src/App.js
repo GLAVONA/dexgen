@@ -50,7 +50,7 @@ const App = () => {
   const [slippage, setSlippage] = useState();
   const [deadline, setDeadline] = useState();
   const [mode, setMode] = useState("swap");
-
+  const [fromTokenOne, setFromTokenOne] = useState();
 
   const Swap = () => {
     const routerAddress = "0xd7f655E3376cE2D7A2b08fF01Eb3B1023191A901";
@@ -271,6 +271,7 @@ const App = () => {
                         className="balance"
                         onClick={(e) => {
                           handleMax1(e);
+                          setFromTokenOne(true);
                         }}
                       >
                         {select1 ? tokenBalance1 : 0}
@@ -279,7 +280,10 @@ const App = () => {
                     <CurrencyInput
                       decimalsLimit={18}
                       allowNegativeValue={false}
-                      onValueChange={(e) => setValue1(e)}
+                      onValueChange={(e) => {
+                        setValue1(e);
+                        setFromTokenOne(true);
+                      }}
                       className="amount-input"
                       placeholder="0.0"
                       value={value1}
@@ -323,6 +327,7 @@ const App = () => {
                         className="balance"
                         onClick={(e) => {
                           handleMax2(e);
+                          setFromTokenOne(false)
                         }}
                       >
                         {select2 ? tokenBalance2 : 0}
@@ -331,7 +336,10 @@ const App = () => {
                     <CurrencyInput
                       decimalsLimit={18}
                       allowNegativeValue={false}
-                      onValueChange={(e) => setValue2(e)}
+                      onValueChange={(e) => {
+                        setValue2(e);
+                        setFromTokenOne(false);
+                      }}
                       className="amount-input"
                       placeholder="0.0"
                       value={value2}
@@ -339,7 +347,7 @@ const App = () => {
                   </div>
                 </div>
                 <CustomConnect setConnected={setConnected}></CustomConnect>
-                {connected ? <button id="swap">Swap</button> : null}
+                {connected ? <button id="swap" onClick={()=>console.log(fromTokenOne)}>Swap</button> : null}
               </div>
             </div>
           </div>
