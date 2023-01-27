@@ -60,15 +60,10 @@ const App = () => {
   const contractWithWallet = contract.connect(signer);
 
   const getQuote = async () => {
-    // CHANGE THIS ONCE DONE
-    if (select1.addy === "AVAX") {
-      select1.addy = WAVAX_ADDY;
-    }
-    // CHANGE ABOVE
     if (select1 && select2) {
-      const contract1 = new ethers.Contract(select1.addy, ERC20ABI, provider);
+      const contract1 = new ethers.Contract(select1.addy==="AVAX"?WAVAX_ADDY:select1.addy, ERC20ABI, provider);
       const contract1Decimals = await contract1.decimals();
-      const contract2 = new ethers.Contract(select2.addy, ERC20ABI, provider);
+      const contract2 = new ethers.Contract(select2.addy==="AVAX"?WAVAX_ADDY:select2.addy, ERC20ABI, provider);
       const contract2Decimals = await contract2.decimals();
       let addyFrom = select1.addy;
       let addyTo = select2.addy;
@@ -250,6 +245,7 @@ const App = () => {
     }
   };
 
+
   return (
     <WagmiConfig client={wagmiClient}>
       <RainbowKitProvider chains={chains}>
@@ -352,13 +348,13 @@ const App = () => {
                     <CurrencyInput
                       decimalsLimit={18}
                       allowNegativeValue={false}
-                      onValueChange={async (e) => {
+                      onValueChange={ (e) => {
                         setValue1(e);
                       }}
+                      onKeyDown={()=>setFromTokenOne(true)}
                       className="amount-input"
                       placeholder="0.0"
                       value={value1}
-                      onFocus={() => setFromTokenOne(true)}
                     />
                   </div>
                   {
@@ -412,17 +408,17 @@ const App = () => {
                       onValueChange={async (e) => {
                         setValue2(e);
                       }}
+                      onKeyDown={()=>setFromTokenOne(false)}
                       className="amount-input"
                       placeholder="0.0"
                       value={value2}
-                      onFocus={() => setFromTokenOne(false)}
                       disabled={select2 ? false : true}
                     />
                   </div>
                 </div>
                 <CustomConnect setConnected={setConnected}></CustomConnect>
                 {connected ? (
-                  <button id="swap" onClick={() => console.log(select1,select2)}>
+                  <button id="swap" onClick={() => console.log(fromTokenOne)}>
                     Swap
                   </button>
                 ) : null}

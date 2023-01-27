@@ -31,7 +31,7 @@ const SettingsModal = ({shown,close,children,slippage,deadline,setSlippage,setDe
    return shown ? (
     <div
       className="modal-backdrop"
-      onClick={() => {
+      onMouseDown={() => {
         close();
         setSlippageMessage("")
         setDeadlineMessage("")
@@ -40,7 +40,7 @@ const SettingsModal = ({shown,close,children,slippage,deadline,setSlippage,setDe
     >
       <div
         className="modal-content"
-        onClick={e => {
+        onMouseDown={e => {
           e.stopPropagation();
         }}
       >
