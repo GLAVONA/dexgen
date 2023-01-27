@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { ethers } from "ethers";
+import { BigNumber, ethers, utils } from "ethers";
 import Select from "./components/Select";
 import options from "./data";
 import Navbar from "./components/Navbar";
@@ -10,7 +10,7 @@ import ABI from "./SwapABI.json";
 import { CustomConnect } from "./components/CustomConnect";
 import "@rainbow-me/rainbowkit/styles.css";
 import { getDefaultWallets, RainbowKitProvider } from "@rainbow-me/rainbowkit";
-import { configureChains, createClient, WagmiConfig } from "wagmi";
+import { configureChains, createClient, erc20ABI, WagmiConfig } from "wagmi";
 import { avalanche, avalancheFuji } from "wagmi/chains";
 import { publicProvider } from "wagmi/providers/public";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
@@ -52,11 +52,73 @@ const App = () => {
   const [mode, setMode] = useState("swap");
   const [fromTokenOne, setFromTokenOne] = useState();
 
-  const Swap = () => {
-    const routerAddress = "0xd7f655E3376cE2D7A2b08fF01Eb3B1023191A901";
-    const contract = new ethers.Contract(routerAddress, ABI, provider);
-    const signer = provider.getSigner();
-    const contractWithWallet = contract.connect(signer);
+  const routerAddress = "0xd7f655E3376cE2D7A2b08fF01Eb3B1023191A901";
+  const WAVAX_ADDY = "0xd00ae08403B9bbb9124bB305C09058E32C39A48c";
+  const contract = new ethers.Contract(routerAddress, ABI, provider);
+  const signer = provider.getSigner();
+  const contractWithWallet = contract.connect(signer);
+
+  const getQuote = async () => {
+    // CHANGE THIS ONCE DONE
+    if (select1.addy === "AVAX") {
+      select1.addy = WAVAX_ADDY;
+    }
+    // CHANGE ABOVE
+    if (select1 && select2) {
+      const contract1 = new ethers.Contract(select1.addy, ERC20ABI, provider);
+      const contract1Decimals = await contract1.decimals();
+      const contract2 = new ethers.Contract(select2.addy, ERC20ABI, provider);
+      const contract2Decimals = await contract2.decimals();
+      let addyFrom = select1.addy;
+      let addyTo = select2.addy;
+
+      if (select1.addy === "AVAX") {
+        addyFrom = WAVAX_ADDY;
+      }
+      if (select2.addy === "AVAX") {
+        addyTo = WAVAX_ADDY;
+      }
+
+      if (fromTokenOne && value1 !== undefined) {
+        try {
+          let addys = [addyFrom, addyTo];
+          const value1wei = (value1*10**contract1Decimals).toString();
+          let arrayOut = await contractWithWallet.getAmountsOut(
+            value1wei,
+            addys
+          );
+          const tokenOut = (
+            arrayOut[arrayOut.length - 1] /
+            10 ** contract2Decimals
+          ).toString();
+          if (tokenOut) {
+            setValue2(tokenOut.toString());
+          }
+        } catch (error) {
+          throw new Error(error);
+        }
+      } else if (value1 === undefined) {
+        setValue2("");
+      }
+
+      if (!fromTokenOne && value2 !== undefined) {
+        try {
+          let addys = [addyTo, addyFrom];
+          let arrayOut = await contractWithWallet.getAmountsIn(
+            (value2 * 10 ** contract2Decimals).toString(),
+            addys
+          );
+          const tokenOut = (arrayOut[0] / 10 ** contract1Decimals).toString();
+          if (tokenOut) {
+            setValue1(tokenOut.toString());
+          }
+        } catch (error) {
+          throw new Error(error);
+        }
+      } else if (value2 === undefined) {
+        setValue1("");
+      }
+    }
   };
 
   const closeSettings = () => {
@@ -68,6 +130,10 @@ const App = () => {
     listAccounts();
     getCoinBalance();
   }, []);
+
+  useEffect(() => {
+    getQuote();
+  }, [value1, value2, select1, select2]);
 
   const getCoinBalance = async () => {
     const coinBalance = await provider.getBalance(currentAccount);
@@ -90,14 +156,14 @@ const App = () => {
     const tempValue = value1;
     setSelect1(select2);
     setSelect2(tempSelect);
-    setValue1(value2);
+    setValue1(value2 || undefined);
     setValue2(tempValue);
   };
 
   useEffect(() => {
     if (!currentAccount || !select1) return;
     const fetchData = async () => {
-      if (select1.value === "AVAX") {
+      if (select1.addy === "AVAX") {
         const coinBalance = await getCoinBalance();
         setTokenBalance1(coinBalance);
         return;
@@ -111,7 +177,7 @@ const App = () => {
   useEffect(() => {
     if (!currentAccount || !select2) return;
     const fetchData = async () => {
-      if (select2.value === "AVAX") {
+      if (select2.addy === "AVAX") {
         const coinBalance = await getCoinBalance();
         setTokenBalance2(coinBalance);
         return;
@@ -168,13 +234,13 @@ const App = () => {
 
   const handleMax1 = (e) => {
     if (e.target.textContent !== 0) {
-      setValue1(e.target.textContent);
+      setValue1(tokenBalance1);
     }
   };
 
   const handleMax2 = (e) => {
     if (e.target.textContent !== 0) {
-      setValue2(e.target.textContent);
+      setValue2(tokenBalance2);
     }
   };
 
@@ -265,28 +331,29 @@ const App = () => {
                       setSelect={setSelect1}
                       optionsState={optionsState}
                       setOptionsState={setOptionsState}
-                      styles={style}
+                      styles={{...style,container:()=>({border:select2&&!select1?"1px solid red":null})}}
                     >
                       <div
                         className="balance"
                         onClick={(e) => {
                           handleMax1(e);
-                          setFromTokenOne(true);
                         }}
                       >
-                        {select1 ? tokenBalance1 : 0}
+                        <span className="max-balance">Balance:</span>
+                        {select1 && tokenBalance1 > 0 ? tokenBalance1 : 0}
                       </div>
                     </Select>
                     <CurrencyInput
                       decimalsLimit={18}
                       allowNegativeValue={false}
-                      onValueChange={(e) => {
+                      onValueChange={async (e) => {
                         setValue1(e);
-                        setFromTokenOne(true);
+                        await getQuote();
                       }}
                       className="amount-input"
                       placeholder="0.0"
                       value={value1}
+                      onFocus={() => setFromTokenOne(true)}
                     />
                   </div>
                   {
@@ -320,34 +387,42 @@ const App = () => {
                       setSelect={setSelect2}
                       optionsState={optionsState}
                       setOptionsState={setOptionsState}
-                      styles={style}
+                      styles={{...style,container:()=>({border:select1&&!select2?"1px solid red":null})}}
                     >
                       {" "}
                       <div
                         className="balance"
                         onClick={(e) => {
                           handleMax2(e);
-                          setFromTokenOne(false)
+                          setFromTokenOne(false);
                         }}
                       >
-                        {select2 ? tokenBalance2 : 0}
+                        <span className="max-balance">Balance:</span>
+                        {select2 && tokenBalance2 > 0 ? tokenBalance2 : 0}
                       </div>{" "}
                     </Select>
                     <CurrencyInput
                       decimalsLimit={18}
                       allowNegativeValue={false}
-                      onValueChange={(e) => {
+                      onValueChange={async (e) => {
                         setValue2(e);
                         setFromTokenOne(false);
+                        await getQuote();
                       }}
                       className="amount-input"
                       placeholder="0.0"
                       value={value2}
+                      onFocus={() => setFromTokenOne(false)}
+                      disabled={select2 ? false : true}
                     />
                   </div>
                 </div>
                 <CustomConnect setConnected={setConnected}></CustomConnect>
-                {connected ? <button id="swap" onClick={()=>console.log(fromTokenOne)}>Swap</button> : null}
+                {connected ? (
+                  <button id="swap" onClick={() => console.log(fromTokenOne)}>
+                    Swap
+                  </button>
+                ) : null}
               </div>
             </div>
           </div>
