@@ -48,8 +48,9 @@ const App = () => {
   const [showSettings, setShowSettings] = useState(false);
   const [value1, setValue1] = useState();
   const [value2, setValue2] = useState();
-  const [slippage, setSlippage] = useState();
-  const [deadline, setDeadline] = useState();
+  const [minVal, setMinval] = useState();
+  const [slippage, setSlippage] = useState(0.5);
+  const [deadline, setDeadline] = useState(1);
   const [mode, setMode] = useState("swap");
   const [fromTokenOne, setFromTokenOne] = useState();
 
@@ -61,13 +62,32 @@ const App = () => {
 
   const getQuote = async () => {
     if (select1 && select2) {
-      const contract1 = new ethers.Contract(select1.addy==="AVAX"?WAVAX_ADDY:select1.addy, ERC20ABI, provider);
+      const contract1 = new ethers.Contract(
+        select1.addy === "AVAX" ? WAVAX_ADDY : select1.addy,
+        ERC20ABI,
+        provider
+      );
       const contract1Decimals = await contract1.decimals();
-      const contract2 = new ethers.Contract(select2.addy==="AVAX"?WAVAX_ADDY:select2.addy, ERC20ABI, provider);
+      const contract2 = new ethers.Contract(
+        select2.addy === "AVAX" ? WAVAX_ADDY : select2.addy,
+        ERC20ABI,
+        provider
+      );
       const contract2Decimals = await contract2.decimals();
+
+      if (fromTokenOne) {
+        const val2 = (value2 - (value2 * slippage) / 100);
+        setMinval(val2);
+      }
+
+      if (!fromTokenOne) {
+        const val1 = value1 - (value1 * slippage) / 100;
+        setMinval(val1)
+      }
+
+
       let addyFrom = select1.addy;
       let addyTo = select2.addy;
-
       if (select1.addy === "AVAX") {
         addyFrom = WAVAX_ADDY;
       }
@@ -78,12 +98,12 @@ const App = () => {
       if (fromTokenOne && value1 !== undefined) {
         try {
           let addys = [addyFrom, addyTo];
-          const value1wei = parseUnits(value1,contract1Decimals);
+          const value1wei = parseUnits(value1, contract1Decimals);
           let arrayOut = await contractWithWallet.getAmountsOut(
             value1wei,
             addys
           );
-          const tokenOut = (formatUnits(arrayOut[arrayOut.length-1]))
+          const tokenOut = formatUnits(arrayOut[arrayOut.length - 1]);
           if (tokenOut) {
             setValue2(tokenOut.toString());
           }
@@ -97,12 +117,12 @@ const App = () => {
       if (!fromTokenOne && value2 !== undefined) {
         try {
           let addys = [addyFrom, addyTo];
-          const value2wei = parseUnits(value2,contract2Decimals);
+          const value2wei = parseUnits(value2, contract2Decimals);
           let arrayOut = await contractWithWallet.getAmountsIn(
             value2wei,
             addys
           );
-          const tokenOut = formatUnits(arrayOut[0],contract1Decimals);
+          const tokenOut = formatUnits(arrayOut[0], contract1Decimals);
           if (tokenOut) {
             setValue1(tokenOut.toString());
           }
@@ -115,6 +135,51 @@ const App = () => {
     }
   };
 
+  const Swap = () => {
+    if (select1 && select2) {
+      let addyFrom = select1.addy;
+      let addyTo = select2.addy;
+
+      if (select1.addy === "AVAX") {
+        addyFrom = WAVAX_ADDY;
+      }
+      if (select2.addy === "AVAX") {
+        addyTo = WAVAX_ADDY;
+      }
+
+
+      if (select1.addy === "AVAX") {
+        if (fromTokenOne) {
+          //swapExactAvaxForTokensSupportingFeeOnTransferTokens
+          contractWithWallet.swapExactAvaxForTokensSupportingFeeOnTransferTokens(
+            addyFrom,
+            minVal,
+            
+          );
+        }
+        if (!fromTokenOne) {
+          //swapAvaxForExactTokens
+        }
+      }
+      if (select2.addy === "AVAX") {
+        if (fromTokenOne) {
+          //swapExactTokensForAvaxSupportingFeeOnTransferTokens
+        }
+        if (!fromTokenOne) {
+          //swapTokensForExactAvax
+        }
+      }
+
+      if (select1.addy !== "AVAX" && select2.addy !== "AVAX") {
+        if (fromTokenOne) {
+          //swapExactTokensForTokensSupportingFeeOnTransferTokens
+        }
+        if (!fromTokenOne) {
+          //swapTokensForExactTokens
+        }
+      }
+    }
+  };
   const closeSettings = () => {
     setShowSettings(false);
   };
@@ -151,7 +216,7 @@ const App = () => {
     setSelect2(tempSelect);
     setValue1(undefined);
     setValue2(undefined);
-    setFromTokenOne(!fromTokenOne)
+    setFromTokenOne(!fromTokenOne);
   };
 
   useEffect(() => {
@@ -164,7 +229,7 @@ const App = () => {
       }
       const result = await getTokenBalance(select1.addy);
       setTokenBalance1(result);
-      setValue1("")
+      setValue1("");
     };
     fetchData();
   }, [currentAccount, select1]);
@@ -179,7 +244,7 @@ const App = () => {
       }
       const result = await getTokenBalance(select2.addy);
       setTokenBalance2(result);
-      setValue2("")
+      setValue2("");
     };
     fetchData();
   }, [currentAccount, select2]);
@@ -226,11 +291,11 @@ const App = () => {
       ...styles,
       cursor: "grab",
     }),
-    menu:(styles)=>({
+    menu: (styles) => ({
       ...styles,
       zIndex: "30",
-      top:"70%"
-    })
+      top: "70%",
+    }),
   };
 
   const handleMax1 = (e) => {
@@ -244,7 +309,6 @@ const App = () => {
       setValue2(tokenBalance2);
     }
   };
-
 
   return (
     <WagmiConfig client={wagmiClient}>
@@ -333,7 +397,12 @@ const App = () => {
                       setSelect={setSelect1}
                       optionsState={optionsState}
                       setOptionsState={setOptionsState}
-                      styles={{...style,container:()=>({border:select2&&!select1?"1px solid red":null})}}
+                      styles={{
+                        ...style,
+                        container: () => ({
+                          border: select2 && !select1 ? "1px solid red" : null,
+                        }),
+                      }}
                     >
                       <div
                         className="balance"
@@ -348,10 +417,10 @@ const App = () => {
                     <CurrencyInput
                       decimalsLimit={18}
                       allowNegativeValue={false}
-                      onValueChange={ (e) => {
+                      onValueChange={(e) => {
                         setValue1(e);
                       }}
-                      onKeyDown={()=>setFromTokenOne(true)}
+                      onKeyDown={() => setFromTokenOne(true)}
                       className="amount-input"
                       placeholder="0.0"
                       value={value1}
@@ -388,7 +457,15 @@ const App = () => {
                       setSelect={setSelect2}
                       optionsState={optionsState}
                       setOptionsState={setOptionsState}
-                      styles={{...style,container:()=>({border:select1&&value1&&!select2?"1px solid red":null})}}
+                      styles={{
+                        ...style,
+                        container: () => ({
+                          border:
+                            select1 && value1 && !select2
+                              ? "1px solid red"
+                              : null,
+                        }),
+                      }}
                     >
                       {" "}
                       <div
@@ -408,7 +485,7 @@ const App = () => {
                       onValueChange={async (e) => {
                         setValue2(e);
                       }}
-                      onKeyDown={()=>setFromTokenOne(false)}
+                      onKeyDown={() => setFromTokenOne(false)}
                       className="amount-input"
                       placeholder="0.0"
                       value={value2}
@@ -416,6 +493,7 @@ const App = () => {
                     />
                   </div>
                 </div>
+                <div id="min-val">Min: {minVal.toFixed(5)}</div>
                 <CustomConnect setConnected={setConnected}></CustomConnect>
                 {connected ? (
                   <button id="swap" onClick={() => console.log(fromTokenOne)}>

@@ -44,8 +44,8 @@
   background-color: rgb(253, 234, 241);
   border-radius: 20px;
   background-color: #fff;
-  padding: 10px;
-  gap: 1rem;
+  border: 1px solid white;
+  gap: .5rem;
 }
 
 .swap-mode.active {
@@ -61,7 +61,7 @@
 .swap-mode {
   text-align: center;
   background-color: rgb(247, 248, 250);
-  border-radius: 10px;
+  border-radius: 20px;
   padding: 0.3rem;
   cursor: grab;
   border: 1px solid transparent;
@@ -321,4 +321,12 @@ input::-webkit-inner-spin-button {
 .max-balance{
   color: gray;
   margin-right: 5px;
+}
+
+#min-val{
+  display: flex;
+  justify-content: end;
+  color: gray;
+  margin-right: 5px;
+  font-size: 13px;
 }
