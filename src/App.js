@@ -76,15 +76,14 @@ const App = () => {
       const contract2Decimals = await contract2.decimals();
 
       if (fromTokenOne) {
-        const val2 = (value2 - (value2 * slippage) / 100);
+        const val2 = value2 - (value2 * slippage) / 100;
         setMinval(val2);
       }
 
       if (!fromTokenOne) {
         const val1 = value1 - (value1 * slippage) / 100;
-        setMinval(val1)
+        setMinval(val1);
       }
-
 
       let addyFrom = select1.addy;
       let addyTo = select2.addy;
@@ -147,14 +146,12 @@ const App = () => {
         addyTo = WAVAX_ADDY;
       }
 
-
       if (select1.addy === "AVAX") {
         if (fromTokenOne) {
           //swapExactAvaxForTokensSupportingFeeOnTransferTokens
           contractWithWallet.swapExactAvaxForTokensSupportingFeeOnTransferTokens(
             addyFrom,
-            minVal,
-            
+            minVal
           );
         }
         if (!fromTokenOne) {
@@ -178,6 +175,8 @@ const App = () => {
           //swapTokensForExactTokens
         }
       }
+    } else {
+      return;
     }
   };
   const closeSettings = () => {
@@ -493,7 +492,7 @@ const App = () => {
                     />
                   </div>
                 </div>
-                <div id="min-val">Min: {minVal.toFixed(5)}</div>
+                <div id="min-val">Min: {minVal? minVal.toFixed(5):0.0}</div>
                 <CustomConnect setConnected={setConnected}></CustomConnect>
                 {connected ? (
                   <button id="swap" onClick={() => console.log(fromTokenOne)}>
