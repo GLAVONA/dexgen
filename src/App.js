@@ -5,7 +5,7 @@ import options from "./data";
 import Navbar from "./components/Navbar";
 import "./App.css";
 
-import ABI from "./SwapABI.json";
+// import routerABI from "./SwapABI.json";
 
 import { CustomConnect } from "./components/CustomConnect";
 import "@rainbow-me/rainbowkit/styles.css";
@@ -17,6 +17,12 @@ import { ConnectButton } from "@rainbow-me/rainbowkit";
 import SettingsModal from "./components/SettingsModal";
 import CurrencyInput from "react-currency-input-field";
 import { formatEther, formatUnits, parseUnits } from "ethers/lib/utils.js";
+
+const newABI = [
+  "function swapExactAVAXForTokensSupportingFeeOnTransferTokens(uint256,address[],address,uint256) payable",
+  "function getAmountsOut(uint256,address[]) view returns (uint256[])",
+  "function getAmountsIn(uint256,address[]) view returns (uint256[])",
+];
 
 const { chains, provider } = configureChains(
   [avalanche, avalancheFuji],
@@ -50,13 +56,13 @@ const App = () => {
   const [value2, setValue2] = useState();
   const [minVal, setMinval] = useState();
   const [slippage, setSlippage] = useState(0.5);
-  const [deadline, setDeadline] = useState(1);
+  const [deadline, setDeadline] = useState(30);
   const [mode, setMode] = useState("swap");
   const [fromTokenOne, setFromTokenOne] = useState();
 
   const routerAddress = "0xd7f655E3376cE2D7A2b08fF01Eb3B1023191A901";
   const WAVAX_ADDY = "0xd00ae08403B9bbb9124bB305C09058E32C39A48c";
-  const contract = new ethers.Contract(routerAddress, ABI, provider);
+  const contract = new ethers.Contract(routerAddress, newABI, provider);
   const signer = provider.getSigner();
   const contractWithWallet = contract.connect(signer);
 
@@ -109,8 +115,6 @@ const App = () => {
         } catch (error) {
           throw new Error(error);
         }
-      } else if (value1 === undefined) {
-        setValue2("");
       }
 
       if (!fromTokenOne && value2 !== undefined) {
@@ -128,17 +132,14 @@ const App = () => {
         } catch (error) {
           throw new Error(error);
         }
-      } else if (value2 === undefined) {
-        setValue1("");
       }
     }
   };
 
-  const Swap = () => {
+  const swap = async () => {
     if (select1 && select2) {
       let addyFrom = select1.addy;
       let addyTo = select2.addy;
-
       if (select1.addy === "AVAX") {
         addyFrom = WAVAX_ADDY;
       }
@@ -146,14 +147,42 @@ const App = () => {
         addyTo = WAVAX_ADDY;
       }
 
+      const contract1 = new ethers.Contract(
+        select1.addy === "AVAX" ? WAVAX_ADDY : select1.addy,
+        ERC20ABI,
+        provider
+      );
+      const contract1Decimals = await contract1.decimals();
+      const contract2 = new ethers.Contract(
+        select2.addy === "AVAX" ? WAVAX_ADDY : select2.addy,
+        ERC20ABI,
+        provider
+      );
+      const contract2Decimals = await contract2.decimals();
+
+      const arr = [addyFrom, addyTo];
+      const signThis = await signer.getAddress();
+
       if (select1.addy === "AVAX") {
         if (fromTokenOne) {
           //swapExactAvaxForTokensSupportingFeeOnTransferTokens
-          contractWithWallet.swapExactAvaxForTokensSupportingFeeOnTransferTokens(
-            addyFrom,
-            minVal
+          const tx = await contractWithWallet.swapExactAVAXForTokensSupportingFeeOnTransferTokens(
+            ethers.utils.parseUnits(minVal.toString(),contract2Decimals),
+            arr,
+            signThis,
+            ethers.utils.parseUnits(deadline.toString()),
+            {
+              value: ethers.utils.parseUnits(value1),
+              gasLimit: 1000000
+            }
           );
+          const txComplete = await provider.waitForTransaction(tx.hash)
+          if(txComplete){
+            const newBalance = await getTokenBalance(select2.addy)
+            setTokenBalance2(newBalance)
+          }
         }
+
         if (!fromTokenOne) {
           //swapAvaxForExactTokens
         }
@@ -492,10 +521,10 @@ const App = () => {
                     />
                   </div>
                 </div>
-                <div id="min-val">Min: {minVal? minVal.toFixed(5):0.0}</div>
+                <div id="min-val">Min: {minVal ? minVal.toFixed(5) : 0.0}</div>
                 <CustomConnect setConnected={setConnected}></CustomConnect>
                 {connected ? (
-                  <button id="swap" onClick={() => console.log(fromTokenOne)}>
+                  <button id="swap" onClick={() => swap()}>
                     Swap
                   </button>
                 ) : null}
