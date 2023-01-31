@@ -1,4 +1,6 @@
+import { ethers } from 'ethers';
 import React, { useState } from 'react'
+
 
 const SettingsModal = ({shown,close,children,slippage,deadline,setSlippage,setDeadline}) => {
 
@@ -19,14 +21,16 @@ const SettingsModal = ({shown,close,children,slippage,deadline,setSlippage,setDe
     }
 
     const handleDeadlineChange=(e)=>{
+      let newDeadline;
         if(e.target.value>30){
-            setDeadline(30);
+          newDeadline=30;
             setDeadlineMessage("Maximum deadline is 30 minutes")
         }
         else{
-            setDeadline(e.target.value);
+            newDeadline = e.target.value
             setDeadlineMessage("")
         }
+        setDeadline(ethers.utils.parseUnits(deadline.toString()))
     }
    return shown ? (
     <div
