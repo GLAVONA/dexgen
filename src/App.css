@@ -107,6 +107,36 @@
   cursor: grab;
 }
 
+#swap-disabled {
+  width: 100%;
+  padding: 16px;
+  border-radius: 20px;
+  background-color: rgb(184, 184, 184);
+  color: rgb(247, 247, 247);
+  border: 1px solid transparent;
+  cursor: grab;
+}
+
+#connect-wallet {
+  width: 100%;
+  padding: 16px;
+  border-radius: 20px;
+  background-color: rgb(253, 234, 241);
+  color: rgb(213, 0, 102);
+  border: 1px solid transparent;
+  cursor: grab;
+}
+
+#wrong-chain {
+  width: 100%;
+  padding: 16px;
+  border-radius: 20px;
+  background-color: rgb(253, 234, 241);
+  color: rgb(213, 0, 102);
+  border: 1px solid transparent;
+  cursor: grab;
+}
+
 #swap:hover {
   border: palevioletred 1px solid;
 }
