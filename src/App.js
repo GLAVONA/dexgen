@@ -105,12 +105,17 @@ const App = () => {
       let addys = [addyFrom, addyTo];
       if (fromTokenOne && value1 !== "") {
         try {
-          const value1wei = parseUnits(value1, contract1Decimals);
+          const value1wei = parseUnits(
+            value1.toString(),
+            contract1Decimals
+          );
           let arrayOut = await contractWithWallet.getAmountsOut(
             value1wei,
             addys
           );
-          const tokenOut = formatUnits(arrayOut[arrayOut.length - 1]);
+          const tokenOut = formatUnits(
+            arrayOut[arrayOut.length - 1]
+          );
           if (tokenOut) {
             setValue2(tokenOut.toString());
           }
@@ -122,12 +127,19 @@ const App = () => {
 
       if (!fromTokenOne && value2 !== "") {
         try {
-          const value2wei = parseUnits(value2, contract2Decimals);
+          const value2wei = parseUnits(
+            value2.toString(),
+            contract2Decimals
+          );
+
           let arrayOut = await contractWithWallet.getAmountsIn(
             value2wei,
             addys
           );
-          const tokenOut = formatUnits(arrayOut[0], contract1Decimals);
+          const tokenOut = formatUnits(
+            arrayOut[0],
+            contract1Decimals
+          );
           if (tokenOut) {
             setValue1(tokenOut.toString());
           }
@@ -215,7 +227,7 @@ const App = () => {
               signerAddy,
               deadline,
               {
-                gasLimit:100000
+                gasLimit: 100000,
               }
             );
           const txComplete = await provider.waitForTransaction(tx.hash);
@@ -234,9 +246,9 @@ const App = () => {
             { gasLimit: 100000 }
           );
           const txComplete = await provider.waitForTransaction(tx.hash);
-          if(txComplete){
+          if (txComplete) {
             updateTokenBalance();
-            console.log("COMPLETE")
+            console.log("COMPLETE");
           }
         }
       }
@@ -394,12 +406,14 @@ const App = () => {
   const handleMax1 = (e) => {
     if (e.target.textContent !== 0) {
       setValue1(tokenBalance1);
+      setFromTokenOne(true);
     }
   };
 
   const handleMax2 = (e) => {
     if (e.target.textContent !== 0) {
       setValue2(tokenBalance2);
+      setFromTokenOne(false);
     }
   };
 
@@ -452,7 +466,6 @@ const App = () => {
                   className="head-button"
                   onClick={() => {
                     setShowSettings(!showSettings);
-                    console.log(showSettings);
                   }}
                 >
                   <div>
@@ -565,7 +578,6 @@ const App = () => {
                         className="balance"
                         onClick={(e) => {
                           handleMax2(e);
-                          setFromTokenOne(false);
                         }}
                       >
                         <span className="max-balance">Balance:</span>
@@ -595,7 +607,15 @@ const App = () => {
                     Swap
                   </button>
                 ) : null}
-                <button onClick={updateTokenBalance}>ASD</button>
+                <button
+                  onClick={() => {
+                    console.log(
+                      `token balance1: ${tokenBalance1} token balance2: ${tokenBalance2} val1: ${value1} val2: ${value2}`
+                    );
+                  }}
+                >
+                  ASD
+                </button>
               </div>
             </div>
           </div>
