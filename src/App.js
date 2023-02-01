@@ -25,12 +25,11 @@ const newABI = [
   "function swapAVAXForExactTokens( uint256, address[], address, uint256) external payable returns (uint256[] amounts)",
   "function swapExactTokensForAVAXSupportingFeeOnTransferTokens( uint256, uint256, address[], address, uint256) ",
   "function swapTokensForExactAVAX( uint256, uint256, address[], address, uint256) returns (uint256[])",
+  "function swapExactTokensForTokensSupportingFeeOnTransferTokens(uint256,uint256,address[],address,uint256)",
+  "function swapTokensForExactTokens(uint256,uint256,address[],address,uint256)"
 ];
 
-const WAVAXABI = [
-  "function deposit () payable",
-  "function withdraw(uint256)"
-]
+const WAVAXABI = ["function deposit () payable", "function withdraw(uint256)"];
 
 const { chains, provider } = configureChains(
   [avalanche, avalancheFuji],
@@ -67,9 +66,7 @@ const App = () => {
   const [deadline, setDeadline] = useState(ethers.utils.parseUnits("30"));
   const [mode, setMode] = useState("swap");
   const [fromTokenOne, setFromTokenOne] = useState();
-  const [allowance, setAllowance] = useState();
-  const [contract1, setContract1] = useState();
-  const [contract2, setContract2] = useState();
+  const [allowanceState, setAllowanceState] = useState(false);
 
   const routerAddress = "0xd7f655E3376cE2D7A2b08fF01Eb3B1023191A901";
   const WAVAX_ADDY = "0xd00ae08403B9bbb9124bB305C09058E32C39A48c";
@@ -92,34 +89,30 @@ const App = () => {
       );
       const contract2Decimals = await contract2.decimals();
 
-      if(select1.addy==="AVAX" && select2.addy===WAVAX_ADDY || select1.addy===WAVAX_ADDY && select2.addy==="AVAX"){
-        if (fromTokenOne){
-          setValue2(value1)
+      if (
+        (select1.addy === "AVAX" && select2.addy === WAVAX_ADDY) ||
+        (select1.addy === WAVAX_ADDY && select2.addy === "AVAX")
+      ) {
+        if (fromTokenOne) {
+          setValue2(value1);
         }
-        if(!fromTokenOne){
-          setValue1(value2)
+        if (!fromTokenOne) {
+          setValue1(value2);
         }
         return;
       }
 
       if (fromTokenOne) {
         const val2 = value2 - (value2 * slippage) / 100;
-        setMinval(val2);
+        setMinval(ethers.utils.parseUnits(val2.toString(),contract2Decimals));
       }
 
       if (!fromTokenOne) {
-        setMinval(value2);
+        setMinval(ethers.utils.parseUnits(value2.toString(),contract2Decimals));
       }
 
       if (select1.addy !== "AVAX") {
-        const allowance = await contract1.allowance(
-          signer.getAddress(),
-          routerAddress
-        );
-        const totalSupply = await contract1.totalSupply();
-        if (allowance < totalSupply) {
-          setAllowance(false);
-        }
+        checkAllowance();
       }
 
       let addyFrom = select1.addy;
@@ -197,21 +190,17 @@ const App = () => {
       const signerAddy = await signer.getAddress();
 
       if (select1.addy === "AVAX") {
-        if(select2.addy===WAVAX_ADDY){
-          const contr = new ethers.Contract(
-            WAVAX_ADDY,
-            WAVAXABI,
-            provider
-          );
-          const contractWithWallet = contr.connect(signer)
+        if (select2.addy === WAVAX_ADDY) {
+          const contr = new ethers.Contract(WAVAX_ADDY, WAVAXABI, provider);
+          const contractWithWallet = contr.connect(signer);
           const tx = await contractWithWallet.deposit({
             value: ethers.utils.parseUnits(value1),
             gasLimit: 1000000,
-          })
-          const txComplete = await provider.waitForTransaction(tx.hash)
-          if(txComplete){
-            updateTokenBalance()
-            console.log("AVAX TO WAVAX COMPLETE")
+          });
+          const txComplete = await provider.waitForTransaction(tx.hash);
+          if (txComplete) {
+            updateTokenBalance();
+            console.log("AVAX TO WAVAX COMPLETE");
           }
           return;
         }
@@ -219,7 +208,7 @@ const App = () => {
           //swapExactAvaxForTokensSupportingFeeOnTransferTokens
           const tx =
             await contractWithWallet.swapExactAVAXForTokensSupportingFeeOnTransferTokens(
-              ethers.utils.parseUnits(minVal.toString(), contract2Decimals),
+              minVal,
               pathArr,
               signerAddy,
               deadline,
@@ -253,18 +242,16 @@ const App = () => {
         }
       }
       if (select2.addy === "AVAX") {
-        if(select1.addy===WAVAX_ADDY){
-          const contr = new ethers.Contract(
-            WAVAX_ADDY,
-            WAVAXABI,
-            provider
+        if (select1.addy === WAVAX_ADDY) {
+          const contr = new ethers.Contract(WAVAX_ADDY, WAVAXABI, provider);
+          const contractWithWallet = contr.connect(signer);
+          const tx = await contractWithWallet.withdraw(
+            ethers.utils.parseUnits(value1.toString())
           );
-          const contractWithWallet = contr.connect(signer)
-          const tx = await contractWithWallet.withdraw(ethers.utils.parseUnits(value1.toString()))
-          const txComplete = await provider.waitForTransaction(tx.hash)
-          if(txComplete){
-            updateTokenBalance()
-            console.log("WAVAX TO AVAX COMPLETE")
+          const txComplete = await provider.waitForTransaction(tx.hash);
+          if (txComplete) {
+            updateTokenBalance();
+            console.log("WAVAX TO AVAX COMPLETE");
           }
           return;
         }
@@ -273,7 +260,7 @@ const App = () => {
           const tx =
             await contractWithWallet.swapExactTokensForAVAXSupportingFeeOnTransferTokens(
               ethers.utils.parseUnits(value1.toString(), contract1Decimals),
-              ethers.utils.parseUnits(minVal.toString(), contract2Decimals),
+              minVal,
               pathArr,
               signerAddy,
               deadline,
@@ -299,7 +286,6 @@ const App = () => {
           const txComplete = await provider.waitForTransaction(tx.hash);
           if (txComplete) {
             updateTokenBalance();
-            console.log("COMPLETE");
           }
         }
       }
@@ -307,11 +293,36 @@ const App = () => {
       if (select1.addy !== "AVAX" && select2.addy !== "AVAX") {
         if (fromTokenOne) {
           //swapExactTokensForTokensSupportingFeeOnTransferTokens
+          const tx = await contractWithWallet.swapExactTokensForTokensSupportingFeeOnTransferTokens(
+            ethers.utils.parseUnits(value1.toString(),contract1Decimals),
+            minVal,
+            pathArr,
+            signerAddy,
+            deadline,
+            {gasLimit:1000000}          
+          )
+          const txComplete = await provider.waitForTransaction(tx.hash);
+          if(txComplete){
+            updateTokenBalance();
+          }
         }
         if (!fromTokenOne) {
           //swapTokensForExactTokens
+          const tx = await contractWithWallet.swapTokensForExactTokens(
+            ethers.utils.parseUnits(value2.toString(),contract2Decimals),
+            ethers.utils.parseUnits(value1.toString(), contract1Decimals),
+            pathArr,
+            signerAddy,
+            deadline,
+            {gasLimit:1000000}        
+          )
+          const txComplete = await provider.waitForTransaction(tx.hash);
+          if(txComplete){
+            updateTokenBalance();
+          }
         }
       }
+      updateTokenBalance();
     } else {
       return;
     }
@@ -347,11 +358,46 @@ const App = () => {
   };
 
   const approveToken = async () => {
-    const contractWithWallet = contract1.connect(signer);
-    const tx = await contractWithWallet.approve(routerAddress, contract1.totalSupply());
-    const txComplete = await provider.waitForTransaction(tx.hash);
-    if (txComplete) {
-      setAllowance(true);
+    const contract1 = new ethers.Contract(
+      select1.addy === "AVAX" ? WAVAX_ADDY : select1.addy,
+      ERC20ABI,
+      provider
+    );
+    if (select1.addy !== "AVAX") {
+      const contractWithWallet = contract1.connect(signer);
+      const tx = await contractWithWallet.approve(
+        routerAddress,
+        contract1.totalSupply()
+      );
+      const txComplete = await provider.waitForTransaction(tx.hash);
+      if (txComplete) {
+        checkAllowance();
+      }
+    }
+  };
+
+  const checkAllowance = async () => {
+    if(select1.addy==="AVAX"){
+      setAllowanceState(true)
+      return;
+    }
+    const contract1 = new ethers.Contract(
+      select1.addy,
+      ERC20ABI,
+      provider
+    );
+    if (select1.addy !== "AVAX") {
+      const allowance = await contract1.allowance(
+        signer.getAddress(),
+        routerAddress
+      );
+      const totalSupply = await contract1.totalSupply();
+      if (allowance < totalSupply || allowance === 0) {
+        setAllowanceState(false);
+      }
+      else{
+        setAllowanceState(true);
+      }
     }
   };
 
@@ -397,12 +443,12 @@ const App = () => {
           ERC20ABI,
           provider
         );
-        setContract1(contr);
       }
       const result = await getTokenBalance(select1.addy);
       setTokenBalance1(result);
       setValue1("");
     };
+    checkAllowance();
     fetchData();
   }, [currentAccount, select1]);
 
@@ -419,7 +465,6 @@ const App = () => {
           ERC20ABI,
           provider
         );
-        setContract2(contr);
       }
       const result = await getTokenBalance(select2.addy);
       setTokenBalance2(result);
@@ -591,7 +636,9 @@ const App = () => {
                         }}
                       >
                         <span className="max-balance">Balance:</span>
-                        {select1 && tokenBalance1 > 0 ? Number(tokenBalance1).toFixed(5) : 0}
+                        {select1 && tokenBalance1 > 0
+                          ? Number(tokenBalance1).toFixed(5)
+                          : 0}
                       </div>
                     </Select>
                     <CurrencyInput
@@ -655,7 +702,9 @@ const App = () => {
                         }}
                       >
                         <span className="max-balance">Balance:</span>
-                        {select2 && tokenBalance2 > 0 ? Number(tokenBalance2).toFixed(5) : 0}
+                        {select2 && tokenBalance2 > 0
+                          ? Number(tokenBalance2).toFixed(5)
+                          : 0}
                       </div>{" "}
                     </Select>
                     <CurrencyInput
@@ -673,28 +722,24 @@ const App = () => {
                   </div>
                 </div>
                 <div id="min-val">
-                  Min: {minVal ? parseFloat(minVal).toFixed(5) : 0.0}
+                  Min: {minVal ? parseFloat(ethers.utils.formatUnits(minVal)).toFixed(5) : 0.0}
                 </div>
                 <CustomConnect setConnected={setConnected}></CustomConnect>
-                {connected && allowance ? (
+                {connected && allowanceState &&select2 &&select1 ? (
                   <button id="swap" onClick={() => swap()}>
                     Swap
                   </button>
                 ) : null}
-                {connected && !allowance && select1?.addy !== "AVAX" ? (
+                {connected && !allowanceState && select1?.addy !== "AVAX" ? (
                   <button id="swap" onClick={() => approveToken()}>
                     Approve {select1?.label}
                   </button>
                 ) : null}
-                {connected && select1?.addy === "AVAX" && select2 ? (
-                  <button id="swap" onClick={() => swap()}>
-                    Swap
-                  </button>
-                ) : null}
-                {(connected && !select1) || !select2 ? (
+                {connected && (!select1 || !select2) ? (
                   <button id="swap-disabled">Swap</button>
                 ) : null}
                 {}
+
               </div>
             </div>
           </div>
