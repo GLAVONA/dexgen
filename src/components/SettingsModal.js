@@ -2,10 +2,11 @@ import { ethers } from 'ethers';
 import React, { useState } from 'react'
 
 
-const SettingsModal = ({shown,close,children,slippage,deadline,setSlippage,setDeadline}) => {
+const SettingsModal = ({shown,close,children,slippage,setSlippage,setDeadline}) => {
 
     const [slippageMessage, setSlippageMessage] = useState();
     const [deadlineMessage, setDeadlineMessage] = useState();
+    const [thisDeadline, setThisDeadline ] = useState(30)
 
     const handleSlippageChange=(e)=>{
         if(e.target.value>30){
@@ -30,7 +31,8 @@ const SettingsModal = ({shown,close,children,slippage,deadline,setSlippage,setDe
             newDeadline = e.target.value
             setDeadlineMessage("")
         }
-        setDeadline(ethers.utils.parseUnits(deadline.toString()))
+        setThisDeadline(newDeadline)
+        setDeadline(ethers.utils.parseUnits(newDeadline.toString()))
     }
    return shown ? (
     <div
@@ -56,7 +58,7 @@ const SettingsModal = ({shown,close,children,slippage,deadline,setSlippage,setDe
         </div>
         <div class="settingField">
           <div class="pretext">Transaction deadline</div>
-          <input type="number" placeholder="minutes" onChange={handleDeadlineChange} value={deadline} onBlur={()=>setDeadlineMessage("")} style={{border: deadlineMessage?"1px solid red":"none"}} />
+          <input type="number" placeholder="minutes" onChange={handleDeadlineChange} value={thisDeadline} onBlur={()=>setDeadlineMessage("")} style={{border: deadlineMessage?"1px solid red":"none"}} />
           <div className="alert-deadline">{deadlineMessage}</div>
         </div>
         <button onClick={close} id="close-modal-button">Close</button>

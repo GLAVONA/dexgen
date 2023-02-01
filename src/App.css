@@ -37,6 +37,7 @@
   margin-top: 2rem;
   margin-bottom: 2rem;
   z-index: 10;
+  user-select: none;
 }
 
 #choose-mode > .wrapper {
@@ -65,6 +66,7 @@
   padding: 0.3rem;
   cursor: grab;
   border: 1px solid transparent;
+  user-select: none;
 }
 
 .liq-mode {
