@@ -26,13 +26,13 @@ const newABI = [
   "function swapExactTokensForAVAXSupportingFeeOnTransferTokens( uint256, uint256, address[], address, uint256) ",
   "function swapTokensForExactAVAX( uint256, uint256, address[], address, uint256) returns (uint256[])",
   "function swapExactTokensForTokensSupportingFeeOnTransferTokens(uint256,uint256,address[],address,uint256)",
-  "function swapTokensForExactTokens(uint256,uint256,address[],address,uint256)"
+  "function swapTokensForExactTokens(uint256,uint256,address[],address,uint256)",
 ];
 
 const WAVAXABI = ["function deposit () payable", "function withdraw(uint256)"];
 
 const { chains, provider } = configureChains(
-  [avalanche, avalancheFuji],
+  [avalancheFuji],
   [publicProvider()]
 );
 const { connectors } = getDefaultWallets({
@@ -67,6 +67,7 @@ const App = () => {
   const [mode, setMode] = useState("swap");
   const [fromTokenOne, setFromTokenOne] = useState();
   const [allowanceState, setAllowanceState] = useState(false);
+  const [rightNetwork, setRightNetwork] = useState();
 
   const routerAddress = "0xd7f655E3376cE2D7A2b08fF01Eb3B1023191A901";
   const WAVAX_ADDY = "0xd00ae08403B9bbb9124bB305C09058E32C39A48c";
@@ -104,11 +105,13 @@ const App = () => {
 
       if (fromTokenOne) {
         const val2 = value2 - (value2 * slippage) / 100;
-        setMinval(ethers.utils.parseUnits(val2.toString(),contract2Decimals));
+        setMinval(ethers.utils.parseUnits(val2.toString(), contract2Decimals));
       }
 
       if (!fromTokenOne) {
-        setMinval(ethers.utils.parseUnits(value2.toString(),contract2Decimals));
+        setMinval(
+          ethers.utils.parseUnits(value2.toString(), contract2Decimals)
+        );
       }
 
       if (select1.addy !== "AVAX") {
@@ -293,31 +296,32 @@ const App = () => {
       if (select1.addy !== "AVAX" && select2.addy !== "AVAX") {
         if (fromTokenOne) {
           //swapExactTokensForTokensSupportingFeeOnTransferTokens
-          const tx = await contractWithWallet.swapExactTokensForTokensSupportingFeeOnTransferTokens(
-            ethers.utils.parseUnits(value1.toString(),contract1Decimals),
-            minVal,
-            pathArr,
-            signerAddy,
-            deadline,
-            {gasLimit:1000000}          
-          )
+          const tx =
+            await contractWithWallet.swapExactTokensForTokensSupportingFeeOnTransferTokens(
+              ethers.utils.parseUnits(value1.toString(), contract1Decimals),
+              minVal,
+              pathArr,
+              signerAddy,
+              deadline,
+              { gasLimit: 1000000 }
+            );
           const txComplete = await provider.waitForTransaction(tx.hash);
-          if(txComplete){
+          if (txComplete) {
             updateTokenBalance();
           }
         }
         if (!fromTokenOne) {
           //swapTokensForExactTokens
           const tx = await contractWithWallet.swapTokensForExactTokens(
-            ethers.utils.parseUnits(value2.toString(),contract2Decimals),
+            ethers.utils.parseUnits(value2.toString(), contract2Decimals),
             ethers.utils.parseUnits(value1.toString(), contract1Decimals),
             pathArr,
             signerAddy,
             deadline,
-            {gasLimit:1000000}        
-          )
+            { gasLimit: 1000000 }
+          );
           const txComplete = await provider.waitForTransaction(tx.hash);
-          if(txComplete){
+          if (txComplete) {
             updateTokenBalance();
           }
         }
@@ -377,15 +381,11 @@ const App = () => {
   };
 
   const checkAllowance = async () => {
-    if(select1.addy==="AVAX"){
-      setAllowanceState(true)
+    if (select1.addy === "AVAX") {
+      setAllowanceState(true);
       return;
     }
-    const contract1 = new ethers.Contract(
-      select1.addy,
-      ERC20ABI,
-      provider
-    );
+    const contract1 = new ethers.Contract(select1.addy, ERC20ABI, provider);
     if (select1.addy !== "AVAX") {
       const allowance = await contract1.allowance(
         signer.getAddress(),
@@ -394,8 +394,7 @@ const App = () => {
       const totalSupply = await contract1.totalSupply();
       if (allowance < totalSupply || allowance === 0) {
         setAllowanceState(false);
-      }
-      else{
+      } else {
         setAllowanceState(true);
       }
     }
@@ -722,24 +721,36 @@ const App = () => {
                   </div>
                 </div>
                 <div id="min-val">
-                  Min: {minVal ? parseFloat(ethers.utils.formatUnits(minVal)).toFixed(5) : 0.0}
+                  Min:{" "}
+                  {minVal
+                    ? parseFloat(ethers.utils.formatUnits(minVal)).toFixed(5)
+                    : 0.0}
                 </div>
-                <CustomConnect setConnected={setConnected}></CustomConnect>
-                {connected && allowanceState &&select2 &&select1 ? (
+                <CustomConnect
+                  setConnected={setConnected}
+                  setRightNetwork={setRightNetwork}
+                ></CustomConnect>
+                {rightNetwork &&
+                connected &&
+                allowanceState &&
+                select2 &&
+                select1 ? (
                   <button id="swap" onClick={() => swap()}>
                     Swap
                   </button>
                 ) : null}
-                {connected && !allowanceState && select1?.addy !== "AVAX" ? (
+                {rightNetwork &&
+                connected &&
+                !allowanceState &&
+                select1?.addy !== "AVAX" ? (
                   <button id="swap" onClick={() => approveToken()}>
                     Approve {select1?.label}
                   </button>
                 ) : null}
-                {connected && (!select1 || !select2) ? (
+                {rightNetwork && connected && (!select1 || !select2) ? (
                   <button id="swap-disabled">Swap</button>
                 ) : null}
                 {}
-
               </div>
             </div>
           </div>

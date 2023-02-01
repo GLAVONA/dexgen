@@ -1,5 +1,5 @@
 import { ConnectButton } from '@rainbow-me/rainbowkit';
-export const CustomConnect = ({setConnected}) => {
+export const CustomConnect = ({setConnected, setRightNetwork}) => {
   return (
     <ConnectButton.Custom>
       {({
@@ -40,11 +40,14 @@ export const CustomConnect = ({setConnected}) => {
                 );
               }
               if (chain.unsupported) {
+                setRightNetwork(false)
                 return (
                   <button onClick={openChainModal} type="button" id='wrong-chain'>
                     Wrong network
                   </button>
                 );
+              }else{
+                setRightNetwork(true);
               }
             })()}
           </div>
