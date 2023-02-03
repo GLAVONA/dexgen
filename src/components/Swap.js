@@ -28,24 +28,9 @@ const newABI = [
 
 const WAVAXABI = ["function deposit () payable", "function withdraw(uint256)"];
 
-const { chains, provider } = configureChains(
-  [avalancheFuji],
-  [publicProvider()]
-);
-const { connectors } = getDefaultWallets({
-  appName: "DEXgen",
-  chains,
-});
-
-const wagmiClient = createClient({
-  autoConnect: true,
-  connectors,
-  provider,
-});
-
 const ERC20ABI = require("../ERC20.json");
 
-const Swap = () => {
+const Swap = ({provider, contractWithWallet, WAVAX_ADDY, signer, routerAddress}) => {
   const [tokenBalance1, setTokenBalance1] = useState();
   const [tokenBalance2, setTokenBalance2] = useState();
   const [currentAccount, setCurrentAccount] = useState();
@@ -59,17 +44,10 @@ const Swap = () => {
   const [minVal, setMinval] = useState();
   const [slippage, setSlippage] = useState(0.5);
   const [deadline, setDeadline] = useState(ethers.utils.parseUnits("30"));
-  const [mode, setMode] = useState("swap");
   const [fromTokenOne, setFromTokenOne] = useState();
   const [allowanceState, setAllowanceState] = useState(false);
   const [rightNetwork, setRightNetwork] = useState();
   
-  const provider = new ethers.providers.Web3Provider(window.ethereum);
-  const routerAddress = "0xd7f655E3376cE2D7A2b08fF01Eb3B1023191A901";
-  const WAVAX_ADDY = "0xd00ae08403B9bbb9124bB305C09058E32C39A48c";
-  const contract = new ethers.Contract(routerAddress, newABI, provider);
-  const signer = provider.getSigner();
-  const contractWithWallet = contract.connect(signer);
 
   const getQuote = async () => {
     if (select1 && select2) {
@@ -530,8 +508,6 @@ const Swap = () => {
   };
 
   return (
-    <WagmiConfig client={wagmiClient}>
-      <RainbowKitProvider chains={chains}>
             <div id="swap-card">
               <div className="head">
                 <SettingsModal
@@ -718,8 +694,6 @@ const Swap = () => {
                 {}
               </div>
             </div>
-      </RainbowKitProvider>
-    </WagmiConfig>
   );
 };
 export default Swap;

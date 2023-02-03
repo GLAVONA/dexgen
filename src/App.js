@@ -10,6 +10,7 @@ import { configureChains, createClient, WagmiConfig } from "wagmi";
 import { avalanche, avalancheFuji } from "wagmi/chains";
 import { publicProvider } from "wagmi/providers/public";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
+import { Route, Routes } from "react-router";
 
 const ROUTER_ABI = [
   "function swapExactAVAXForTokensSupportingFeeOnTransferTokens(uint256,address[],address,uint256) payable",
@@ -40,16 +41,13 @@ const wagmiClient = createClient({
 const ERC20ABI = require("./ERC20.json");
 
 const App = () => {
-  
   const [mode, setMode] = useState("swap");
-  
   const provider = new ethers.providers.Web3Provider(window.ethereum);
   const routerAddress = "0xd7f655E3376cE2D7A2b08fF01Eb3B1023191A901";
   const WAVAX_ADDY = "0xd00ae08403B9bbb9124bB305C09058E32C39A48c";
   const contract = new ethers.Contract(routerAddress, ROUTER_ABI, provider);
   const signer = provider.getSigner();
   const contractWithWallet = contract.connect(signer);
-
 
   return (
     <WagmiConfig client={wagmiClient}>
@@ -83,7 +81,21 @@ const App = () => {
           </div>
           <div id="main-bg"></div>
           <div id="main">
-            <Swap/>
+            <Routes>
+              <Route
+                path="/"
+                element={
+                  <Swap
+                    provider={provider}
+                    contractWithWallet={contractWithWallet}
+                    WAVAX_ADDY={WAVAX_ADDY}
+                    signer={signer}
+                    routerAddress={routerAddress}
+                  />
+                  
+                }
+              />
+            </Routes>
           </div>
         </div>
       </RainbowKitProvider>
