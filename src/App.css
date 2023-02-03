@@ -52,6 +52,7 @@
 .swap-mode.active {
   background-color: rgb(253, 234, 241);
   border: 1px solid palevioletred;
+  
 }
 
 .liq-mode.active {
@@ -361,4 +362,9 @@ input::-webkit-inner-spin-button {
   color: gray;
   margin-right: 5px;
   font-size: 13px;
+}
+
+a{
+  color: inherit;
+  text-decoration: inherit;
 }

@@ -3,6 +3,7 @@ import { ethers } from "ethers";
 import Navbar from "./components/Navbar";
 import "./App.css";
 import Swap from "./components/Swap";
+import Liquidity from "./components/Liquidity";
 
 import "@rainbow-me/rainbowkit/styles.css";
 import { getDefaultWallets, RainbowKitProvider } from "@rainbow-me/rainbowkit";
@@ -11,6 +12,7 @@ import { avalanche, avalancheFuji } from "wagmi/chains";
 import { publicProvider } from "wagmi/providers/public";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { Route, Routes } from "react-router";
+import { Link } from "react-router-dom";
 
 const ROUTER_ABI = [
   "function swapExactAVAXForTokensSupportingFeeOnTransferTokens(uint256,address[],address,uint256) payable",
@@ -65,18 +67,22 @@ const App = () => {
           </Navbar>
           <div id="choose-mode">
             <div className="wrapper">
+            <Link to="/">
               <div
                 className={`swap-mode ${mode === "swap" ? "active" : null}`}
                 onClick={() => setMode("swap")}
               >
                 Swap
               </div>
+              </Link>
+              <Link to="/liquidity">
               <div
                 className={`liq-mode ${mode === "liq" ? "active" : null}`}
                 onClick={() => setMode("liq")}
               >
                 Liquidity
               </div>
+              </Link>
             </div>
           </div>
           <div id="main-bg"></div>
@@ -91,10 +97,11 @@ const App = () => {
                     WAVAX_ADDY={WAVAX_ADDY}
                     signer={signer}
                     routerAddress={routerAddress}
-                  />
-                  
+                  />                  
                 }
               />
+              <Route path="/liquidity" element={<Liquidity/>}/>
+              
             </Routes>
           </div>
         </div>
