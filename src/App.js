@@ -203,7 +203,6 @@ const App = () => {
           const txComplete = await provider.waitForTransaction(tx.hash);
           if (txComplete) {
             updateTokenBalance();
-            console.log("AVAX TO WAVAX COMPLETE");
           }
           return;
         }
@@ -254,7 +253,6 @@ const App = () => {
           const txComplete = await provider.waitForTransaction(tx.hash);
           if (txComplete) {
             updateTokenBalance();
-            console.log("WAVAX TO AVAX COMPLETE");
           }
           return;
         }
@@ -479,7 +477,7 @@ const App = () => {
         setCurrentAccount(accounts[0]);
       }
     } catch (error) {
-      console.log(error);
+      throw new Error(error);
     }
   };
 
