@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { useEffect } from "react";
 import AsyncSelect from "react-select/async";
 import { ethers } from "ethers";
-import ERC20ABI from "../ERC20.json";
+import ERC20ABI from "../data/ERC20.json";
 
 const prov = new ethers.providers.Web3Provider(window.ethereum);
 

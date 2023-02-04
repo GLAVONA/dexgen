@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { ethers } from "ethers";
 import Select from "./Select";
-import options from "../data";
+import options from "../data/options";
 import Navbar from "./Navbar";
 
 import { CustomConnect } from "./CustomConnect";
@@ -28,7 +28,7 @@ const newABI = [
 
 const WAVAXABI = ["function deposit () payable", "function withdraw(uint256)"];
 
-const ERC20ABI = require("../ERC20.json");
+const ERC20ABI = require("../data/ERC20.json");
 
 const Swap = ({provider, contractWithWallet, WAVAX_ADDY, signer, routerAddress}) => {
   const [tokenBalance1, setTokenBalance1] = useState();

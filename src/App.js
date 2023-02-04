@@ -40,7 +40,7 @@ const wagmiClient = createClient({
   provider,
 });
 
-const ERC20ABI = require("./ERC20.json");
+const ERC20ABI = require("./data/ERC20.json");
 
 const App = () => {
   const [mode, setMode] = useState("swap");
