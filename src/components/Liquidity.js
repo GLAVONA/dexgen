@@ -2,7 +2,7 @@ import React from 'react'
 
 const Liquidity = () => {
   return (
-    <div>Liquidity</div>
+    <div></div>
   )
 }
 

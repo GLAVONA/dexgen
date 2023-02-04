@@ -580,6 +580,7 @@ const Swap = ({provider, contractWithWallet, WAVAX_ADDY, signer, routerAddress})
                           ? Number(tokenBalance1).toFixed(5)
                           : 0}
                       </div>
+                      <span id="from">From:</span>
                     </Select>
                     <CurrencyInput
                       decimalsLimit={18}
@@ -646,6 +647,7 @@ const Swap = ({provider, contractWithWallet, WAVAX_ADDY, signer, routerAddress})
                           ? Number(tokenBalance2).toFixed(5)
                           : 0}
                       </div>{" "}
+                      <span id="to">To:</span>
                     </Select>
                     <CurrencyInput
                       decimalsLimit={18}
