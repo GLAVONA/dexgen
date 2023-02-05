@@ -2,29 +2,13 @@ import React, { useEffect, useState } from "react";
 import { ethers } from "ethers";
 import Select from "./Select";
 import options from "../data/options";
-import Navbar from "./Navbar";
 
 import { CustomConnect } from "./CustomConnect";
 import "@rainbow-me/rainbowkit/styles.css";
-import { getDefaultWallets, RainbowKitProvider } from "@rainbow-me/rainbowkit";
-import { configureChains, createClient, WagmiConfig } from "wagmi";
-import { avalanche, avalancheFuji } from "wagmi/chains";
-import { publicProvider } from "wagmi/providers/public";
-import { ConnectButton } from "@rainbow-me/rainbowkit";
 import SettingsModal from "./SettingsModal";
 import CurrencyInput from "react-currency-input-field";
 import { formatUnits, parseUnits } from "ethers/lib/utils.js";
 
-const newABI = [
-  "function swapExactAVAXForTokensSupportingFeeOnTransferTokens(uint256,address[],address,uint256) payable",
-  "function getAmountsOut(uint256,address[]) view returns (uint256[])",
-  "function getAmountsIn(uint256,address[]) view returns (uint256[])",
-  "function swapAVAXForExactTokens( uint256, address[], address, uint256) external payable returns (uint256[] amounts)",
-  "function swapExactTokensForAVAXSupportingFeeOnTransferTokens( uint256, uint256, address[], address, uint256) ",
-  "function swapTokensForExactAVAX( uint256, uint256, address[], address, uint256) returns (uint256[])",
-  "function swapExactTokensForTokensSupportingFeeOnTransferTokens(uint256,uint256,address[],address,uint256)",
-  "function swapTokensForExactTokens(uint256,uint256,address[],address,uint256)",
-];
 
 const WAVAXABI = ["function deposit () payable", "function withdraw(uint256)"];
 

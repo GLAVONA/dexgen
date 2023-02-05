@@ -398,3 +398,9 @@ a{
   user-select: none ;
   margin-left: 10px;
 }
+
+#select-fields-liq{
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
