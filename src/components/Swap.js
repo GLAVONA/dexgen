@@ -14,7 +14,7 @@ const WAVAXABI = ["function deposit () payable", "function withdraw(uint256)"];
 
 const ERC20ABI = require("../data/ERC20.json");
 
-const Swap = ({provider, contractWithWallet, WAVAX_ADDY, signer, routerAddress}) => {
+const Swap = ({provider, contractWithWallet, WAVAX_ADDY, signer, routerAddress,}) => {
   const [tokenBalance1, setTokenBalance1] = useState();
   const [tokenBalance2, setTokenBalance2] = useState();
   const [currentAccount, setCurrentAccount] = useState();
@@ -29,8 +29,8 @@ const Swap = ({provider, contractWithWallet, WAVAX_ADDY, signer, routerAddress})
   const [slippage, setSlippage] = useState(0.5);
   const [deadline, setDeadline] = useState(ethers.utils.parseUnits("30"));
   const [fromTokenOne, setFromTokenOne] = useState();
-  const [allowanceState, setAllowanceState] = useState(false);
   const [rightNetwork, setRightNetwork] = useState();
+  const [allowanceState,setAllowanceState] = useState();
   
 
   const getQuote = async () => {

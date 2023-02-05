@@ -44,6 +44,7 @@ const ERC20ABI = require("./data/ERC20.json");
 
 const App = () => {
   const [mode, setMode] = useState("swap");
+
   const provider = new ethers.providers.Web3Provider(window.ethereum);
   const routerAddress = "0xd7f655E3376cE2D7A2b08fF01Eb3B1023191A901";
   const WAVAX_ADDY = "0xd00ae08403B9bbb9124bB305C09058E32C39A48c";
@@ -67,21 +68,21 @@ const App = () => {
           </Navbar>
           <div id="choose-mode">
             <div className="wrapper">
-            <Link to="/">
-              <div
-                className={`swap-mode ${mode === "swap" ? "active" : null}`}
-                onClick={() => setMode("swap")}
-              >
-                Swap
-              </div>
+              <Link to="/">
+                <div
+                  className={`swap-mode ${mode === "swap" ? "active" : null}`}
+                  onClick={() => setMode("swap")}
+                >
+                  Swap
+                </div>
               </Link>
               <Link to="/liquidity">
-              <div
-                className={`liq-mode ${mode === "liq" ? "active" : null}`}
-                onClick={() => setMode("liq")}
-              >
-                Liquidity
-              </div>
+                <div
+                  className={`liq-mode ${mode === "liq" ? "active" : null}`}
+                  onClick={() => setMode("liq")}
+                >
+                  Liquidity
+                </div>
               </Link>
             </div>
           </div>
@@ -97,11 +98,21 @@ const App = () => {
                     WAVAX_ADDY={WAVAX_ADDY}
                     signer={signer}
                     routerAddress={routerAddress}
-                  />                  
+                  />
                 }
               />
-              <Route path="/liquidity" element={<Liquidity/>}/>
-              
+              <Route
+                path="/liquidity"
+                element={
+                  <Liquidity
+                    provider={provider}
+                    contractWithWallet={contractWithWallet}
+                    WAVAX_ADDY={WAVAX_ADDY}
+                    signer={signer}
+                    routerAddress={routerAddress}
+                  />
+                }
+              />
             </Routes>
           </div>
         </div>

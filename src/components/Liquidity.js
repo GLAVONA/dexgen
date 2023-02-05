@@ -333,6 +333,17 @@ const Liquidity = ({provider, contractWithWallet, WAVAX_ADDY, signer, routerAddr
     }
   };
 
+  const listAccounts = async () => {
+    const accounts = await provider.listAccounts();
+    try {
+      if (accounts.length > 0) {
+        setCurrentAccount(accounts[0]);
+      }
+    } catch (error) {
+      throw new Error(error);
+    }
+  };
+
   const checkAllowance = async () => {
     if (select1.addy === "AVAX") {
       setAllowanceState(true);
@@ -418,16 +429,6 @@ const Liquidity = ({provider, contractWithWallet, WAVAX_ADDY, signer, routerAddr
     fetchData();
   }, [currentAccount, select2]);
 
-  const listAccounts = async () => {
-    const accounts = await provider.listAccounts();
-    try {
-      if (accounts.length > 0) {
-        setCurrentAccount(accounts[0]);
-      }
-    } catch (error) {
-      throw new Error(error);
-    }
-  };
 
   let style = {
     input: (styles) => ({
