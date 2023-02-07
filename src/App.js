@@ -46,7 +46,7 @@ const App = () => {
   const [mode, setMode] = useState("swap");
 
   const provider = new ethers.providers.Web3Provider(window.ethereum);
-  const routerAddress = "0xd7f655E3376cE2D7A2b08fF01Eb3B1023191A901";
+  const routerAddress = "0xE8A68cA91fFe6958DBF9065db358db863ea093A1";// 0xd7f655E3376cE2D7A2b08fF01Eb3B1023191A901 TJ Router Fuji
   const WAVAX_ADDY = "0xd00ae08403B9bbb9124bB305C09058E32C39A48c";
   const contract = new ethers.Contract(routerAddress, ROUTER_ABI, provider);
   const signer = provider.getSigner();
