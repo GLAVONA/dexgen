@@ -228,7 +228,7 @@ const Liquidity = ({
     getQuote();
     getLPBalance();
     checkAllowance();
-  }, [value1, value2, select1, select2]);
+  }, [value1, value2, select1, select2,liqValue]);
 
   const getCoinBalance = async () => {
     const coinBalance = await provider.getBalance(currentAccount);
@@ -291,7 +291,7 @@ const Liquidity = ({
     const contractWithWallet = LPContract.connect(signer);
     const tx = await contractWithWallet.approve(
       routerAddress,
-      LPContract.totalSupply()
+      ethers.utils.parseUnits(liqValue)
     );
     const txComplete = await provider.waitForTransaction(tx.hash);
     if (txComplete) {
@@ -343,8 +343,7 @@ const Liquidity = ({
         signer.getAddress(),
         routerAddress
       );
-      const totalSupply = LPContract.totalSupply();
-      if (allowance < totalSupply || allowance === 0) {
+      if (ethers.utils.formatUnits(allowance) < liqValue || allowance === 0) {
         setLpAllowanceState(false);
       } else {
         setLpAllowanceState(true);

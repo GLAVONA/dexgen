@@ -13,7 +13,7 @@ import { formatUnits, parseUnits } from "ethers/lib/utils.js";
 const WAVAXABI = ["function deposit () payable", "function withdraw(uint256)"];
 const ERC20ABI = require("../data/ERC20.json");
 
-const Swap = ({provider, contractWithWallet, WAVAX_ADDY, signer, routerAddress, setMode}) => {
+const Swap = ({provider, routerContractWithWallet, WAVAX_ADDY, signer, routerAddress, setMode}) => {
   const [tokenBalance1, setTokenBalance1] = useState();
   const [tokenBalance2, setTokenBalance2] = useState();
   const [currentAccount, setCurrentAccount] = useState();
@@ -88,7 +88,7 @@ const Swap = ({provider, contractWithWallet, WAVAX_ADDY, signer, routerAddress, 
       if (fromTokenOne && value1 !== "") {
         try {
           const value1wei = parseUnits(value1.toString(), contract1Decimals);
-          let arrayOut = await contractWithWallet.getAmountsOut(
+          let arrayOut = await routerContractWithWallet.getAmountsOut(
             value1wei,
             addys
           );
@@ -106,7 +106,7 @@ const Swap = ({provider, contractWithWallet, WAVAX_ADDY, signer, routerAddress, 
         try {
           const value2wei = parseUnits(value2.toString(), contract2Decimals);
 
-          let arrayOut = await contractWithWallet.getAmountsIn(
+          let arrayOut = await routerContractWithWallet.getAmountsIn(
             value2wei,
             addys
           );
@@ -152,8 +152,8 @@ const Swap = ({provider, contractWithWallet, WAVAX_ADDY, signer, routerAddress, 
       if (select1.addy === "AVAX") {
         if (select2.addy === WAVAX_ADDY) {
           const contr = new ethers.Contract(WAVAX_ADDY, WAVAXABI, provider);
-          const contractWithWallet = contr.connect(signer);
-          const tx = await contractWithWallet.deposit({
+          const routerContractWithWallet = contr.connect(signer);
+          const tx = await routerContractWithWallet.deposit({
             value: ethers.utils.parseUnits(value1),
             gasLimit: 1000000,
           });
@@ -166,7 +166,7 @@ const Swap = ({provider, contractWithWallet, WAVAX_ADDY, signer, routerAddress, 
         if (fromTokenOne) {
           //swapExactAvaxForTokensSupportingFeeOnTransferTokens
           const tx =
-            await contractWithWallet.swapExactAVAXForTokensSupportingFeeOnTransferTokens(
+            await routerContractWithWallet.swapExactAVAXForTokensSupportingFeeOnTransferTokens(
               minVal,
               pathArr,
               signerAddy,
@@ -184,7 +184,7 @@ const Swap = ({provider, contractWithWallet, WAVAX_ADDY, signer, routerAddress, 
 
         if (!fromTokenOne) {
           //swapAVAXForExactTokens
-          const tx = await contractWithWallet.swapAVAXForExactTokens(
+          const tx = await routerContractWithWallet.swapAVAXForExactTokens(
             ethers.utils.parseUnits(value2.toString(), contract2Decimals),
             pathArr,
             signerAddy,
@@ -203,8 +203,8 @@ const Swap = ({provider, contractWithWallet, WAVAX_ADDY, signer, routerAddress, 
       if (select2.addy === "AVAX") {
         if (select1.addy === WAVAX_ADDY) {
           const contr = new ethers.Contract(WAVAX_ADDY, WAVAXABI, provider);
-          const contractWithWallet = contr.connect(signer);
-          const tx = await contractWithWallet.withdraw(
+          const routerContractWithWallet = contr.connect(signer);
+          const tx = await routerContractWithWallet.withdraw(
             ethers.utils.parseUnits(value1.toString())
           );
           const txComplete = await provider.waitForTransaction(tx.hash);
@@ -216,7 +216,7 @@ const Swap = ({provider, contractWithWallet, WAVAX_ADDY, signer, routerAddress, 
         if (fromTokenOne) {
           //swapExactTokensForAVAXSupportingFeeOnTransferTokens
           const tx =
-            await contractWithWallet.swapExactTokensForAVAXSupportingFeeOnTransferTokens(
+            await routerContractWithWallet.swapExactTokensForAVAXSupportingFeeOnTransferTokens(
               ethers.utils.parseUnits(value1.toString(), contract1Decimals),
               minVal,
               pathArr,
@@ -233,7 +233,7 @@ const Swap = ({provider, contractWithWallet, WAVAX_ADDY, signer, routerAddress, 
         }
         if (!fromTokenOne) {
           //swapTokensForExactAVAX
-          const tx = await contractWithWallet.swapTokensForExactAVAX(
+          const tx = await routerContractWithWallet.swapTokensForExactAVAX(
             ethers.utils.parseUnits(value2.toString()),
             ethers.utils.parseUnits(value1.toString(), contract1Decimals),
             pathArr,
@@ -252,7 +252,7 @@ const Swap = ({provider, contractWithWallet, WAVAX_ADDY, signer, routerAddress, 
         if (fromTokenOne) {
           //swapExactTokensForTokensSupportingFeeOnTransferTokens
           const tx =
-            await contractWithWallet.swapExactTokensForTokensSupportingFeeOnTransferTokens(
+            await routerContractWithWallet.swapExactTokensForTokensSupportingFeeOnTransferTokens(
               ethers.utils.parseUnits(value1.toString(), contract1Decimals),
               minVal,
               pathArr,
@@ -267,7 +267,7 @@ const Swap = ({provider, contractWithWallet, WAVAX_ADDY, signer, routerAddress, 
         }
         if (!fromTokenOne) {
           //swapTokensForExactTokens
-          const tx = await contractWithWallet.swapTokensForExactTokens(
+          const tx = await routerContractWithWallet.swapTokensForExactTokens(
             ethers.utils.parseUnits(value2.toString(), contract2Decimals),
             ethers.utils.parseUnits(value1.toString(), contract1Decimals),
             pathArr,
@@ -324,8 +324,8 @@ const Swap = ({provider, contractWithWallet, WAVAX_ADDY, signer, routerAddress, 
       provider
     );
     if (select1.addy !== "AVAX") {
-      const contractWithWallet = contract1.connect(signer);
-      const tx = await contractWithWallet.approve(
+      const routerContractWithWallet = contract1.connect(signer);
+      const tx = await routerContractWithWallet.approve(
         routerAddress,
         contract1.totalSupply()
       );
@@ -596,7 +596,6 @@ const Swap = ({provider, contractWithWallet, WAVAX_ADDY, signer, routerAddress, 
                       </svg>
                     </div>
                   }{" "}
-                <button onClick={()=>{console.log(select1.addy)}}>AYAYA</button>
 
                   <div className="select-field">
                     <Select
