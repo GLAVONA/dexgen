@@ -8,7 +8,7 @@ import Liquidity from "./components/Liquidity";
 import "@rainbow-me/rainbowkit/styles.css";
 import { getDefaultWallets, RainbowKitProvider } from "@rainbow-me/rainbowkit";
 import { configureChains, createClient, WagmiConfig } from "wagmi";
-import { avalanche, avalancheFuji } from "wagmi/chains";
+import { avalanche, avalancheFuji, localhost } from "wagmi/chains";
 import { publicProvider } from "wagmi/providers/public";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { Route, Routes } from "react-router";
@@ -26,7 +26,7 @@ const ROUTER_ABI = [
 ];
 
 const { chains, provider } = configureChains(
-  [avalancheFuji],
+  [avalancheFuji, localhost],
   [publicProvider()]
 );
 const { connectors } = getDefaultWallets({
@@ -43,11 +43,11 @@ const wagmiClient = createClient({
 const ERC20ABI = require("./data/ERC20.json");
 
 const App = () => {
-  const [mode, setMode] = useState("swap");
+  const [mode, setMode] = useState();
 
   const provider = new ethers.providers.Web3Provider(window.ethereum);
-  const routerAddress = "0xE8A68cA91fFe6958DBF9065db358db863ea093A1";// 0xd7f655E3376cE2D7A2b08fF01Eb3B1023191A901 TJ Router Fuji
-  const WAVAX_ADDY = "0xd00ae08403B9bbb9124bB305C09058E32C39A48c";
+  const routerAddress = "0xecBdEe2285BE419B4fc4d171D9030E2255941329";// 0xd7f655E3376cE2D7A2b08fF01Eb3B1023191A901 TJ Router Fuji
+  const WAVAX_ADDY = "0x48AA9B88d6DdAf35792d422CE608edcDF33359e0";
   const contract = new ethers.Contract(routerAddress, ROUTER_ABI, provider);
   const signer = provider.getSigner();
   const contractWithWallet = contract.connect(signer);
@@ -98,6 +98,7 @@ const App = () => {
                     WAVAX_ADDY={WAVAX_ADDY}
                     signer={signer}
                     routerAddress={routerAddress}
+                    setMode={setMode}
                   />
                 }
               />
@@ -110,6 +111,7 @@ const App = () => {
                     WAVAX_ADDY={WAVAX_ADDY}
                     signer={signer}
                     routerAddress={routerAddress}
+                    setMode={setMode}
                   />
                 }
               />

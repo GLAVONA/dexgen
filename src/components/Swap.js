@@ -14,7 +14,7 @@ const WAVAXABI = ["function deposit () payable", "function withdraw(uint256)"];
 
 const ERC20ABI = require("../data/ERC20.json");
 
-const Swap = ({provider, contractWithWallet, WAVAX_ADDY, signer, routerAddress,}) => {
+const Swap = ({provider, contractWithWallet, WAVAX_ADDY, signer, routerAddress, setMode}) => {
   const [tokenBalance1, setTokenBalance1] = useState();
   const [tokenBalance2, setTokenBalance2] = useState();
   const [currentAccount, setCurrentAccount] = useState();
@@ -295,6 +295,7 @@ const Swap = ({provider, contractWithWallet, WAVAX_ADDY, signer, routerAddress,}
     setSelect1(options[0]);
     listAccounts();
     getCoinBalance();
+    setMode("swap")
   }, []);
 
   useEffect(() => {
@@ -596,6 +597,8 @@ const Swap = ({provider, contractWithWallet, WAVAX_ADDY, signer, routerAddress,}
                       </svg>
                     </div>
                   }{" "}
+                <button onClick={()=>{console.log(select1.addy)}}>AYAYA</button>
+
                   <div className="select-field">
                     <Select
                       options={

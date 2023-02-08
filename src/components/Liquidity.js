@@ -9,12 +9,18 @@ import SettingsModal from "./SettingsModal";
 import CurrencyInput from "react-currency-input-field";
 import { formatUnits, parseUnits } from "ethers/lib/utils.js";
 
-
 const WAVAXABI = ["function deposit () payable", "function withdraw(uint256)"];
 
 const ERC20ABI = require("../data/ERC20.json");
 
-const Liquidity = ({provider, contractWithWallet, WAVAX_ADDY, signer, routerAddress}) => {
+const Liquidity = ({
+  provider,
+  contractWithWallet,
+  WAVAX_ADDY,
+  signer,
+  routerAddress,
+  setMode
+}) => {
   const [tokenBalance1, setTokenBalance1] = useState();
   const [tokenBalance2, setTokenBalance2] = useState();
   const [currentAccount, setCurrentAccount] = useState();
@@ -30,7 +36,7 @@ const Liquidity = ({provider, contractWithWallet, WAVAX_ADDY, signer, routerAddr
   const [fromTokenOne, setFromTokenOne] = useState();
   const [allowanceState, setAllowanceState] = useState(false);
   const [rightNetwork, setRightNetwork] = useState();
-  
+  const [liqMode, setLiqMode] = useState("add");
 
   const getQuote = async () => {
     if (select1 && select2) {
@@ -287,11 +293,12 @@ const Liquidity = ({provider, contractWithWallet, WAVAX_ADDY, signer, routerAddr
     }
   };
 
-
   useEffect(() => {
     setSelect1(options[0]);
     listAccounts();
     getCoinBalance();
+    setMode("liq")
+
   }, []);
 
   useEffect(() => {
@@ -384,8 +391,6 @@ const Liquidity = ({provider, contractWithWallet, WAVAX_ADDY, signer, routerAddr
     }
   };
 
-
-
   useEffect(() => {
     if (!currentAccount || !select1) return;
     const fetchData = async () => {
@@ -428,7 +433,6 @@ const Liquidity = ({provider, contractWithWallet, WAVAX_ADDY, signer, routerAddr
     };
     fetchData();
   }, [currentAccount, select2]);
-
 
   let style = {
     input: (styles) => ({
@@ -483,150 +487,153 @@ const Liquidity = ({provider, contractWithWallet, WAVAX_ADDY, signer, routerAddr
   };
 
   return (
-            <div id="swap-card">
-              <div className="head">
-                <SettingsModal
-                  slippage={slippage}
-                  setSlippage={setSlippage}
-                  deadline={deadline}
-                  setDeadline={setDeadline}
-                >
-                  {" "}
-                </SettingsModal>
-                <div className="head-title">Add Liquidity</div>
-              </div>
-              <div className="body">
-                <div id="select-fields-liq">
-                  <div className="select-field">
-                    <Select
-                      options={
-                        select2
-                          ? optionsState.filter(
-                              (option) => option.addy !== select2.addy
-                            )
-                          : optionsState
-                      }
-                      select={select1}
-                      setSelect={setSelect1}
-                      optionsState={optionsState}
-                      setOptionsState={setOptionsState}
-                      styles={{
-                        ...style,
-                        container: () => ({
-                          border: select2 && !select1 ? "1px solid red" : null,
-                        }),
-                      }}
-                    >
-                      <div
-                        className="balance"
-                        onClick={(e) => {
-                          handleMax1(e);
-                        }}
-                      >
-                        <span className="max-balance">Balance:</span>
-                        {select1 && tokenBalance1 > 0
-                          ? Number(tokenBalance1).toFixed(5)
-                          : 0}
-                      </div>
-                      <span id="from">Token 1:</span>
-                    </Select>
-                    <CurrencyInput
-                      decimalsLimit={18}
-                      allowNegativeValue={false}
-                      onValueChange={(e) => {
-                        setValue1(e);
-                      }}
-                      onKeyDown={() => setFromTokenOne(true)}
-                      className="amount-input"
-                      placeholder="0.0"
-                      value={value1}
-                    />
-                  </div>
-
-                  <div className="select-field">
-                    <Select
-                      options={
-                        select1
-                          ? optionsState.filter(
-                              (option) => option.addy !== select1.addy
-                            )
-                          : optionsState
-                      }
-                      select={select2}
-                      setSelect={setSelect2}
-                      optionsState={optionsState}
-                      setOptionsState={setOptionsState}
-                      styles={{
-                        ...style,
-                        container: () => ({
-                          border:
-                            select1 && value1 && !select2
-                              ? "1px solid red"
-                              : null,
-                        }),
-                      }}
-                    >
-                      {" "}
-                      <div
-                        className="balance"
-                        onClick={(e) => {
-                          handleMax2(e);
-                        }}
-                      >
-                        <span className="max-balance">Balance:</span>
-                        {select2 && tokenBalance2 > 0
-                          ? Number(tokenBalance2).toFixed(5)
-                          : 0}
-                      </div>{" "}
-                      <span id="to">Token 2:</span>
-                    </Select>
-                    <CurrencyInput
-                      decimalsLimit={18}
-                      allowNegativeValue={false}
-                      onValueChange={async (e) => {
-                        setValue2(e);
-                      }}
-                      onKeyDown={() => setFromTokenOne(false)}
-                      className="amount-input"
-                      placeholder="0.0"
-                      value={value2}
-                      disabled={select2 ? false : true}
-                    />
-                  </div>
-                </div>
-                <div id="min-val">
-                  Min:{" "}
-                  {minVal
-                    ? parseFloat(ethers.utils.formatUnits(minVal)).toFixed(5)
-                    : 0.0}
-                </div>
-                <CustomConnect
-                  setConnected={setConnected}
-                  setRightNetwork={setRightNetwork}
-                ></CustomConnect>
-                {rightNetwork &&
-                connected &&
-                allowanceState &&
-                select2 &&
-                select1 ? (
-                  <button id="swap" onClick={() => swap()}>
-                    Add Liquidity
-                  </button>
-                ) : null}
-                {rightNetwork &&
-                connected &&
-                !allowanceState &&
-                select1?.addy !== "AVAX" ? (
-                  <button id="swap" onClick={() => approveToken()}>
-                    Approve {select1?.label}
-                  </button>
-                ) : null}
-                {rightNetwork && connected && (!select1 || !select2) ? (
-                  <button id="swap-disabled">Add Liquidity</button>
-                ) : null}
-                {}
-              </div>
+    <div id="swap-card">
+      <div className="head">
+        {/* <div id="choose-liq-mode">
+          <div className="wrapper">
+            <div
+              className={`add-mode ${liqMode === "add" ? "active" : null}`}
+              onClick={() => setLiqMode("swap")}
+            >
+              Add
             </div>
+            <div
+              className={`remove-mode ${
+                liqMode === "remove" ? "active" : null
+              }`}
+              onClick={() => setLiqMode("liq")}
+            >
+              Remove
+            </div>
+          </div>
+        </div> */}
+      </div>
+      <div className="body">
+        <div id="select-fields-liq">
+          <div className="select-field">
+            <Select
+              options={
+                select2
+                  ? optionsState.filter(
+                      (option) => option.addy !== select2.addy
+                    )
+                  : optionsState
+              }
+              select={select1}
+              setSelect={setSelect1}
+              optionsState={optionsState}
+              setOptionsState={setOptionsState}
+              styles={{
+                ...style,
+                container: () => ({
+                  border: select2 && !select1 ? "1px solid red" : null,
+                }),
+              }}
+            >
+              <div
+                className="balance"
+                onClick={(e) => {
+                  handleMax1(e);
+                }}
+              >
+                <span className="max-balance">Balance:</span>
+                {select1 && tokenBalance1 > 0
+                  ? Number(tokenBalance1).toFixed(5)
+                  : 0}
+              </div>
+              <span id="from">Token 1:</span>
+            </Select>
+            <CurrencyInput
+              decimalsLimit={18}
+              allowNegativeValue={false}
+              onValueChange={(e) => {
+                setValue1(e);
+              }}
+              onKeyDown={() => setFromTokenOne(true)}
+              className="amount-input"
+              placeholder="0.0"
+              value={value1}
+            />
+          </div>
+
+          <div className="select-field">
+            <Select
+              options={
+                select1
+                  ? optionsState.filter(
+                      (option) => option.addy !== select1.addy
+                    )
+                  : optionsState
+              }
+              select={select2}
+              setSelect={setSelect2}
+              optionsState={optionsState}
+              setOptionsState={setOptionsState}
+              styles={{
+                ...style,
+                container: () => ({
+                  border:
+                    select1 && value1 && !select2 ? "1px solid red" : null,
+                }),
+              }}
+            >
+              {" "}
+              <div
+                className="balance"
+                onClick={(e) => {
+                  handleMax2(e);
+                }}
+              >
+                <span className="max-balance">Balance:</span>
+                {select2 && tokenBalance2 > 0
+                  ? Number(tokenBalance2).toFixed(5)
+                  : 0}
+              </div>{" "}
+              <span id="to">Token 2:</span>
+            </Select>
+            <CurrencyInput
+              decimalsLimit={18}
+              allowNegativeValue={false}
+              onValueChange={async (e) => {
+                setValue2(e);
+              }}
+              onKeyDown={() => setFromTokenOne(false)}
+              className="amount-input"
+              placeholder="0.0"
+              value={value2}
+              disabled={select2 ? false : true}
+            />
+          </div>
+        </div>
+        <div id="min-val">
+          Min:{" "}
+          {minVal
+            ? parseFloat(ethers.utils.formatUnits(minVal)).toFixed(5)
+            : 0.0}
+        </div>
+        <CustomConnect
+          setConnected={setConnected}
+          setRightNetwork={setRightNetwork}
+        ></CustomConnect>
+        {rightNetwork && connected && allowanceState && select2 && select1 ? (
+          <button id="swap" onClick={() => swap()}>
+            Add Liquidity
+          </button>
+        ) : null}
+        {rightNetwork &&
+        connected &&
+        !allowanceState &&
+        select1?.addy !== "AVAX" ? (
+          <button id="swap" onClick={() => approveToken()}>
+            Approve {select1?.label}
+          </button>
+        ) : null}
+        {rightNetwork && connected && (!select1 || !select2) ? (
+          <button id="swap-disabled">Add Liquidity</button>
+        ) : null}
+        {}
+      </div>
+    </div>
   );
 };
 export default Liquidity;

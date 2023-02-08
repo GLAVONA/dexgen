@@ -3,17 +3,12 @@ const options = [
   {
     value: "WAVAX",
     label: "WAVAX",
-    addy: "0xd00ae08403B9bbb9124bB305C09058E32C39A48c",
+    addy: "0x48AA9B88d6DdAf35792d422CE608edcDF33359e0",
   },
   {
-    value: "TestBinu",
-    label: "TestBinu",
-    addy: "0x07bD3AD4bd05D4f3B7086E5153ae3FC74ae7f0F3",
-  },
-  {
-    value: "YOBINU",
-    label: "YOBINU",
-    addy: "0x0d4A5dFd13363b5745446038b2f48A82982D9Ee7",
+    value: "JPBINU",
+    label: "JPBINU",
+    addy: "0xFa9274AE51E7DDdb2C2c9B44f7Ae1253426b681C",
   },
 ];
 
