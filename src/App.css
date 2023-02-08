@@ -173,7 +173,7 @@
   z-index: -1;
 }
 
-.head {
+#swap-card>.head {
   position: relative;
   display: flex;
   justify-content: space-between;
@@ -182,6 +182,18 @@
 }
 
 .body {
+  display: grid;
+  grid-gap: 6px;
+  padding: 8px;
+}
+
+.body-add {
+  display: grid;
+  grid-gap: 6px;
+  padding: 8px;
+}
+
+.body-remove {
   display: grid;
   grid-gap: 6px;
   padding: 8px;
@@ -403,4 +415,110 @@ a{
   display: flex;
   flex-direction: column;
   gap: 4px;
+}
+
+#liq-card{
+  display: flex;
+  flex-direction: column;
+}
+
+#liq-card>.head{
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 10px 0 5px 0;
+}
+
+
+#choose-liq-mode {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  justify-self: center;
+  align-self: center;
+  grid-row: 2/3;
+  grid-column: 5/7;
+  z-index: 10;
+  user-select: none;
+}
+
+#choose-liq-mode > .wrapper {
+  display: flex;
+  background-color: rgb(253, 234, 241);
+  border-radius: 20px;
+  border: 1px solid #f7f8fa;
+  background-color: #fff;
+  gap: .3rem;
+}
+
+.add-mode.active {
+  background-color: rgb(253, 234, 241);
+  border: 1px solid palevioletred;
+  
+}
+
+.remove-mode.active {
+  background-color: rgb(253, 234, 241);
+  border: 1px solid palevioletred;
+}
+
+.add-mode {
+  text-align: center;
+  background-color: rgb(247, 248, 250);
+  border-radius: 20px;
+  padding: 0.3rem;
+  cursor: grab;
+  border: 1px solid transparent;
+  user-select: none;
+}
+
+.remove-mode {
+  text-align: center;
+  background-color: rgb(247, 248, 250);
+  border-radius: 20px;
+  padding: 0.3rem;
+  cursor: grab;
+  border: 1px solid transparent;
+}
+
+.liq-input {
+  flex: 1;
+  text-align: right;
+  font-family: inherit;
+  font-size: inherit;
+  color: inherit;
+  border: 0;
+  padding: 1rem 1rem 1rem;
+  border-radius: 20px;
+  border: 1px solid rgb(237, 238, 242);
+  background-color: rgb(247, 248, 250);
+}
+
+.lp-balance {
+  z-index: 10;
+  right: 0;
+  top: 5px;
+  bottom: 0;
+  margin-right: 15px;
+  cursor: grab;
+  height: 16px;
+  font-size: 13px;
+  padding: 5px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.balance:hover{
+  background-color: #fff;
+  border-radius: 20px;
+}
+
+#react-select-83-input{
+  cursor: grab;
+}
+
+#react-select-85-input{
+  cursor: grab;
 }

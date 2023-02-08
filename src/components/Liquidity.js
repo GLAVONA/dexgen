@@ -8,18 +8,20 @@ import "@rainbow-me/rainbowkit/styles.css";
 import SettingsModal from "./SettingsModal";
 import CurrencyInput from "react-currency-input-field";
 import { formatUnits, parseUnits } from "ethers/lib/utils.js";
+import { Link } from "react-router-dom";
 
 const WAVAXABI = ["function deposit () payable", "function withdraw(uint256)"];
-
+const FACTORY_ABI = require("../data/FactoryABI.json");
 const ERC20ABI = require("../data/ERC20.json");
 
 const Liquidity = ({
   provider,
-  contractWithWallet,
+  routerContractWithWallet,
   WAVAX_ADDY,
   signer,
   routerAddress,
-  setMode
+  setMode,
+  factoryAddress,
 }) => {
   const [tokenBalance1, setTokenBalance1] = useState();
   const [tokenBalance2, setTokenBalance2] = useState();
@@ -35,8 +37,17 @@ const Liquidity = ({
   const [deadline, setDeadline] = useState(ethers.utils.parseUnits("30"));
   const [fromTokenOne, setFromTokenOne] = useState();
   const [allowanceState, setAllowanceState] = useState(false);
+  const [lpAllowanceState, setLpAllowanceState] = useState(false);
   const [rightNetwork, setRightNetwork] = useState();
   const [liqMode, setLiqMode] = useState("add");
+  const [liqValue, setLiqValue] = useState();
+  const [liqBalance, setLiqBalance] = useState();
+
+  const factoryContract = new ethers.Contract(
+    factoryAddress,
+    FACTORY_ABI,
+    provider
+  );
 
   const getQuote = async () => {
     if (select1 && select2) {
@@ -94,7 +105,7 @@ const Liquidity = ({
       if (fromTokenOne && value1 !== "") {
         try {
           const value1wei = parseUnits(value1.toString(), contract1Decimals);
-          let arrayOut = await contractWithWallet.getAmountsOut(
+          let arrayOut = await routerContractWithWallet.getAmountsOut(
             value1wei,
             addys
           );
@@ -112,7 +123,7 @@ const Liquidity = ({
         try {
           const value2wei = parseUnits(value2.toString(), contract2Decimals);
 
-          let arrayOut = await contractWithWallet.getAmountsIn(
+          let arrayOut = await routerContractWithWallet.getAmountsIn(
             value2wei,
             addys
           );
@@ -128,181 +139,35 @@ const Liquidity = ({
     }
   };
 
-  const swap = async () => {
-    if (select1 && select2) {
-      let addyFrom = select1.addy;
-      let addyTo = select2.addy;
-      if (select1.addy === "AVAX") {
-        addyFrom = WAVAX_ADDY;
-      }
-      if (select2.addy === "AVAX") {
-        addyTo = WAVAX_ADDY;
-      }
-
-      const contract1 = new ethers.Contract(
-        select1.addy === "AVAX" ? WAVAX_ADDY : select1.addy,
-        ERC20ABI,
-        provider
-      );
-      const contract1Decimals = await contract1.decimals();
-      const contract2 = new ethers.Contract(
-        select2.addy === "AVAX" ? WAVAX_ADDY : select2.addy,
-        ERC20ABI,
-        provider
-      );
-      const contract2Decimals = await contract2.decimals();
-
-      const pathArr = [addyFrom, addyTo];
-      const signerAddy = await signer.getAddress();
-
-      if (select1.addy === "AVAX") {
-        if (select2.addy === WAVAX_ADDY) {
-          const contr = new ethers.Contract(WAVAX_ADDY, WAVAXABI, provider);
-          const contractWithWallet = contr.connect(signer);
-          const tx = await contractWithWallet.deposit({
-            value: ethers.utils.parseUnits(value1),
-            gasLimit: 1000000,
-          });
-          const txComplete = await provider.waitForTransaction(tx.hash);
-          if (txComplete) {
-            updateTokenBalance();
-          }
-          return;
-        }
-        if (fromTokenOne) {
-          //swapExactAvaxForTokensSupportingFeeOnTransferTokens
-          const tx =
-            await contractWithWallet.swapExactAVAXForTokensSupportingFeeOnTransferTokens(
-              minVal,
-              pathArr,
-              signerAddy,
-              deadline,
-              {
-                value: ethers.utils.parseUnits(value1),
-                gasLimit: 1000000,
-              }
-            );
-          const txComplete = await provider.waitForTransaction(tx.hash);
-          if (txComplete) {
-            updateTokenBalance();
-          }
-        }
-
-        if (!fromTokenOne) {
-          //swapAVAXForExactTokens
-          const tx = await contractWithWallet.swapAVAXForExactTokens(
-            ethers.utils.parseUnits(value2.toString(), contract2Decimals),
-            pathArr,
-            signerAddy,
-            deadline,
-            {
-              value: ethers.utils.parseUnits(value1),
-              gasLimit: 1000000,
-            }
-          );
-          const txComplete = await provider.waitForTransaction(tx.hash);
-          if (txComplete) {
-            updateTokenBalance();
-          }
-        }
-      }
-      if (select2.addy === "AVAX") {
-        if (select1.addy === WAVAX_ADDY) {
-          const contr = new ethers.Contract(WAVAX_ADDY, WAVAXABI, provider);
-          const contractWithWallet = contr.connect(signer);
-          const tx = await contractWithWallet.withdraw(
-            ethers.utils.parseUnits(value1.toString())
-          );
-          const txComplete = await provider.waitForTransaction(tx.hash);
-          if (txComplete) {
-            updateTokenBalance();
-          }
-          return;
-        }
-        if (fromTokenOne) {
-          //swapExactTokensForAVAXSupportingFeeOnTransferTokens
-          const tx =
-            await contractWithWallet.swapExactTokensForAVAXSupportingFeeOnTransferTokens(
-              ethers.utils.parseUnits(value1.toString(), contract1Decimals),
-              minVal,
-              pathArr,
-              signerAddy,
-              deadline,
-              {
-                gasLimit: 100000,
-              }
-            );
-          const txComplete = await provider.waitForTransaction(tx.hash);
-          if (txComplete) {
-            updateTokenBalance();
-          }
-        }
-        if (!fromTokenOne) {
-          //swapTokensForExactAVAX
-          const tx = await contractWithWallet.swapTokensForExactAVAX(
-            ethers.utils.parseUnits(value2.toString()),
-            ethers.utils.parseUnits(value1.toString(), contract1Decimals),
-            pathArr,
-            signerAddy,
-            deadline,
-            { gasLimit: 100000 }
-          );
-          const txComplete = await provider.waitForTransaction(tx.hash);
-          if (txComplete) {
-            updateTokenBalance();
-          }
-        }
-      }
-
-      if (select1.addy !== "AVAX" && select2.addy !== "AVAX") {
-        if (fromTokenOne) {
-          //swapExactTokensForTokensSupportingFeeOnTransferTokens
-          const tx =
-            await contractWithWallet.swapExactTokensForTokensSupportingFeeOnTransferTokens(
-              ethers.utils.parseUnits(value1.toString(), contract1Decimals),
-              minVal,
-              pathArr,
-              signerAddy,
-              deadline,
-              { gasLimit: 1000000 }
-            );
-          const txComplete = await provider.waitForTransaction(tx.hash);
-          if (txComplete) {
-            updateTokenBalance();
-          }
-        }
-        if (!fromTokenOne) {
-          //swapTokensForExactTokens
-          const tx = await contractWithWallet.swapTokensForExactTokens(
-            ethers.utils.parseUnits(value2.toString(), contract2Decimals),
-            ethers.utils.parseUnits(value1.toString(), contract1Decimals),
-            pathArr,
-            signerAddy,
-            deadline,
-            { gasLimit: 1000000 }
-          );
-          const txComplete = await provider.waitForTransaction(tx.hash);
-          if (txComplete) {
-            updateTokenBalance();
-          }
-        }
-      }
-      updateTokenBalance();
-    } else {
-      return;
+  const addLiquidityAVAX = () => {
+    let tokenAddy;
+    let tokenDesired;
+    let avaxAmount;
+    const LPContract = new ethers.Contract(getLPAddy(), ERC20ABI, provider);
+    const contractWithWallet = LPContract.connect(signer);
+    if (select1.addy === "AVAX") {
+      avaxAmount = value1
+      tokenAddy = select2.addy;
+      tokenDesired = value2 
     }
+    if (select2.addy === "AVAX") {
+      avaxAmount=value2;
+      tokenAddy = select1.addy;
+      tokenDesired=value1;
+    }
+            
   };
 
   useEffect(() => {
     setSelect1(options[0]);
     listAccounts();
     getCoinBalance();
-    setMode("liq")
-
+    setMode("liq");
   }, []);
 
   useEffect(() => {
     getQuote();
+    getLPBalance();
   }, [value1, value2, select1, select2]);
 
   const getCoinBalance = async () => {
@@ -340,6 +205,19 @@ const Liquidity = ({
     }
   };
 
+  const approveLPToken = async () => {
+    const LPContract = new ethers.Contract(getLPAddy(), ERC20ABI, provider);
+    const contractWithWallet = LPContract.connect(signer);
+    const tx = await contractWithWallet.approve(
+      routerAddress,
+      LPContract.totalSupply()
+    );
+    const txComplete = await provider.waitForTransaction(tx.hash);
+    if (txComplete) {
+      checkAllowance();
+    }
+  };
+
   const listAccounts = async () => {
     const accounts = await provider.listAccounts();
     try {
@@ -369,26 +247,28 @@ const Liquidity = ({
         setAllowanceState(true);
       }
     }
+    if (liqMode === "remove") {
+      const LPContract = new ethers.Contract(getLPAddy(), ERC20ABI, provider);
+      const allowance = await LPContract.allowance(
+        signer.getAddress(),
+        routerAddress
+      );
+    }
   };
 
-  const updateTokenBalance = async () => {
-    try {
-      let bal1, bal2;
-      if (select1.addy === "AVAX") {
-        bal1 = await getCoinBalance();
-      } else {
-        bal1 = await getTokenBalance(select1.addy);
-      }
-      if (select2.addy === "AVAX") {
-        bal2 = await getCoinBalance();
-      } else {
-        bal2 = await getTokenBalance(select2.addy);
-      }
-      setTokenBalance1(bal1);
-      setTokenBalance2(bal2);
-    } catch (error) {
-      throw new Error(error);
-    }
+  const getLPAddy = async () => {
+    const LPAddy = await factoryContract.getPair(
+      select1.addy === "AVAX" ? WAVAX_ADDY : select1.addy,
+      select2.addy === "AVAX" ? WAVAX_ADDY : select2.addy
+    );
+    return LPAddy;
+  };
+
+  const getLPBalance = async () => {
+    const LPContract = new ethers.Contract(getLPAddy(), ERC20ABI, provider);
+    const LPBalance = await LPContract.balanceOf(currentAccount);
+    const formattedVal = ethers.utils.formatUnits(LPBalance);
+    setLiqBalance(formattedVal);
   };
 
   useEffect(() => {
@@ -449,10 +329,6 @@ const Liquidity = ({
       border: "none",
       boxShadow: "none",
     }),
-    container: (styles) => ({
-      ...styles,
-      maxWidth: "130px",
-    }),
     indicatorsContainer: (styles) => ({
       ...styles,
       cursor: "grab",
@@ -468,7 +344,10 @@ const Liquidity = ({
     menu: (styles) => ({
       ...styles,
       zIndex: "30",
-      top: "70%",
+      width: "300px",
+    }),
+    container: (styles) => ({
+      ...styles,
     }),
   };
 
@@ -486,14 +365,20 @@ const Liquidity = ({
     }
   };
 
+  const handleLiqMax = (e) => {
+    if (e.target.textContent !== 0) {
+      setLiqValue(liqBalance);
+    }
+  };
+
   return (
-    <div id="swap-card">
+    <div id="liq-card">
       <div className="head">
-        {/* <div id="choose-liq-mode">
+        <div id="choose-liq-mode">
           <div className="wrapper">
             <div
               className={`add-mode ${liqMode === "add" ? "active" : null}`}
-              onClick={() => setLiqMode("swap")}
+              onClick={() => setLiqMode("add")}
             >
               Add
             </div>
@@ -501,138 +386,251 @@ const Liquidity = ({
               className={`remove-mode ${
                 liqMode === "remove" ? "active" : null
               }`}
-              onClick={() => setLiqMode("liq")}
+              onClick={() => setLiqMode("remove")}
             >
               Remove
             </div>
           </div>
-        </div> */}
+        </div>
       </div>
-      <div className="body">
-        <div id="select-fields-liq">
-          <div className="select-field">
-            <Select
-              options={
-                select2
-                  ? optionsState.filter(
-                      (option) => option.addy !== select2.addy
-                    )
-                  : optionsState
-              }
-              select={select1}
-              setSelect={setSelect1}
-              optionsState={optionsState}
-              setOptionsState={setOptionsState}
-              styles={{
-                ...style,
-                container: () => ({
-                  border: select2 && !select1 ? "1px solid red" : null,
-                }),
-              }}
-            >
-              <div
-                className="balance"
-                onClick={(e) => {
-                  handleMax1(e);
+      {liqMode === "add" ? (
+        <div className="body-add">
+          <div id="select-fields-liq">
+            <div className="select-field">
+              <Select
+                options={
+                  select2
+                    ? optionsState.filter(
+                        (option) => option.addy !== select2.addy
+                      )
+                    : optionsState
+                }
+                select={select1}
+                setSelect={setSelect1}
+                optionsState={optionsState}
+                setOptionsState={setOptionsState}
+                styles={{
+                  ...style,
+                  container: (styles) => ({
+                    ...styles,
+                    border: select2 && !select1 ? "1px solid red" : null,
+                  }),
                 }}
               >
-                <span className="max-balance">Balance:</span>
-                {select1 && tokenBalance1 > 0
-                  ? Number(tokenBalance1).toFixed(5)
-                  : 0}
-              </div>
-              <span id="from">Token 1:</span>
-            </Select>
-            <CurrencyInput
-              decimalsLimit={18}
-              allowNegativeValue={false}
-              onValueChange={(e) => {
-                setValue1(e);
-              }}
-              onKeyDown={() => setFromTokenOne(true)}
-              className="amount-input"
-              placeholder="0.0"
-              value={value1}
-            />
-          </div>
+                <div
+                  className="balance"
+                  onClick={(e) => {
+                    handleMax1(e);
+                  }}
+                >
+                  <span className="max-balance">Balance:</span>
+                  {select1 && tokenBalance1 > 0
+                    ? Number(tokenBalance1).toFixed(5)
+                    : 0}
+                </div>
+                <span id="from">Token 1:</span>
+              </Select>
+              <CurrencyInput
+                decimalsLimit={18}
+                allowNegativeValue={false}
+                onValueChange={(e) => {
+                  setValue1(e);
+                }}
+                onKeyDown={() => setFromTokenOne(true)}
+                className="amount-input"
+                placeholder="0.0"
+                value={value1}
+              />
+            </div>
 
-          <div className="select-field">
-            <Select
-              options={
-                select1
-                  ? optionsState.filter(
-                      (option) => option.addy !== select1.addy
-                    )
-                  : optionsState
-              }
-              select={select2}
-              setSelect={setSelect2}
-              optionsState={optionsState}
-              setOptionsState={setOptionsState}
-              styles={{
-                ...style,
-                container: () => ({
-                  border:
-                    select1 && value1 && !select2 ? "1px solid red" : null,
-                }),
-              }}
-            >
-              {" "}
-              <div
-                className="balance"
-                onClick={(e) => {
-                  handleMax2(e);
+            <div className="select-field">
+              <Select
+                options={
+                  select1
+                    ? optionsState.filter(
+                        (option) => option.addy !== select1.addy
+                      )
+                    : optionsState
+                }
+                select={select2}
+                setSelect={setSelect2}
+                optionsState={optionsState}
+                setOptionsState={setOptionsState}
+                styles={{
+                  ...style,
+                  container: (styles) => ({
+                    ...styles,
+                    border:
+                      select1 && value1 && !select2 ? "1px solid red" : null,
+                  }),
                 }}
               >
-                <span className="max-balance">Balance:</span>
-                {select2 && tokenBalance2 > 0
-                  ? Number(tokenBalance2).toFixed(5)
-                  : 0}
-              </div>{" "}
-              <span id="to">Token 2:</span>
-            </Select>
-            <CurrencyInput
-              decimalsLimit={18}
-              allowNegativeValue={false}
-              onValueChange={async (e) => {
-                setValue2(e);
-              }}
-              onKeyDown={() => setFromTokenOne(false)}
-              className="amount-input"
-              placeholder="0.0"
-              value={value2}
-              disabled={select2 ? false : true}
-            />
+                {" "}
+                <div
+                  className="balance"
+                  onClick={(e) => {
+                    handleMax2(e);
+                  }}
+                >
+                  <span className="max-balance">Balance:</span>
+                  {select2 && tokenBalance2 > 0
+                    ? Number(tokenBalance2).toFixed(5)
+                    : 0}
+                </div>{" "}
+                <span id="to">Token 2:</span>
+              </Select>
+              <CurrencyInput
+                decimalsLimit={18}
+                allowNegativeValue={false}
+                onValueChange={async (e) => {
+                  setValue2(e);
+                }}
+                onKeyDown={() => setFromTokenOne(false)}
+                className="amount-input"
+                placeholder="0.0"
+                value={value2}
+                disabled={select2 ? false : true}
+              />
+            </div>
           </div>
+          <div id="min-val">
+            Min:{" "}
+            {minVal
+              ? parseFloat(ethers.utils.formatUnits(minVal)).toFixed(5)
+              : 0.0}
+          </div>
+          <CustomConnect
+            setConnected={setConnected}
+            setRightNetwork={setRightNetwork}
+          ></CustomConnect>
+          {rightNetwork && connected && allowanceState && select2 && select1 ? (
+            <button id="swap" onClick={() => addLiquidityAVAX()}>
+              Add Liquidity
+            </button>
+          ) : null}
+          {rightNetwork &&
+          connected &&
+          !allowanceState &&
+          select1?.addy !== "AVAX" ? (
+            <button id="swap" onClick={() => approveToken()}>
+              Approve {select1?.label}
+            </button>
+          ) : null}
+          {rightNetwork && connected && (!select1 || !select2) ? (
+            <button id="swap-disabled">Add Liquidity</button>
+          ) : null}
+          {}
         </div>
-        <div id="min-val">
-          Min:{" "}
-          {minVal
-            ? parseFloat(ethers.utils.formatUnits(minVal)).toFixed(5)
-            : 0.0}
+      ) : null}
+      {liqMode === "remove" ? (
+        <div className="body-remove">
+          <Select
+            options={
+              select2
+                ? optionsState.filter((option) => option.addy !== select2.addy)
+                : optionsState
+            }
+            select={select1}
+            setSelect={setSelect1}
+            optionsState={optionsState}
+            setOptionsState={setOptionsState}
+            styles={{
+              ...style,
+              container: (styles) => ({
+                ...styles,
+                border:
+                  select2 && !select1
+                    ? "1px solid red"
+                    : "1px solid rgb(237, 238, 242)",
+              }),
+            }}
+          ></Select>
+          <Select
+            options={
+              select1
+                ? optionsState.filter((option) => option.addy !== select1.addy)
+                : optionsState
+            }
+            select={select2}
+            setSelect={setSelect2}
+            optionsState={optionsState}
+            setOptionsState={setOptionsState}
+            styles={{
+              ...style,
+              container: (styles) => ({
+                ...styles,
+                border:
+                  select1 && !select2
+                    ? "1px solid red"
+                    : "1px solid rgb(237, 238, 242)",
+              }),
+            }}
+          ></Select>
+          <div
+            className="lp-balance"
+            onClick={(e) => {
+              handleLiqMax(e);
+            }}
+          >
+            <span className="max-balance">Balance:</span>
+            {select1 && select2 && liqBalance > 0
+              ? Number(liqBalance).toFixed(5)
+              : 0}
+          </div>
+          <CurrencyInput
+            decimalsLimit={18}
+            allowNegativeValue={false}
+            onValueChange={async (e) => {
+              setLiqValue(e);
+            }}
+            className="liq-input"
+            placeholder="0.0"
+            value={liqValue}
+            disabled={select2 && select1 ? false : true}
+          />
+          <CustomConnect
+            setConnected={setConnected}
+            setRightNetwork={setRightNetwork}
+          ></CustomConnect>
+          {rightNetwork &&
+          connected &&
+          allowanceState &&
+          select2 &&
+          select1 &&
+          liqMode === "add" ? (
+            <button id="swap" onClick={() => addLiquidityAVAX()}>
+              Add Liquidity
+            </button>
+          ) : null}
+          {rightNetwork &&
+          connected &&
+          lpAllowanceState &&
+          select2 &&
+          select1 &&
+          liqMode === "remove" ? (
+            <button id="swap" onClick={() => addLiquidityAVAX()}>
+              Remove Liquidity
+            </button>
+          ) : null}
+          {rightNetwork && connected && !lpAllowanceState ? (
+            <button id="swap" onClick={() => approveLPToken()}>
+              Approve DLP
+            </button>
+          ) : null}
+          {rightNetwork &&
+          connected &&
+          (!select1 || !select2) &&
+          liqMode === "add" ? (
+            <button id="swap-disabled">Add Liquidity</button>
+          ) : null}
+          {rightNetwork &&
+          connected &&
+          (!select1 || !select2) &&
+          liqMode === "remove" ? (
+            <button id="swap-disabled">Remove Liquidity</button>
+          ) : null}
         </div>
-        <CustomConnect
-          setConnected={setConnected}
-          setRightNetwork={setRightNetwork}
-        ></CustomConnect>
-        {rightNetwork && connected && allowanceState && select2 && select1 ? (
-          <button id="swap" onClick={() => swap()}>
-            Add Liquidity
-          </button>
-        ) : null}
-        {rightNetwork &&
-        connected &&
-        !allowanceState &&
-        select1?.addy !== "AVAX" ? (
-          <button id="swap" onClick={() => approveToken()}>
-            Approve {select1?.label}
-          </button>
-        ) : null}
-        {rightNetwork && connected && (!select1 || !select2) ? (
-          <button id="swap-disabled">Add Liquidity</button>
-        ) : null}
-        {}
-      </div>
+      ) : null}
     </div>
   );
 };

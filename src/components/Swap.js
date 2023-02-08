@@ -11,7 +11,6 @@ import { formatUnits, parseUnits } from "ethers/lib/utils.js";
 
 
 const WAVAXABI = ["function deposit () payable", "function withdraw(uint256)"];
-
 const ERC20ABI = require("../data/ERC20.json");
 
 const Swap = ({provider, contractWithWallet, WAVAX_ADDY, signer, routerAddress, setMode}) => {

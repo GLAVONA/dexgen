@@ -40,17 +40,17 @@ const wagmiClient = createClient({
   provider,
 });
 
-const ERC20ABI = require("./data/ERC20.json");
 
 const App = () => {
   const [mode, setMode] = useState();
 
   const provider = new ethers.providers.Web3Provider(window.ethereum);
-  const routerAddress = "0xecBdEe2285BE419B4fc4d171D9030E2255941329";// 0xd7f655E3376cE2D7A2b08fF01Eb3B1023191A901 TJ Router Fuji
+  const factoryAddress = "0x14690446Db665B3d21B92fb6A8b94C73655b5149";
+  const routerAddress = "0xecBdEe2285BE419B4fc4d171D9030E2255941329"; // 0xd7f655E3376cE2D7A2b08fF01Eb3B1023191A901 TJ Router Fuji
   const WAVAX_ADDY = "0x48AA9B88d6DdAf35792d422CE608edcDF33359e0";
-  const contract = new ethers.Contract(routerAddress, ROUTER_ABI, provider);
+  const routerContract = new ethers.Contract(routerAddress, ROUTER_ABI, provider);
   const signer = provider.getSigner();
-  const contractWithWallet = contract.connect(signer);
+  const routerContractWithWallet = routerContract.connect(signer);
 
   return (
     <WagmiConfig client={wagmiClient}>
@@ -94,7 +94,7 @@ const App = () => {
                 element={
                   <Swap
                     provider={provider}
-                    contractWithWallet={contractWithWallet}
+                    routerContractWithWallet={routerContractWithWallet}
                     WAVAX_ADDY={WAVAX_ADDY}
                     signer={signer}
                     routerAddress={routerAddress}
@@ -107,10 +107,11 @@ const App = () => {
                 element={
                   <Liquidity
                     provider={provider}
-                    contractWithWallet={contractWithWallet}
+                    routerContractWithWallet={routerContractWithWallet}
                     WAVAX_ADDY={WAVAX_ADDY}
                     signer={signer}
                     routerAddress={routerAddress}
+                    factoryAddress={factoryAddress}
                     setMode={setMode}
                   />
                 }
