@@ -23,6 +23,8 @@ const ROUTER_ABI = [
   "function swapTokensForExactAVAX( uint256, uint256, address[], address, uint256) returns (uint256[])",
   "function swapExactTokensForTokensSupportingFeeOnTransferTokens(uint256,uint256,address[],address,uint256)",
   "function swapTokensForExactTokens(uint256,uint256,address[],address,uint256)",
+  "function addLiquidityAVAX(address,uint256,uint256,uint256,address,uint256) payable",
+  "function removeLiquidityAVAXSupportingFeeOnTransferTokens(address,uint256,uint256,uint256,address,uint256)"
 ];
 
 const { chains, provider } = configureChains(

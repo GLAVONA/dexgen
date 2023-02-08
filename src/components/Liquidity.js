@@ -139,23 +139,82 @@ const Liquidity = ({
     }
   };
 
-  const addLiquidityAVAX = () => {
+  const addLiquidityAVAX = async () => {
     let tokenAddy;
     let tokenDesired;
     let avaxAmount;
-    const LPContract = new ethers.Contract(getLPAddy(), ERC20ABI, provider);
-    const contractWithWallet = LPContract.connect(signer);
+    let amountTokenMin = 0;
+    let amountAvaxMin = 0;
+    let decimals = 0;
+
     if (select1.addy === "AVAX") {
-      avaxAmount = value1
+      avaxAmount = value1;
       tokenAddy = select2.addy;
-      tokenDesired = value2 
-    }
-    if (select2.addy === "AVAX") {
-      avaxAmount=value2;
+      const contract2 = new ethers.Contract(
+        select2.addy === "AVAX" ? WAVAX_ADDY : select2.addy,
+        ERC20ABI,
+        provider
+      );
+      decimals = await contract2.decimals();
+      tokenDesired = ethers.utils.parseUnits(value2.toString(), decimals);
+    } else if (select2.addy === "AVAX") {
+      avaxAmount = value2;
       tokenAddy = select1.addy;
-      tokenDesired=value1;
+      const contract1 = new ethers.Contract(
+        select1.addy === "AVAX" ? WAVAX_ADDY : select1.addy,
+        ERC20ABI,
+        provider
+      );
+      decimals = await contract1.decimals();
+      tokenDesired = ethers.utils.parseUnits(value1.toString(), decimals);
+    } else {
+      alert("Please only add liquidity to AVAX pairs");
+      return;
     }
-            
+    const tx = await routerContractWithWallet.addLiquidityAVAX(
+      tokenAddy,
+      tokenDesired,
+      amountTokenMin,
+      amountAvaxMin,
+      signer.getAddress(),
+      deadline,
+      {
+        value: ethers.utils.parseUnits(avaxAmount),
+        gasLimit: 1000000,
+      }
+    );
+    const txComplete = await provider.waitForTransaction(tx.hash);
+    if (txComplete) {
+      updateTokenBalance();
+    }
+  };
+
+  const removeLiquidityAvax = async () => {
+    let tokenAddy;
+    let lpAmount = liqValue;
+    let amountTokenMin = 0;
+    let amountAvaxMin = 0;
+    // removeLiquidityAVAXSupportingFeeOnTransferTokens
+
+    if (select1.addy === "AVAX") {
+      tokenAddy = select2.addy;
+    } else if (select2.addy === "AVAX") {
+      tokenAddy = select1.addy;
+    }
+
+    const tx =
+      await routerContractWithWallet.removeLiquidityAVAXSupportingFeeOnTransferTokens(
+        tokenAddy,
+        lpAmount,
+        amountTokenMin,
+        amountAvaxMin,
+        signer.getAddress(),
+        deadline
+      );
+    const txComplete = await provider.waitForTransaction(tx.hash);
+    if (txComplete) {
+      updateTokenBalance();
+    }
   };
 
   useEffect(() => {
@@ -168,6 +227,7 @@ const Liquidity = ({
   useEffect(() => {
     getQuote();
     getLPBalance();
+    checkAllowance();
   }, [value1, value2, select1, select2]);
 
   const getCoinBalance = async () => {
@@ -181,6 +241,27 @@ const Liquidity = ({
       const token = new ethers.Contract(addy, ERC20ABI, provider);
       const tokenBalance = await token.balanceOf(currentAccount);
       return ethers.utils.formatEther(tokenBalance);
+    } catch (error) {
+      throw new Error(error);
+    }
+  };
+
+  const updateTokenBalance = async () => {
+    try {
+      let bal1, bal2;
+      if (select1.addy === "AVAX") {
+        bal1 = await getCoinBalance();
+      } else {
+        bal1 = await getTokenBalance(select1.addy);
+      }
+      if (select2.addy === "AVAX") {
+        bal2 = await getCoinBalance();
+      } else {
+        bal2 = await getTokenBalance(select2.addy);
+      }
+      setTokenBalance1(bal1);
+      setTokenBalance2(bal2);
+      getLPBalance();
     } catch (error) {
       throw new Error(error);
     }
@@ -231,11 +312,20 @@ const Liquidity = ({
 
   const checkAllowance = async () => {
     if (select1.addy === "AVAX") {
-      setAllowanceState(true);
-      return;
+      const contract2 = new ethers.Contract(select2.addy, ERC20ABI, provider);
+      const allowance = await contract2.allowance(
+        signer.getAddress(),
+        routerAddress
+      );
+      const totalSupply = await contract2.totalSupply();
+      if (allowance < totalSupply || allowance === 0) {
+        setAllowanceState(false);
+      } else {
+        setAllowanceState(true);
+      }
     }
-    const contract1 = new ethers.Contract(select1.addy, ERC20ABI, provider);
-    if (select1.addy !== "AVAX") {
+    if (select2.addy === "AVAX") {
+      const contract1 = new ethers.Contract(select1.addy, ERC20ABI, provider);
       const allowance = await contract1.allowance(
         signer.getAddress(),
         routerAddress
@@ -253,6 +343,12 @@ const Liquidity = ({
         signer.getAddress(),
         routerAddress
       );
+      const totalSupply = LPContract.totalSupply();
+      if (allowance < totalSupply || allowance === 0) {
+        setLpAllowanceState(false);
+      } else {
+        setLpAllowanceState(true);
+      }
     }
   };
 
@@ -511,9 +607,10 @@ const Liquidity = ({
           {rightNetwork &&
           connected &&
           !allowanceState &&
-          select1?.addy !== "AVAX" ? (
+          select1 &&
+          select2 ? (
             <button id="swap" onClick={() => approveToken()}>
-              Approve {select1?.label}
+              Approve {select1.addy === "AVAX" ? select2.label : select1.label}
             </button>
           ) : null}
           {rightNetwork && connected && (!select1 || !select2) ? (
@@ -608,11 +705,11 @@ const Liquidity = ({
           select2 &&
           select1 &&
           liqMode === "remove" ? (
-            <button id="swap" onClick={() => addLiquidityAVAX()}>
+            <button id="swap" onClick={() => removeLiquidityAvax()}>
               Remove Liquidity
             </button>
           ) : null}
-          {rightNetwork && connected && !lpAllowanceState ? (
+          {rightNetwork && connected && !lpAllowanceState &&select1 && select2 ? (
             <button id="swap" onClick={() => approveLPToken()}>
               Approve DLP
             </button>
