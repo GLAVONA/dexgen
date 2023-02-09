@@ -61,8 +61,9 @@ const Swap = ({provider, routerContractWithWallet, WAVAX_ADDY, signer, routerAdd
       }
 
       if (fromTokenOne) {
-        const val2 = value2 - (value2 * slippage) / 100;
-        setMinval(ethers.utils.parseUnits(val2.toString(), contract2Decimals));
+        let val2 = value2 - (value2 * slippage) / 100;
+        val2 = val2.toFixed(contract2Decimals)
+        setMinval(ethers.utils.parseUnits(val2.toString(),contract2Decimals))
       }
 
       if (!fromTokenOne) {
@@ -87,16 +88,17 @@ const Swap = ({provider, routerContractWithWallet, WAVAX_ADDY, signer, routerAdd
       let addys = [addyFrom, addyTo];
       if (fromTokenOne && value1 !== "") {
         try {
-          const value1wei = parseUnits(value1.toString(), contract1Decimals);
+          const value1wei = ethers.utils.parseUnits(value1.toString(), contract1Decimals);
           let arrayOut = await routerContractWithWallet.getAmountsOut(
             value1wei,
             addys
           );
-          const tokenOut = formatUnits(arrayOut[arrayOut.length - 1]);
+          const tokenOut = ethers.utils.formatUnits(arrayOut[arrayOut.length - 1]);
           if (tokenOut) {
             setValue2(tokenOut.toString());
           }
-        } catch (error) {
+        } 
+        catch (error) {
           setValue2("");
           throw new Error(error);
         }
@@ -104,13 +106,13 @@ const Swap = ({provider, routerContractWithWallet, WAVAX_ADDY, signer, routerAdd
 
       if (!fromTokenOne && value2 !== "") {
         try {
-          const value2wei = parseUnits(value2.toString(), contract2Decimals);
+          const value2wei = ethers.utils.parseUnits(value2.toString(), contract2Decimals);
 
           let arrayOut = await routerContractWithWallet.getAmountsIn(
             value2wei,
             addys
           );
-          const tokenOut = formatUnits(arrayOut[0], contract1Decimals);
+          const tokenOut = ethers.utils.formatUnits(arrayOut[0], contract1Decimals);
           if (tokenOut) {
             setValue1(tokenOut.toString());
           }
@@ -223,7 +225,7 @@ const Swap = ({provider, routerContractWithWallet, WAVAX_ADDY, signer, routerAdd
               signerAddy,
               deadline,
               {
-                gasLimit: 100000,
+                gasLimit: 1000000,
               }
             );
           const txComplete = await provider.waitForTransaction(tx.hash);

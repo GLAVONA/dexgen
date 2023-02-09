@@ -191,7 +191,7 @@ const Liquidity = ({
 
   const removeLiquidityAvax = async () => {
     let tokenAddy;
-    let lpAmount = liqValue;
+    let lpAmount = ethers.utils.parseUnits(liqValue);
     let amountTokenMin = 0;
     let amountAvaxMin = 0;
     // removeLiquidityAVAXSupportingFeeOnTransferTokens
