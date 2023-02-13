@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { ethers } from "ethers";
 import Select from "./Select";
-import options from "../data/options";
+import tokenData from "../data/options.json";
 
 import { CustomConnect } from "./CustomConnect";
 import "@rainbow-me/rainbowkit/styles.css";
@@ -9,17 +9,23 @@ import SettingsModal from "./SettingsModal";
 import CurrencyInput from "react-currency-input-field";
 import { formatUnits, parseUnits } from "ethers/lib/utils.js";
 
-
 const WAVAXABI = ["function deposit () payable", "function withdraw(uint256)"];
 const ERC20ABI = require("../data/ERC20.json");
 
-const Swap = ({provider, routerContractWithWallet, WAVAX_ADDY, signer, routerAddress, setMode}) => {
+const Swap = ({
+  provider,
+  routerContractWithWallet,
+  WAVAX_address,
+  signer,
+  routerAddress,
+  setMode,
+}) => {
   const [tokenBalance1, setTokenBalance1] = useState();
   const [tokenBalance2, setTokenBalance2] = useState();
   const [currentAccount, setCurrentAccount] = useState();
   const [select1, setSelect1] = useState();
   const [select2, setSelect2] = useState();
-  const [optionsState, setOptionsState] = useState(options);
+  const [optionsState, setOptionsState] = useState(tokenData.tokens);
   const [connected, setConnected] = useState();
   const [showSettings, setShowSettings] = useState(false);
   const [value1, setValue1] = useState();
@@ -29,27 +35,26 @@ const Swap = ({provider, routerContractWithWallet, WAVAX_ADDY, signer, routerAdd
   const [deadline, setDeadline] = useState(ethers.utils.parseUnits("30"));
   const [fromTokenOne, setFromTokenOne] = useState();
   const [rightNetwork, setRightNetwork] = useState();
-  const [allowanceState,setAllowanceState] = useState();
-  
+  const [allowanceState, setAllowanceState] = useState();
 
   const getQuote = async () => {
     if (select1 && select2) {
       const contract1 = new ethers.Contract(
-        select1.addy === "AVAX" ? WAVAX_ADDY : select1.addy,
+        select1.address === "AVAX" ? WAVAX_address : select1.address,
         ERC20ABI,
         provider
       );
       const contract1Decimals = await contract1.decimals();
       const contract2 = new ethers.Contract(
-        select2.addy === "AVAX" ? WAVAX_ADDY : select2.addy,
+        select2.address === "AVAX" ? WAVAX_address : select2.address,
         ERC20ABI,
         provider
       );
       const contract2Decimals = await contract2.decimals();
 
       if (
-        (select1.addy === "AVAX" && select2.addy === WAVAX_ADDY) ||
-        (select1.addy === WAVAX_ADDY && select2.addy === "AVAX")
+        (select1.address === "AVAX" && select2.address === WAVAX_address) ||
+        (select1.address === WAVAX_address && select2.address === "AVAX")
       ) {
         if (fromTokenOne) {
           setValue2(value1);
@@ -62,8 +67,8 @@ const Swap = ({provider, routerContractWithWallet, WAVAX_ADDY, signer, routerAdd
 
       if (fromTokenOne) {
         let val2 = value2 - (value2 * slippage) / 100;
-        val2 = val2.toFixed(contract2Decimals)
-        setMinval(ethers.utils.parseUnits(val2.toString(),contract2Decimals))
+        val2 = val2.toFixed(contract2Decimals);
+        setMinval(ethers.utils.parseUnits(val2.toString(), contract2Decimals));
       }
 
       if (!fromTokenOne) {
@@ -72,33 +77,37 @@ const Swap = ({provider, routerContractWithWallet, WAVAX_ADDY, signer, routerAdd
         );
       }
 
-      if (select1.addy !== "AVAX") {
+      if (select1.address !== "AVAX") {
         checkAllowance();
       }
 
-      let addyFrom = select1.addy;
-      let addyTo = select2.addy;
-      if (select1.addy === "AVAX") {
-        addyFrom = WAVAX_ADDY;
+      let addressFrom = select1.address;
+      let addressTo = select2.address;
+      if (select1.address === "AVAX") {
+        addressFrom = WAVAX_address;
       }
-      if (select2.addy === "AVAX") {
-        addyTo = WAVAX_ADDY;
+      if (select2.address === "AVAX") {
+        addressTo = WAVAX_address;
       }
 
-      let addys = [addyFrom, addyTo];
+      let addresss = [addressFrom, addressTo];
       if (fromTokenOne && value1 !== "") {
         try {
-          const value1wei = ethers.utils.parseUnits(value1.toString(), contract1Decimals);
+          const value1wei = ethers.utils.parseUnits(
+            value1.toString(),
+            contract1Decimals
+          );
           let arrayOut = await routerContractWithWallet.getAmountsOut(
             value1wei,
-            addys
+            addresss
           );
-          const tokenOut = ethers.utils.formatUnits(arrayOut[arrayOut.length - 1]);
+          const tokenOut = ethers.utils.formatUnits(
+            arrayOut[arrayOut.length - 1]
+          );
           if (tokenOut) {
             setValue2(tokenOut.toString());
           }
-        } 
-        catch (error) {
+        } catch (error) {
           setValue2("");
           throw new Error(error);
         }
@@ -106,13 +115,19 @@ const Swap = ({provider, routerContractWithWallet, WAVAX_ADDY, signer, routerAdd
 
       if (!fromTokenOne && value2 !== "") {
         try {
-          const value2wei = ethers.utils.parseUnits(value2.toString(), contract2Decimals);
+          const value2wei = ethers.utils.parseUnits(
+            value2.toString(),
+            contract2Decimals
+          );
 
           let arrayOut = await routerContractWithWallet.getAmountsIn(
             value2wei,
-            addys
+            addresss
           );
-          const tokenOut = ethers.utils.formatUnits(arrayOut[0], contract1Decimals);
+          const tokenOut = ethers.utils.formatUnits(
+            arrayOut[0],
+            contract1Decimals
+          );
           if (tokenOut) {
             setValue1(tokenOut.toString());
           }
@@ -126,34 +141,34 @@ const Swap = ({provider, routerContractWithWallet, WAVAX_ADDY, signer, routerAdd
 
   const swap = async () => {
     if (select1 && select2) {
-      let addyFrom = select1.addy;
-      let addyTo = select2.addy;
-      if (select1.addy === "AVAX") {
-        addyFrom = WAVAX_ADDY;
+      let addressFrom = select1.address;
+      let addressTo = select2.address;
+      if (select1.address === "AVAX") {
+        addressFrom = WAVAX_address;
       }
-      if (select2.addy === "AVAX") {
-        addyTo = WAVAX_ADDY;
+      if (select2.address === "AVAX") {
+        addressTo = WAVAX_address;
       }
 
       const contract1 = new ethers.Contract(
-        select1.addy === "AVAX" ? WAVAX_ADDY : select1.addy,
+        select1.address === "AVAX" ? WAVAX_address : select1.address,
         ERC20ABI,
         provider
       );
       const contract1Decimals = await contract1.decimals();
       const contract2 = new ethers.Contract(
-        select2.addy === "AVAX" ? WAVAX_ADDY : select2.addy,
+        select2.address === "AVAX" ? WAVAX_address : select2.address,
         ERC20ABI,
         provider
       );
       const contract2Decimals = await contract2.decimals();
 
-      const pathArr = [addyFrom, addyTo];
-      const signerAddy = await signer.getAddress();
+      const pathArr = [addressFrom, addressTo];
+      const signeraddress = await signer.getAddress();
 
-      if (select1.addy === "AVAX") {
-        if (select2.addy === WAVAX_ADDY) {
-          const contr = new ethers.Contract(WAVAX_ADDY, WAVAXABI, provider);
+      if (select1.address === "AVAX") {
+        if (select2.address === WAVAX_address) {
+          const contr = new ethers.Contract(WAVAX_address, WAVAXABI, provider);
           const routerContractWithWallet = contr.connect(signer);
           const tx = await routerContractWithWallet.deposit({
             value: ethers.utils.parseUnits(value1),
@@ -171,7 +186,7 @@ const Swap = ({provider, routerContractWithWallet, WAVAX_ADDY, signer, routerAdd
             await routerContractWithWallet.swapExactAVAXForTokensSupportingFeeOnTransferTokens(
               minVal,
               pathArr,
-              signerAddy,
+              signeraddress,
               deadline,
               {
                 value: ethers.utils.parseUnits(value1),
@@ -189,7 +204,7 @@ const Swap = ({provider, routerContractWithWallet, WAVAX_ADDY, signer, routerAdd
           const tx = await routerContractWithWallet.swapAVAXForExactTokens(
             ethers.utils.parseUnits(value2.toString(), contract2Decimals),
             pathArr,
-            signerAddy,
+            signeraddress,
             deadline,
             {
               value: ethers.utils.parseUnits(value1),
@@ -202,9 +217,9 @@ const Swap = ({provider, routerContractWithWallet, WAVAX_ADDY, signer, routerAdd
           }
         }
       }
-      if (select2.addy === "AVAX") {
-        if (select1.addy === WAVAX_ADDY) {
-          const contr = new ethers.Contract(WAVAX_ADDY, WAVAXABI, provider);
+      if (select2.address === "AVAX") {
+        if (select1.address === WAVAX_address) {
+          const contr = new ethers.Contract(WAVAX_address, WAVAXABI, provider);
           const routerContractWithWallet = contr.connect(signer);
           const tx = await routerContractWithWallet.withdraw(
             ethers.utils.parseUnits(value1.toString())
@@ -222,7 +237,7 @@ const Swap = ({provider, routerContractWithWallet, WAVAX_ADDY, signer, routerAdd
               ethers.utils.parseUnits(value1.toString(), contract1Decimals),
               minVal,
               pathArr,
-              signerAddy,
+              signeraddress,
               deadline,
               {
                 gasLimit: 1000000,
@@ -239,7 +254,7 @@ const Swap = ({provider, routerContractWithWallet, WAVAX_ADDY, signer, routerAdd
             ethers.utils.parseUnits(value2.toString()),
             ethers.utils.parseUnits(value1.toString(), contract1Decimals),
             pathArr,
-            signerAddy,
+            signeraddress,
             deadline,
             { gasLimit: 100000 }
           );
@@ -250,7 +265,7 @@ const Swap = ({provider, routerContractWithWallet, WAVAX_ADDY, signer, routerAdd
         }
       }
 
-      if (select1.addy !== "AVAX" && select2.addy !== "AVAX") {
+      if (select1.address !== "AVAX" && select2.address !== "AVAX") {
         if (fromTokenOne) {
           //swapExactTokensForTokensSupportingFeeOnTransferTokens
           const tx =
@@ -258,7 +273,7 @@ const Swap = ({provider, routerContractWithWallet, WAVAX_ADDY, signer, routerAdd
               ethers.utils.parseUnits(value1.toString(), contract1Decimals),
               minVal,
               pathArr,
-              signerAddy,
+              signeraddress,
               deadline,
               { gasLimit: 1000000 }
             );
@@ -273,7 +288,7 @@ const Swap = ({provider, routerContractWithWallet, WAVAX_ADDY, signer, routerAdd
             ethers.utils.parseUnits(value2.toString(), contract2Decimals),
             ethers.utils.parseUnits(value1.toString(), contract1Decimals),
             pathArr,
-            signerAddy,
+            signeraddress,
             deadline,
             { gasLimit: 1000000 }
           );
@@ -293,10 +308,10 @@ const Swap = ({provider, routerContractWithWallet, WAVAX_ADDY, signer, routerAdd
   };
 
   useEffect(() => {
-    setSelect1(options[0]);
     listAccounts();
+    setSelect1(optionsState[0]);
     getCoinBalance();
-    setMode("swap")
+    setMode("swap");
   }, []);
 
   useEffect(() => {
@@ -309,9 +324,9 @@ const Swap = ({provider, routerContractWithWallet, WAVAX_ADDY, signer, routerAdd
     return normalizeNumber;
   };
 
-  const getTokenBalance = async (addy) => {
+  const getTokenBalance = async (address) => {
     try {
-      const token = new ethers.Contract(addy, ERC20ABI, provider);
+      const token = new ethers.Contract(address, ERC20ABI, provider);
       const tokenBalance = await token.balanceOf(currentAccount);
       return ethers.utils.formatEther(tokenBalance);
     } catch (error) {
@@ -321,11 +336,11 @@ const Swap = ({provider, routerContractWithWallet, WAVAX_ADDY, signer, routerAdd
 
   const approveToken = async () => {
     const contract1 = new ethers.Contract(
-      select1.addy === "AVAX" ? WAVAX_ADDY : select1.addy,
+      select1.address === "AVAX" ? WAVAX_address : select1.address,
       ERC20ABI,
       provider
     );
-    if (select1.addy !== "AVAX") {
+    if (select1.address !== "AVAX") {
       const routerContractWithWallet = contract1.connect(signer);
       const tx = await routerContractWithWallet.approve(
         routerAddress,
@@ -339,12 +354,12 @@ const Swap = ({provider, routerContractWithWallet, WAVAX_ADDY, signer, routerAdd
   };
 
   const checkAllowance = async () => {
-    if (select1.addy === "AVAX") {
+    if (select1.address === "AVAX") {
       setAllowanceState(true);
       return;
     }
-    const contract1 = new ethers.Contract(select1.addy, ERC20ABI, provider);
-    if (select1.addy !== "AVAX") {
+    const contract1 = new ethers.Contract(select1.address, ERC20ABI, provider);
+    if (select1.address !== "AVAX") {
       const allowance = await contract1.allowance(
         signer.getAddress(),
         routerAddress
@@ -361,15 +376,15 @@ const Swap = ({provider, routerContractWithWallet, WAVAX_ADDY, signer, routerAdd
   const updateTokenBalance = async () => {
     try {
       let bal1, bal2;
-      if (select1.addy === "AVAX") {
+      if (select1.address === "AVAX") {
         bal1 = await getCoinBalance();
       } else {
-        bal1 = await getTokenBalance(select1.addy);
+        bal1 = await getTokenBalance(select1.address);
       }
-      if (select2.addy === "AVAX") {
+      if (select2.address === "AVAX") {
         bal2 = await getCoinBalance();
       } else {
-        bal2 = await getTokenBalance(select2.addy);
+        bal2 = await getTokenBalance(select2.address);
       }
       setTokenBalance1(bal1);
       setTokenBalance2(bal2);
@@ -390,18 +405,18 @@ const Swap = ({provider, routerContractWithWallet, WAVAX_ADDY, signer, routerAdd
   useEffect(() => {
     if (!currentAccount || !select1) return;
     const fetchData = async () => {
-      if (select1.addy === "AVAX") {
+      if (select1.address === "AVAX") {
         const coinBalance = await getCoinBalance();
         setTokenBalance1(coinBalance);
         return;
       } else {
         const contr = new ethers.Contract(
-          select1.addy === "AVAX" ? WAVAX_ADDY : select1.addy,
+          select1.address === "AVAX" ? WAVAX_address : select1.address,
           ERC20ABI,
           provider
         );
       }
-      const result = await getTokenBalance(select1.addy);
+      const result = await getTokenBalance(select1.address);
       setTokenBalance1(result);
       setValue1("");
     };
@@ -412,18 +427,18 @@ const Swap = ({provider, routerContractWithWallet, WAVAX_ADDY, signer, routerAdd
   useEffect(() => {
     if (!currentAccount || !select2) return;
     const fetchData = async () => {
-      if (select2.addy === "AVAX") {
+      if (select2.address === "AVAX") {
         const coinBalance = await getCoinBalance();
         setTokenBalance2(coinBalance);
         return;
       } else {
         const contr = new ethers.Contract(
-          select2.addy === "AVAX" ? WAVAX_ADDY : select2.addy,
+          select2.address === "AVAX" ? WAVAX_address : select2.address,
           ERC20ABI,
           provider
         );
       }
-      const result = await getTokenBalance(select2.addy);
+      const result = await getTokenBalance(select2.address);
       setTokenBalance2(result);
       setValue2("");
     };
@@ -494,195 +509,199 @@ const Swap = ({provider, routerContractWithWallet, WAVAX_ADDY, signer, routerAdd
   };
 
   return (
-            <div id="swap-card">
-              <div className="head">
-                <SettingsModal
-                  close={closeSettings}
-                  shown={showSettings}
-                  slippage={slippage}
-                  setSlippage={setSlippage}
-                  deadline={deadline}
-                  setDeadline={setDeadline}
-                >
-                  {" "}
-                </SettingsModal>
-                <div className="head-title">Trade</div>
-                <div
-                  className="head-button"
-                  onClick={() => {
-                    setShowSettings(!showSettings);
-                  }}
-                >
-                  <div>
-                    {" "}
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="24"
-                      height="24"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      stroke-width="2"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      class="sc-1ndknrv-0 fZuPAR"
-                    >
-                      <circle cx="12" cy="12" r="3"></circle>
-                      <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
-                    </svg>
-                  </div>
-                </div>
+    <div id="swap-card">
+      <div className="head">
+        <SettingsModal
+          close={closeSettings}
+          shown={showSettings}
+          slippage={slippage}
+          setSlippage={setSlippage}
+          deadline={deadline}
+          setDeadline={setDeadline}
+        >
+          {" "}
+        </SettingsModal>
+        <div className="head-title">Trade</div>
+        <div
+          className="head-button"
+          onClick={() => {
+            setShowSettings(!showSettings);
+          }}
+        >
+          <div>
+            {" "}
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="sc-1ndknrv-0 fZuPAR"
+            >
+              <circle cx="12" cy="12" r="3"></circle>
+              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+            </svg>
+          </div>
+        </div>
+      </div>
+      <div className="body">
+        <button
+          onClick={() => {
+            console.log(select1.address, optionsState);
+          }}
+        >
+          TEST BUTTON
+        </button>
+        <div id="select-fields">
+          <div className="select-field">
+            <Select
+              options={
+                select2
+                  ? optionsState.filter(
+                      (option) => option.address !== select2.address
+                    )
+                  : optionsState
+              }
+              select={select1}
+              setSelect={setSelect1}
+              optionsState={optionsState}
+              setOptionsState={setOptionsState}
+              styles={{
+                ...style,
+                container: () => ({
+                  border: select2 && !select1 ? "1px solid red" : null,
+                }),
+              }}
+              provider={provider}
+            >
+              <div
+                className="balance"
+                onClick={(e) => {
+                  handleMax1(e);
+                }}
+              >
+                <span className="max-balance">Balance:</span>
+                {select1 && tokenBalance1 > 0
+                  ? Number(tokenBalance1).toFixed(5)
+                  : 0}
               </div>
-              <div className="body">
-                <div id="select-fields">
-                  <div className="select-field">
-                    <Select
-                      options={
-                        select2
-                          ? optionsState.filter(
-                              (option) => option.addy !== select2.addy
-                            )
-                          : optionsState
-                      }
-                      select={select1}
-                      setSelect={setSelect1}
-                      optionsState={optionsState}
-                      setOptionsState={setOptionsState}
-                      styles={{
-                        ...style,
-                        container: () => ({
-                          border: select2 && !select1 ? "1px solid red" : null,
-                        }),
-                      }}
-                    >
-                      <div
-                        className="balance"
-                        onClick={(e) => {
-                          handleMax1(e);
-                        }}
-                      >
-                        <span className="max-balance">Balance:</span>
-                        {select1 && tokenBalance1 > 0
-                          ? Number(tokenBalance1).toFixed(5)
-                          : 0}
-                      </div>
-                      <span id="from">From:</span>
-                    </Select>
-                    <CurrencyInput
-                      decimalsLimit={18}
-                      allowNegativeValue={false}
-                      onValueChange={(e) => {
-                        setValue1(e);
-                      }}
-                      onKeyDown={() => setFromTokenOne(true)}
-                      className="amount-input"
-                      placeholder="0.0"
-                      value={value1}
-                    />
-                  </div>
-                  {
-                    <div id="switch-arrow" onClick={switchTokens}>
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="16"
-                        height="16"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="#6E727D"
-                        stroke-width="2"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                      >
-                        <line x1="12" y1="5" x2="12" y2="19"></line>
-                        <polyline points="19 12 12 19 5 12"></polyline>
-                      </svg>
-                    </div>
-                  }{" "}
-
-                  <div className="select-field">
-                    <Select
-                      options={
-                        select1
-                          ? optionsState.filter(
-                              (option) => option.addy !== select1.addy
-                            )
-                          : optionsState
-                      }
-                      select={select2}
-                      setSelect={setSelect2}
-                      optionsState={optionsState}
-                      setOptionsState={setOptionsState}
-                      styles={{
-                        ...style,
-                        container: () => ({
-                          border:
-                            select1 && value1 && !select2
-                              ? "1px solid red"
-                              : null,
-                        }),
-                      }}
-                    >
-                      {" "}
-                      <div
-                        className="balance"
-                        onClick={(e) => {
-                          handleMax2(e);
-                        }}
-                      >
-                        <span className="max-balance">Balance:</span>
-                        {select2 && tokenBalance2 > 0
-                          ? Number(tokenBalance2).toFixed(5)
-                          : 0}
-                      </div>{" "}
-                      <span id="to">To:</span>
-                    </Select>
-                    <CurrencyInput
-                      decimalsLimit={18}
-                      allowNegativeValue={false}
-                      onValueChange={async (e) => {
-                        setValue2(e);
-                      }}
-                      onKeyDown={() => setFromTokenOne(false)}
-                      className="amount-input"
-                      placeholder="0.0"
-                      value={value2}
-                      disabled={select2 ? false : true}
-                    />
-                  </div>
-                </div>
-                <div id="min-val">
-                  Min:{" "}
-                  {minVal
-                    ? parseFloat(ethers.utils.formatUnits(minVal)).toFixed(5)
-                    : 0.0}
-                </div>
-                <CustomConnect
-                  setConnected={setConnected}
-                  setRightNetwork={setRightNetwork}
-                ></CustomConnect>
-                {rightNetwork &&
-                connected &&
-                allowanceState &&
-                select2 &&
-                select1 ? (
-                  <button id="swap" onClick={() => swap()}>
-                    Swap
-                  </button>
-                ) : null}
-                {rightNetwork &&
-                connected &&
-                !allowanceState &&
-                select1?.addy !== "AVAX" ? (
-                  <button id="swap" onClick={() => approveToken()}>
-                    Approve {select1?.label}
-                  </button>
-                ) : null}
-                {rightNetwork && connected && (!select1 || !select2) ? (
-                  <button id="swap-disabled">Swap</button>
-                ) : null}
-                {}
-              </div>
+              <span id="from">From:</span>
+            </Select>
+            <CurrencyInput
+              decimalsLimit={18}
+              allowNegativeValue={false}
+              onValueChange={(e) => {
+                setValue1(e);
+              }}
+              onKeyDown={() => setFromTokenOne(true)}
+              className="amount-input"
+              placeholder="0.0"
+              value={value1}
+            />
+          </div>
+          {
+            <div id="switch-arrow" onClick={switchTokens}>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#6E727D"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <polyline points="19 12 12 19 5 12"></polyline>
+              </svg>
             </div>
+          }{" "}
+          <div className="select-field">
+            <Select
+              options={
+                select1
+                  ? optionsState.filter(
+                      (option) => option.address !== select1.address
+                    )
+                  : optionsState
+              }
+              select={select2}
+              setSelect={setSelect2}
+              optionsState={optionsState}
+              setOptionsState={setOptionsState}
+              styles={{
+                ...style,
+                container: () => ({
+                  border:
+                    select1 && value1 && !select2 ? "1px solid red" : null,
+                }),
+              }}
+              provider={provider}
+            >
+              {" "}
+              <div
+                className="balance"
+                onClick={(e) => {
+                  handleMax2(e);
+                }}
+              >
+                <span className="max-balance">Balance:</span>
+                {select2 && tokenBalance2 > 0
+                  ? Number(tokenBalance2).toFixed(5)
+                  : 0}
+              </div>{" "}
+              <span id="to">To:</span>
+            </Select>
+            <CurrencyInput
+              decimalsLimit={18}
+              allowNegativeValue={false}
+              onValueChange={async (e) => {
+                setValue2(e);
+              }}
+              onKeyDown={() => setFromTokenOne(false)}
+              className="amount-input"
+              placeholder="0.0"
+              value={value2}
+              disabled={select2 ? false : true}
+            />
+          </div>
+        </div>
+        <div id="min-val">
+          Min:{" "}
+          {minVal
+            ? parseFloat(ethers.utils.formatUnits(minVal)).toFixed(5)
+            : 0.0}
+        </div>
+        <CustomConnect
+          setConnected={setConnected}
+          setRightNetwork={setRightNetwork}
+        ></CustomConnect>
+        {rightNetwork && connected && allowanceState && select2 && select1 ? (
+          <button id="swap" onClick={() => swap()}>
+            Swap
+          </button>
+        ) : null}
+        {rightNetwork &&
+        connected &&
+        !allowanceState &&
+        select1?.address !== "AVAX" ? (
+          <button id="swap" onClick={() => approveToken()}>
+            Approve {select1?.symbol}
+          </button>
+        ) : rightNetwork && connected && (!select1 || !select2) ? (
+          <button id="swap-disabled">Swap</button>
+        ) : null}
+        {/* {rightNetwork && connected && (!select1 || !select2) ? (
+          <button id="swap-disabled">Swap</button>
+        ) : null} */}
+        {}
+      </div>
+    </div>
   );
 };
 export default Swap;

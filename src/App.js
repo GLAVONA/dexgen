@@ -28,7 +28,7 @@ const ROUTER_ABI = [
 ];
 
 const { chains, provider } = configureChains(
-  [avalancheFuji, localhost],
+  [avalancheFuji, localhost,avalanche],
   [publicProvider()]
 );
 const { connectors } = getDefaultWallets({
@@ -48,7 +48,7 @@ const App = () => {
 
   const provider = new ethers.providers.Web3Provider(window.ethereum);
   const factoryAddress = "0x14690446Db665B3d21B92fb6A8b94C73655b5149";
-  const routerAddress = "0xecBdEe2285BE419B4fc4d171D9030E2255941329"; // 0xd7f655E3376cE2D7A2b08fF01Eb3B1023191A901 TJ Router Fuji
+  const routerAddress = "0xecBdEe2285BE419B4fc4d171D9030E2255941329"; 
   const WAVAX_ADDY = "0x48AA9B88d6DdAf35792d422CE608edcDF33359e0";
   const routerContract = new ethers.Contract(routerAddress, ROUTER_ABI, provider);
   const signer = provider.getSigner();

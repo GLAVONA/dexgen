@@ -1,11 +1,8 @@
 /* eslint-disable import/no-anonymous-default-export */
-import React, { useState } from "react";
-import { useEffect } from "react";
+import React from "react";
 import AsyncSelect from "react-select/async";
 import { ethers } from "ethers";
 import ERC20ABI from "../data/ERC20.json";
-
-const prov = new ethers.providers.Web3Provider(window.ethereum);
 
 export default ({
   select,
@@ -14,27 +11,28 @@ export default ({
   setOptionsState,
   optionsState,
   children,
-  styles
+  styles,
+  provider,
 }) => {
   const handleSearch = async (inputValue) => {
     let newOpts = options;
     if (inputValue) {
       inputValue = inputValue.toLowerCase();
       newOpts = options.filter((option) =>
-        option.label.toLowerCase().includes(inputValue)
+        option.name.toLowerCase().includes(inputValue)
       );
     }
     if (ethers.utils.isAddress(inputValue)) {
       const newData = await getTokenInfo(inputValue);
 
       const optionExists = optionsState.find(
-        (option) => option.addy === newData.addy
+        (option) => option.address === newData.address
       );
       if (!optionExists) {
         newOpts.push({
-          label: newData.label,
+          name: newData.name,
           value: newData.value,
-          addy: inputValue,
+          address: inputValue,
         });
         const setMe = [...optionsState, newData];
         setOptionsState(setMe);
@@ -45,14 +43,14 @@ export default ({
     return Promise.resolve(newOpts);
   };
 
-  const getTokenInfo = async (addy) => {
+  const getTokenInfo = async (address) => {
     try {
-      const token = new ethers.Contract(addy, ERC20ABI, prov);
+      const token = new ethers.Contract(address, ERC20ABI, provider);
       const symbol = await token.symbol();
       const tokenInfo = {
         value: symbol,
-        label: symbol,
-        addy: addy,
+        name: symbol,
+        address: address,
       };
       return tokenInfo;
     } catch (error) {
@@ -62,15 +60,16 @@ export default ({
 
   return (
     <>
-    <AsyncSelect
-      defaultOptions={options}
-      value={select}
-      onChange={setSelect}
-      loadOptions={handleSearch}
-      isSearchable
-      styles={styles}
-    />
-    {children}
+      <AsyncSelect
+        defaultOptions={options}
+        getOptionLabel={(option) => option.symbol}
+        getOptionValue={(option) => option.symbol}
+        onChange={setSelect}
+        loadOptions={handleSearch}
+        isSearchable
+        styles={styles}
+      />
+      {children}
     </>
   );
 };
