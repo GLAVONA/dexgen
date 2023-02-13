@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { ethers } from "ethers";
 import Navbar from "./components/Navbar";
 import "./App.css";
@@ -10,9 +10,9 @@ import { getDefaultWallets, RainbowKitProvider } from "@rainbow-me/rainbowkit";
 import { configureChains, createClient, WagmiConfig } from "wagmi";
 import { avalanche, avalancheFuji, localhost } from "wagmi/chains";
 import { publicProvider } from "wagmi/providers/public";
-import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { Route, Routes } from "react-router";
 import { Link } from "react-router-dom";
+import ConnectButtonHOC from "./components/ConnectButtonHOC";
 
 const ROUTER_ABI = [
   "function swapExactAVAXForTokensSupportingFeeOnTransferTokens(uint256,address[],address,uint256) payable",
@@ -46,6 +46,7 @@ const wagmiClient = createClient({
 
 const App = () => {
   const [mode, setMode] = useState();
+  const [shouldReload, setShouldReload] = useState();
 
   const provider = new ethers.providers.Web3Provider(window.ethereum);
   const _0X_ADDRESS = "0xdef1c0ded9bec7f1a1670819833240f027b25eff";
@@ -72,8 +73,7 @@ const App = () => {
   const routerContractWithWallet = routerContract.connect(signer);
   const factoryContractWithWallet = factoryContract.connect(signer);
   const TJFactoryContractWithWallet = TJFactoryContract.connect(signer);
-
-  const _0xAPI_URL = "https://avalanche.api.0x.org/swap/v1/"
+  const _0xAPI_URL = "https://avalanche.api.0x.org/swap/v1/";
 
   return (
     <WagmiConfig client={wagmiClient}>
@@ -82,10 +82,9 @@ const App = () => {
           <Navbar>
             <div id="logo">DEXGEN</div>
             <div id="connect">
-              <ConnectButton
-                chainStatus={"icon"}
-                accountStatus={"address"}
-                id={"wallet-connect"}
+              <ConnectButtonHOC
+                shouldReload={shouldReload}
+                setShouldReload={setShouldReload}
               />
             </div>
           </Navbar>
@@ -127,6 +126,7 @@ const App = () => {
                     setMode={setMode}
                     _0xAPI_URL={_0xAPI_URL}
                     _0X_ADDRESS={_0X_ADDRESS}
+                    setShouldReload={setShouldReload}
                   />
                 }
               />

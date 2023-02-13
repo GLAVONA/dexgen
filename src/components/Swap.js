@@ -25,6 +25,7 @@ const Swap = ({
   factoryContractWithWallet,
   _0xAPI_URL,
   _0X_ADDRESS,
+  setShouldReload,
 }) => {
   const [tokenBalance1, setTokenBalance1] = useState();
   const [tokenBalance2, setTokenBalance2] = useState();
@@ -215,7 +216,6 @@ const Swap = ({
         if (isLPOurs) {
           return;
         } else {
-          console.log(params);
           const response = await fetch(
             `${_0xAPI_URL}/quote?${qs.stringify(params)}`
           );
@@ -241,12 +241,10 @@ const Swap = ({
             const txComplete = await provider.waitForTransaction(tx.hash);
             if (txComplete) {
               updateTokenBalance();
-              console.log("GRATZ!");
             }
           }
         } catch (error) {
           console.log(error);
-          return;
         }
         return;
       }
@@ -476,13 +474,15 @@ const Swap = ({
       return;
     }
     const contract1 = new ethers.Contract(select1.address, ERC20ABI, provider);
-    if (select1.address !== "AVAX") {
+
+    if (value1) {
       const allowance = await contract1.allowance(
         signer.getAddress(),
         isLPOurs ? routerAddress : _0X_ADDRESS
       );
-      const totalSupply = await contract1.totalSupply();
-      if (allowance < totalSupply || allowance === 0) {
+      const contract1Decimals = await contract1.decimals();
+      const value1wei = ethers.utils.parseUnits(value1, contract1Decimals);
+      if (Number(allowance) < Number(value1wei)) {
         setAllowanceState(false);
       } else {
         setAllowanceState(true);
@@ -495,18 +495,20 @@ const Swap = ({
       let bal1, bal2;
       if (select1.address === "AVAX") {
         bal1 = await getCoinBalance();
+        setShouldReload(true)
       } else {
         bal1 = await getTokenBalance(select1.address);
       }
       if (select2.address === "AVAX") {
         bal2 = await getCoinBalance();
+        setShouldReload(true)
       } else {
         bal2 = await getTokenBalance(select2.address);
       }
       setTokenBalance1(bal1);
       setTokenBalance2(bal2);
     } catch (error) {
-      throw new Error(error);
+      console.log(error);
     }
   };
 
@@ -674,7 +676,7 @@ const Swap = ({
       <div className="body">
         <button
           onClick={() => {
-            console.log(select1);
+            updateTokenBalance();
           }}
         >
           TEST BUTTON
