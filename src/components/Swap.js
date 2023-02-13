@@ -674,13 +674,6 @@ const Swap = ({
         </div>
       </div>
       <div className="body">
-        <button
-          onClick={() => {
-            updateTokenBalance();
-          }}
-        >
-          TEST BUTTON
-        </button>
         <div id="select-fields">
           <div className="select-field">
             <Select
