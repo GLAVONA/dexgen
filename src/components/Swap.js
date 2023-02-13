@@ -8,6 +8,7 @@ import "@rainbow-me/rainbowkit/styles.css";
 import SettingsModal from "./SettingsModal";
 import CurrencyInput from "react-currency-input-field";
 import { formatUnits, parseUnits } from "ethers/lib/utils.js";
+import qs from "qs";
 
 const WAVAXABI = ["function deposit () payable", "function withdraw(uint256)"];
 const ERC20ABI = require("../data/ERC20.json");
@@ -15,10 +16,14 @@ const ERC20ABI = require("../data/ERC20.json");
 const Swap = ({
   provider,
   routerContractWithWallet,
-  WAVAX_address,
+  WAVAX_ADDRESS,
   signer,
   routerAddress,
+  factoryAddress,
   setMode,
+  TJFactoryContractWithWallet,
+  factoryContractWithWallet,
+  _0xAPI_URL,
 }) => {
   const [tokenBalance1, setTokenBalance1] = useState();
   const [tokenBalance2, setTokenBalance2] = useState();
@@ -36,25 +41,69 @@ const Swap = ({
   const [fromTokenOne, setFromTokenOne] = useState();
   const [rightNetwork, setRightNetwork] = useState();
   const [allowanceState, setAllowanceState] = useState();
+  const [isLPOurs, setIsLPOurs] = useState();
 
   const getQuote = async () => {
     if (select1 && select2) {
       const contract1 = new ethers.Contract(
-        select1.address === "AVAX" ? WAVAX_address : select1.address,
+        select1.address === "AVAX" ? WAVAX_ADDRESS : select1.address,
         ERC20ABI,
         provider
       );
       const contract1Decimals = await contract1.decimals();
       const contract2 = new ethers.Contract(
-        select2.address === "AVAX" ? WAVAX_address : select2.address,
+        select2.address === "AVAX" ? WAVAX_ADDRESS : select2.address,
         ERC20ABI,
         provider
       );
       const contract2Decimals = await contract2.decimals();
 
+      checkLPOwner();
+      if (!isLPOurs) {
+        getOutsidePrice();
+        return;
+      }
+      async function getOutsidePrice() {
+        let params;
+        if (isLPOurs) {
+          return;
+        } else {
+          if (fromTokenOne && value1) {
+            const value1wei = ethers.utils.parseUnits(
+              value1,
+              contract1Decimals
+            );
+            params = {
+              sellToken: select1.address,
+              buyToken: select2.address,
+              sellAmount: value1wei.toString(),
+            };
+            const response = await fetch(
+              `${_0xAPI_URL}/price?${qs.stringify(params)}`
+            );
+            const priceJSON = await response.json();
+            setValue2(priceJSON.price * value1);
+          } else if (!fromTokenOne && value2) {
+            const value2wei = ethers.utils.parseUnits(
+              value2,
+              contract2Decimals
+            );
+            params = {
+              sellToken: select1.address,
+              buyToken: select2.address,
+              buyAmount: value2wei.toString(),
+            };
+            const response = await fetch(
+              `${_0xAPI_URL}/price?${qs.stringify(params)}`
+            );
+            const priceJSON = await response.json();
+            setValue1(priceJSON.price * value2);
+          }
+        }
+      }
       if (
-        (select1.address === "AVAX" && select2.address === WAVAX_address) ||
-        (select1.address === WAVAX_address && select2.address === "AVAX")
+        (select1.address === "AVAX" && select2.address === WAVAX_ADDRESS) ||
+        (select1.address === WAVAX_ADDRESS && select2.address === "AVAX")
       ) {
         if (fromTokenOne) {
           setValue2(value1);
@@ -84,10 +133,10 @@ const Swap = ({
       let addressFrom = select1.address;
       let addressTo = select2.address;
       if (select1.address === "AVAX") {
-        addressFrom = WAVAX_address;
+        addressFrom = WAVAX_ADDRESS;
       }
       if (select2.address === "AVAX") {
-        addressTo = WAVAX_address;
+        addressTo = WAVAX_ADDRESS;
       }
 
       let addresss = [addressFrom, addressTo];
@@ -139,25 +188,42 @@ const Swap = ({
     }
   };
 
+  const checkLPOwner = async () => {
+    try {
+      // const ourPair = await factoryContractWithWallet?.getPair(
+      //   select1.address==="AVAX"?WAVAX_ADDRESS:select1.address,
+      //   select2.address
+      // );
+      const ourPair = false;
+      if (ourPair && ourPair !== ethers.constants.AddressZero) {
+        setIsLPOurs(true);
+      } else {
+        setIsLPOurs(false);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   const swap = async () => {
     if (select1 && select2) {
       let addressFrom = select1.address;
       let addressTo = select2.address;
       if (select1.address === "AVAX") {
-        addressFrom = WAVAX_address;
+        addressFrom = WAVAX_ADDRESS;
       }
       if (select2.address === "AVAX") {
-        addressTo = WAVAX_address;
+        addressTo = WAVAX_ADDRESS;
       }
 
       const contract1 = new ethers.Contract(
-        select1.address === "AVAX" ? WAVAX_address : select1.address,
+        select1.address === "AVAX" ? WAVAX_ADDRESS : select1.address,
         ERC20ABI,
         provider
       );
       const contract1Decimals = await contract1.decimals();
       const contract2 = new ethers.Contract(
-        select2.address === "AVAX" ? WAVAX_address : select2.address,
+        select2.address === "AVAX" ? WAVAX_ADDRESS : select2.address,
         ERC20ABI,
         provider
       );
@@ -167,8 +233,8 @@ const Swap = ({
       const signeraddress = await signer.getAddress();
 
       if (select1.address === "AVAX") {
-        if (select2.address === WAVAX_address) {
-          const contr = new ethers.Contract(WAVAX_address, WAVAXABI, provider);
+        if (select2.address === WAVAX_ADDRESS) {
+          const contr = new ethers.Contract(WAVAX_ADDRESS, WAVAXABI, provider);
           const routerContractWithWallet = contr.connect(signer);
           const tx = await routerContractWithWallet.deposit({
             value: ethers.utils.parseUnits(value1),
@@ -218,8 +284,8 @@ const Swap = ({
         }
       }
       if (select2.address === "AVAX") {
-        if (select1.address === WAVAX_address) {
-          const contr = new ethers.Contract(WAVAX_address, WAVAXABI, provider);
+        if (select1.address === WAVAX_ADDRESS) {
+          const contr = new ethers.Contract(WAVAX_ADDRESS, WAVAXABI, provider);
           const routerContractWithWallet = contr.connect(signer);
           const tx = await routerContractWithWallet.withdraw(
             ethers.utils.parseUnits(value1.toString())
@@ -315,6 +381,12 @@ const Swap = ({
   }, []);
 
   useEffect(() => {
+    if (fromTokenOne && value1 === undefined) {
+      setValue2(undefined);
+    }
+    if (!fromTokenOne && value2 === undefined) {
+      setValue1(undefined);
+    }
     getQuote();
   }, [value1, value2, select1, select2]);
 
@@ -336,7 +408,7 @@ const Swap = ({
 
   const approveToken = async () => {
     const contract1 = new ethers.Contract(
-      select1.address === "AVAX" ? WAVAX_address : select1.address,
+      select1.address === "AVAX" ? WAVAX_ADDRESS : select1.address,
       ERC20ABI,
       provider
     );
@@ -411,7 +483,7 @@ const Swap = ({
         return;
       } else {
         const contr = new ethers.Contract(
-          select1.address === "AVAX" ? WAVAX_address : select1.address,
+          select1.address === "AVAX" ? WAVAX_ADDRESS : select1.address,
           ERC20ABI,
           provider
         );
@@ -433,7 +505,7 @@ const Swap = ({
         return;
       } else {
         const contr = new ethers.Contract(
-          select2.address === "AVAX" ? WAVAX_address : select2.address,
+          select2.address === "AVAX" ? WAVAX_ADDRESS : select2.address,
           ERC20ABI,
           provider
         );
@@ -551,7 +623,7 @@ const Swap = ({
       <div className="body">
         <button
           onClick={() => {
-            console.log(select1.address, optionsState);
+            console.log(select1);
           }}
         >
           TEST BUTTON

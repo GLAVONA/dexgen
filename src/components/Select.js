@@ -62,6 +62,7 @@ export default ({
     <>
       <AsyncSelect
         defaultOptions={options}
+        value={select}
         getOptionLabel={(option) => option.symbol}
         getOptionValue={(option) => option.symbol}
         onChange={setSelect}

@@ -24,11 +24,13 @@ const ROUTER_ABI = [
   "function swapExactTokensForTokensSupportingFeeOnTransferTokens(uint256,uint256,address[],address,uint256)",
   "function swapTokensForExactTokens(uint256,uint256,address[],address,uint256)",
   "function addLiquidityAVAX(address,uint256,uint256,uint256,address,uint256) payable",
-  "function removeLiquidityAVAXSupportingFeeOnTransferTokens(address,uint256,uint256,uint256,address,uint256)"
+  "function removeLiquidityAVAXSupportingFeeOnTransferTokens(address,uint256,uint256,uint256,address,uint256)",
 ];
 
+const FACTORY_ABI = ["function getPair(address,address)view returns(address)"];
+
 const { chains, provider } = configureChains(
-  [avalancheFuji, localhost,avalanche],
+  [avalancheFuji, localhost, avalanche],
   [publicProvider()]
 );
 const { connectors } = getDefaultWallets({
@@ -42,17 +44,35 @@ const wagmiClient = createClient({
   provider,
 });
 
-
 const App = () => {
   const [mode, setMode] = useState();
 
   const provider = new ethers.providers.Web3Provider(window.ethereum);
   const factoryAddress = "0x14690446Db665B3d21B92fb6A8b94C73655b5149";
-  const routerAddress = "0xecBdEe2285BE419B4fc4d171D9030E2255941329"; 
-  const WAVAX_ADDY = "0x48AA9B88d6DdAf35792d422CE608edcDF33359e0";
-  const routerContract = new ethers.Contract(routerAddress, ROUTER_ABI, provider);
+  const routerAddress = "0xecBdEe2285BE419B4fc4d171D9030E2255941329";
+  const TJFactoryAddress = "0x9Ad6C38BE94206cA50bb0d90783181662f0Cfa10";
+  const WAVAX_ADDRESS = "0xb31f66aa3c1e785363f0875a1b74e27b85fd66c7";
+  const TJFactoryContract = new ethers.Contract(
+    TJFactoryAddress,
+    FACTORY_ABI,
+    provider
+  );
+  const routerContract = new ethers.Contract(
+    routerAddress,
+    ROUTER_ABI,
+    provider
+  );
+  const factoryContract = new ethers.Contract(
+    factoryAddress,
+    FACTORY_ABI,
+    provider
+  );
   const signer = provider.getSigner();
   const routerContractWithWallet = routerContract.connect(signer);
+  const factoryContractWithWallet = factoryContract.connect(signer);
+  const TJFactoryContractWithWallet = TJFactoryContract.connect(signer);
+
+  const _0xAPI_URL = "https://avalanche.api.0x.org/swap/v1/"
 
   return (
     <WagmiConfig client={wagmiClient}>
@@ -97,10 +117,14 @@ const App = () => {
                   <Swap
                     provider={provider}
                     routerContractWithWallet={routerContractWithWallet}
-                    WAVAX_ADDY={WAVAX_ADDY}
+                    TJFactoryContractWithWallet={TJFactoryContractWithWallet}
+                    factoryContractWithWallet={factoryContractWithWallet}
+                    WAVAX_ADDRESS={WAVAX_ADDRESS}
                     signer={signer}
                     routerAddress={routerAddress}
+                    factoryAddress={factoryAddress}
                     setMode={setMode}
+                    _0xAPI_URL={_0xAPI_URL}
                   />
                 }
               />
@@ -110,11 +134,14 @@ const App = () => {
                   <Liquidity
                     provider={provider}
                     routerContractWithWallet={routerContractWithWallet}
-                    WAVAX_ADDY={WAVAX_ADDY}
+                    TJFactoryContractWithWallet={TJFactoryContractWithWallet}
+                    factoryContractWithWallet={factoryContractWithWallet}
+                    WAVAX_ADDRESS={WAVAX_ADDRESS}
                     signer={signer}
                     routerAddress={routerAddress}
                     factoryAddress={factoryAddress}
                     setMode={setMode}
+                    _0xAPI_URL={_0xAPI_URL}
                   />
                 }
               />

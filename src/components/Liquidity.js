@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { ethers } from "ethers";
 import Select from "./Select";
-import options from "../data/options";
+import tokenData from "../data/options.json";
 
 import { CustomConnect } from "./CustomConnect";
 import "@rainbow-me/rainbowkit/styles.css";
@@ -22,13 +22,16 @@ const Liquidity = ({
   routerAddress,
   setMode,
   factoryAddress,
+  factoryContractWithWallet,
+  TJFactoryContractWithWallet,
+  _0xAPI_URL
 }) => {
   const [tokenBalance1, setTokenBalance1] = useState();
   const [tokenBalance2, setTokenBalance2] = useState();
   const [currentAccount, setCurrentAccount] = useState();
   const [select1, setSelect1] = useState();
   const [select2, setSelect2] = useState();
-  const [optionsState, setOptionsState] = useState(options);
+  const [optionsState, setOptionsState] = useState(tokenData.tokens);
   const [connected, setConnected] = useState();
   const [value1, setValue1] = useState();
   const [value2, setValue2] = useState();
@@ -218,7 +221,7 @@ const Liquidity = ({
   };
 
   useEffect(() => {
-    setSelect1(options[0]);
+    setSelect1(optionsState[0]);
     listAccounts();
     getCoinBalance();
     setMode("liq");
