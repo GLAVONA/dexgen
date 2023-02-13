@@ -1,6 +1,7 @@
 {
   "name": "web3",
   "version": "0.1.0",
+  "homepage": "https://GLAVONA.github.io",
   "private": true,
   "dependencies": {
     "@rainbow-me/rainbowkit": "^0.8.1",
