@@ -24,7 +24,8 @@ const Liquidity = ({
   factoryAddress,
   factoryContractWithWallet,
   TJFactoryContractWithWallet,
-  _0xAPI_URL
+  _0xAPI_URL,
+  _0X_ADDRESS,
 }) => {
   const [tokenBalance1, setTokenBalance1] = useState();
   const [tokenBalance2, setTokenBalance2] = useState();
@@ -231,7 +232,7 @@ const Liquidity = ({
     getQuote();
     getLPBalance();
     checkAllowance();
-  }, [value1, value2, select1, select2,liqValue]);
+  }, [value1, value2, select1, select2, liqValue]);
 
   const getCoinBalance = async () => {
     const coinBalance = await provider.getBalance(currentAccount);
@@ -327,6 +328,7 @@ const Liquidity = ({
         setAllowanceState(true);
       }
     }
+
     if (select2.addy === "AVAX") {
       const contract1 = new ethers.Contract(select1.addy, ERC20ABI, provider);
       const allowance = await contract1.allowance(
@@ -711,7 +713,11 @@ const Liquidity = ({
               Remove Liquidity
             </button>
           ) : null}
-          {rightNetwork && connected && !lpAllowanceState &&select1 && select2 ? (
+          {rightNetwork &&
+          connected &&
+          !lpAllowanceState &&
+          select1 &&
+          select2 ? (
             <button id="swap" onClick={() => approveLPToken()}>
               Approve DLP
             </button>

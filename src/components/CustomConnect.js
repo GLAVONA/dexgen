@@ -1,5 +1,5 @@
-import { ConnectButton } from '@rainbow-me/rainbowkit';
-export const CustomConnect = ({setConnected, setRightNetwork}) => {
+import { ConnectButton } from "@rainbow-me/rainbowkit";
+export const CustomConnect = ({ setConnected, setRightNetwork }) => {
   return (
     <ConnectButton.Custom>
       {({
@@ -12,41 +12,48 @@ export const CustomConnect = ({setConnected, setRightNetwork}) => {
       }) => {
         // Note: If your app doesn't use authentication, you
         // can remove all 'authenticationStatus' checks
-        const ready = mounted && authenticationStatus !== 'loading';
+        const ready = mounted && authenticationStatus !== "loading";
         const connected =
           ready &&
           account &&
           chain &&
-          (!authenticationStatus ||
-            authenticationStatus === 'authenticated');
-            setConnected(connected)
+          (!authenticationStatus || authenticationStatus === "authenticated");
+        setConnected(connected);
         return (
           <div
             {...(!ready && {
-              'aria-hidden': true,
-              'style': {
+              "aria-hidden": true,
+              style: {
                 opacity: 0,
-                pointerEvents: 'none',
-                userSelect: 'none',
+                pointerEvents: "none",
+                userSelect: "none",
               },
             })}
           >
             {(() => {
               if (!connected) {
                 return (
-                  <button onClick={openConnectModal} type="button" id='connect-wallet'>
+                  <button
+                    onClick={openConnectModal}
+                    type="button"
+                    id="connect-wallet"
+                  >
                     Connect Wallet
                   </button>
                 );
               }
               if (chain.unsupported) {
-                setRightNetwork(false)
+                setRightNetwork(false);
                 return (
-                  <button onClick={openChainModal} type="button" id='wrong-chain'>
+                  <button
+                    onClick={openChainModal}
+                    type="button"
+                    id="wrong-chain"
+                  >
                     Wrong network
                   </button>
                 );
-              }else{
+              } else {
                 setRightNetwork(true);
               }
             })()}

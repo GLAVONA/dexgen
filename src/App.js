@@ -48,6 +48,7 @@ const App = () => {
   const [mode, setMode] = useState();
 
   const provider = new ethers.providers.Web3Provider(window.ethereum);
+  const _0X_ADDRESS = "0xdef1c0ded9bec7f1a1670819833240f027b25eff";
   const factoryAddress = "0x14690446Db665B3d21B92fb6A8b94C73655b5149";
   const routerAddress = "0xecBdEe2285BE419B4fc4d171D9030E2255941329";
   const TJFactoryAddress = "0x9Ad6C38BE94206cA50bb0d90783181662f0Cfa10";
@@ -125,6 +126,7 @@ const App = () => {
                     factoryAddress={factoryAddress}
                     setMode={setMode}
                     _0xAPI_URL={_0xAPI_URL}
+                    _0X_ADDRESS={_0X_ADDRESS}
                   />
                 }
               />
@@ -142,6 +144,7 @@ const App = () => {
                     factoryAddress={factoryAddress}
                     setMode={setMode}
                     _0xAPI_URL={_0xAPI_URL}
+                    _0X_ADDRESS={_0X_ADDRESS}
                   />
                 }
               />

@@ -24,6 +24,7 @@ const Swap = ({
   TJFactoryContractWithWallet,
   factoryContractWithWallet,
   _0xAPI_URL,
+  _0X_ADDRESS,
 }) => {
   const [tokenBalance1, setTokenBalance1] = useState();
   const [tokenBalance2, setTokenBalance2] = useState();
@@ -42,6 +43,8 @@ const Swap = ({
   const [rightNetwork, setRightNetwork] = useState();
   const [allowanceState, setAllowanceState] = useState();
   const [isLPOurs, setIsLPOurs] = useState();
+
+  let params;
 
   const getQuote = async () => {
     if (select1 && select2) {
@@ -64,7 +67,6 @@ const Swap = ({
         return;
       }
       async function getOutsidePrice() {
-        let params;
         if (isLPOurs) {
           return;
         } else {
@@ -77,6 +79,7 @@ const Swap = ({
               sellToken: select1.address,
               buyToken: select2.address,
               sellAmount: value1wei.toString(),
+              takerAddress: currentAccount,
             };
             const response = await fetch(
               `${_0xAPI_URL}/price?${qs.stringify(params)}`
@@ -92,6 +95,7 @@ const Swap = ({
               sellToken: select1.address,
               buyToken: select2.address,
               buyAmount: value2wei.toString(),
+              takerAddress: currentAccount,
             };
             const response = await fetch(
               `${_0xAPI_URL}/price?${qs.stringify(params)}`
@@ -139,7 +143,7 @@ const Swap = ({
         addressTo = WAVAX_ADDRESS;
       }
 
-      let addresss = [addressFrom, addressTo];
+      let addresses = [addressFrom, addressTo];
       if (fromTokenOne && value1 !== "") {
         try {
           const value1wei = ethers.utils.parseUnits(
@@ -148,7 +152,7 @@ const Swap = ({
           );
           let arrayOut = await routerContractWithWallet.getAmountsOut(
             value1wei,
-            addresss
+            addresses
           );
           const tokenOut = ethers.utils.formatUnits(
             arrayOut[arrayOut.length - 1]
@@ -171,7 +175,7 @@ const Swap = ({
 
           let arrayOut = await routerContractWithWallet.getAmountsIn(
             value2wei,
-            addresss
+            addresses
           );
           const tokenOut = ethers.utils.formatUnits(
             arrayOut[0],
@@ -207,6 +211,46 @@ const Swap = ({
 
   const swap = async () => {
     if (select1 && select2) {
+      async function swapOutside() {
+        if (isLPOurs) {
+          return;
+        } else {
+          console.log(params);
+          const response = await fetch(
+            `${_0xAPI_URL}/quote?${qs.stringify(params)}`
+          );
+          const quoteJSON = await response.json();
+          return quoteJSON;
+        }
+      }
+      if (!isLPOurs) {
+        try {
+          const quote = await swapOutside();
+          console.log(quote);
+          if (quote.code) {
+            alert(quote.reason);
+            return;
+          } else {
+            const tx = await signer.sendTransaction({
+              from: currentAccount,
+              to: quote.to,
+              data: quote.data,
+              value: quote.value,
+              gasPrice: quote.gasPrice,
+            });
+            const txComplete = await provider.waitForTransaction(tx.hash);
+            if (txComplete) {
+              updateTokenBalance();
+              console.log("GRATZ!");
+            }
+          }
+        } catch (error) {
+          console.log(error);
+          return;
+        }
+        return;
+      }
+
       let addressFrom = select1.address;
       let addressTo = select2.address;
       if (select1.address === "AVAX") {
@@ -387,6 +431,7 @@ const Swap = ({
     if (!fromTokenOne && value2 === undefined) {
       setValue1(undefined);
     }
+    checkAllowance();
     getQuote();
   }, [value1, value2, select1, select2]);
 
@@ -415,7 +460,7 @@ const Swap = ({
     if (select1.address !== "AVAX") {
       const routerContractWithWallet = contract1.connect(signer);
       const tx = await routerContractWithWallet.approve(
-        routerAddress,
+        isLPOurs ? routerAddress : _0X_ADDRESS,
         contract1.totalSupply()
       );
       const txComplete = await provider.waitForTransaction(tx.hash);
@@ -434,7 +479,7 @@ const Swap = ({
     if (select1.address !== "AVAX") {
       const allowance = await contract1.allowance(
         signer.getAddress(),
-        routerAddress
+        isLPOurs ? routerAddress : _0X_ADDRESS
       );
       const totalSupply = await contract1.totalSupply();
       if (allowance < totalSupply || allowance === 0) {
@@ -473,6 +518,10 @@ const Swap = ({
     setValue2("");
     setFromTokenOne(!fromTokenOne);
   };
+
+  useEffect(() => {
+    listAccounts();
+  }, [connected]);
 
   useEffect(() => {
     if (!currentAccount || !select1) return;
@@ -522,6 +571,8 @@ const Swap = ({
     try {
       if (accounts.length > 0) {
         setCurrentAccount(accounts[0]);
+      } else {
+        setConnected(false);
       }
     } catch (error) {
       throw new Error(error);
