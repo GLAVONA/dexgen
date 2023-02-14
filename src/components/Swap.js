@@ -9,6 +9,7 @@ import SettingsModal from "./SettingsModal";
 import CurrencyInput from "react-currency-input-field";
 import { formatUnits, parseUnits } from "ethers/lib/utils.js";
 import qs from "qs";
+import { Triangle } from "react-loader-spinner";
 
 const WAVAXABI = ["function deposit () payable", "function withdraw(uint256)"];
 const ERC20ABI = require("../data/ERC20.json");
@@ -44,8 +45,8 @@ const Swap = ({
   const [rightNetwork, setRightNetwork] = useState();
   const [allowanceState, setAllowanceState] = useState();
   const [isLPOurs, setIsLPOurs] = useState();
-
-  let params;
+  const [loading, setLoading] = useState();
+  const [params, setParams] = useState();
 
   const getQuote = async () => {
     if (select1 && select2) {
@@ -65,6 +66,7 @@ const Swap = ({
       checkLPOwner();
       if (!isLPOurs) {
         getOutsidePrice();
+
         return;
       }
       async function getOutsidePrice() {
@@ -76,12 +78,12 @@ const Swap = ({
               value1,
               contract1Decimals
             );
-            params = {
+            setParams({
               sellToken: select1.address,
               buyToken: select2.address,
               sellAmount: value1wei.toString(),
               takerAddress: currentAccount,
-            };
+            });
             const response = await fetch(
               `${_0xAPI_URL}/price?${qs.stringify(params)}`
             );
@@ -92,12 +94,12 @@ const Swap = ({
               value2,
               contract2Decimals
             );
-            params = {
+            setParams({
               sellToken: select1.address,
               buyToken: select2.address,
               buyAmount: value2wei.toString(),
               takerAddress: currentAccount,
-            };
+            });
             const response = await fetch(
               `${_0xAPI_URL}/price?${qs.stringify(params)}`
             );
@@ -116,6 +118,7 @@ const Swap = ({
         if (!fromTokenOne) {
           setValue1(value2);
         }
+
         return;
       }
 
@@ -225,10 +228,11 @@ const Swap = ({
       }
       if (!isLPOurs) {
         try {
+          setLoading(true);
           const quote = await swapOutside();
-          console.log(quote);
           if (quote.code) {
             alert(quote.reason);
+            setLoading(false);
             return;
           } else {
             const tx = await signer.sendTransaction({
@@ -240,10 +244,12 @@ const Swap = ({
             });
             const txComplete = await provider.waitForTransaction(tx.hash);
             if (txComplete) {
+              setLoading(false);
               updateTokenBalance();
             }
           }
         } catch (error) {
+          setLoading(false);
           console.log(error);
         }
         return;
@@ -272,7 +278,7 @@ const Swap = ({
       const contract2Decimals = await contract2.decimals();
 
       const pathArr = [addressFrom, addressTo];
-      const signeraddress = await signer.getAddress();
+      const signerAddress = await signer.getAddress();
 
       if (select1.address === "AVAX") {
         if (select2.address === WAVAX_ADDRESS) {
@@ -294,7 +300,7 @@ const Swap = ({
             await routerContractWithWallet.swapExactAVAXForTokensSupportingFeeOnTransferTokens(
               minVal,
               pathArr,
-              signeraddress,
+              signerAddress,
               deadline,
               {
                 value: ethers.utils.parseUnits(value1),
@@ -312,7 +318,7 @@ const Swap = ({
           const tx = await routerContractWithWallet.swapAVAXForExactTokens(
             ethers.utils.parseUnits(value2.toString(), contract2Decimals),
             pathArr,
-            signeraddress,
+            signerAddress,
             deadline,
             {
               value: ethers.utils.parseUnits(value1),
@@ -345,7 +351,7 @@ const Swap = ({
               ethers.utils.parseUnits(value1.toString(), contract1Decimals),
               minVal,
               pathArr,
-              signeraddress,
+              signerAddress,
               deadline,
               {
                 gasLimit: 1000000,
@@ -362,7 +368,7 @@ const Swap = ({
             ethers.utils.parseUnits(value2.toString()),
             ethers.utils.parseUnits(value1.toString(), contract1Decimals),
             pathArr,
-            signeraddress,
+            signerAddress,
             deadline,
             { gasLimit: 100000 }
           );
@@ -381,7 +387,7 @@ const Swap = ({
               ethers.utils.parseUnits(value1.toString(), contract1Decimals),
               minVal,
               pathArr,
-              signeraddress,
+              signerAddress,
               deadline,
               { gasLimit: 1000000 }
             );
@@ -396,7 +402,7 @@ const Swap = ({
             ethers.utils.parseUnits(value2.toString(), contract2Decimals),
             ethers.utils.parseUnits(value1.toString(), contract1Decimals),
             pathArr,
-            signeraddress,
+            signerAddress,
             deadline,
             { gasLimit: 1000000 }
           );
@@ -406,8 +412,10 @@ const Swap = ({
           }
         }
       }
+      setLoading(false);
       updateTokenBalance();
     } else {
+      setLoading(false);
       return;
     }
   };
@@ -495,16 +503,17 @@ const Swap = ({
       let bal1, bal2;
       if (select1.address === "AVAX") {
         bal1 = await getCoinBalance();
-        setShouldReload(true)
+        setShouldReload(true);
       } else {
         bal1 = await getTokenBalance(select1.address);
       }
       if (select2.address === "AVAX") {
         bal2 = await getCoinBalance();
-        setShouldReload(true)
+        setShouldReload(true);
       } else {
         bal2 = await getTokenBalance(select2.address);
       }
+      setLoading(false);
       setTokenBalance1(bal1);
       setTokenBalance2(bal2);
     } catch (error) {
@@ -800,8 +809,19 @@ const Swap = ({
           setRightNetwork={setRightNetwork}
         ></CustomConnect>
         {rightNetwork && connected && allowanceState && select2 && select1 ? (
-          <button id="swap" onClick={() => swap()}>
-            Swap
+          <button id="swap" onClick={() => swap()} disabled={loading}>
+            {loading ? (
+              <Triangle
+                height="18"
+                width="100%"
+                color="#d50066"
+                ariaLabel="triangle-loading"
+                wrapperClassName="triangle-loading"
+                visible={true}
+              />
+            ) : (
+              "Swap"
+            )}
           </button>
         ) : null}
         {rightNetwork &&
@@ -814,9 +834,6 @@ const Swap = ({
         ) : rightNetwork && connected && (!select1 || !select2) ? (
           <button id="swap-disabled">Swap</button>
         ) : null}
-        {/* {rightNetwork && connected && (!select1 || !select2) ? (
-          <button id="swap-disabled">Swap</button>
-        ) : null} */}
         {}
       </div>
     </div>

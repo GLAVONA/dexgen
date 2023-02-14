@@ -105,7 +105,7 @@
   padding: 16px;
   border-radius: 20px;
   background-color: rgb(253, 234, 241);
-  color: rgb(213, 0, 102);
+  color: #d50066;
   border: 1px solid transparent;
   cursor: grab;
 }
@@ -521,4 +521,9 @@ a{
 
 #react-select-85-input{
   cursor: grab;
+}
+
+
+#triangle > polygon{
+  stroke-width: 3;
 }
