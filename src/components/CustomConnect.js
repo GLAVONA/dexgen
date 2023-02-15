@@ -8,7 +8,6 @@ export const CustomConnect = ({ setConnected, setRightNetwork }) => {
         chain,
         openChainModal,
         openConnectModal,
-        authenticationStatus,
         mounted,
       }) => {
         // Note: If your app doesn't use authentication, you

@@ -3,7 +3,6 @@ import { ethers } from "ethers";
 import Select from "./Select";
 import tokenData from "../data/ourOptions.json";
 
-
 import { CustomConnect } from "./CustomConnect";
 import "@rainbow-me/rainbowkit/styles.css";
 import CurrencyInput from "react-currency-input-field";
@@ -45,6 +44,7 @@ const Liquidity = ({
   const [liqMode, setLiqMode] = useState("add");
   const [liqValue, setLiqValue] = useState();
   const [liqBalance, setLiqBalance] = useState();
+  const [allowanceToken, setAllowanceToken] = useState();
 
   const factoryContract = new ethers.Contract(
     factoryAddress,
@@ -53,7 +53,7 @@ const Liquidity = ({
   );
 
   const getQuote = async () => {
-    if (select1 && select2) {
+    if (select1 && select2 && (value1 || value2)) {
       const contract1 = new ethers.Contract(
         select1.address === "AVAX" ? WAVAX_ADDRESS : select1.address,
         ERC20ABI,
@@ -118,7 +118,7 @@ const Liquidity = ({
           }
         } catch (error) {
           setValue2("");
-          throw new Error(error);
+          console.log(error);
         }
       }
 
@@ -136,7 +136,7 @@ const Liquidity = ({
           }
         } catch (error) {
           setValue1("");
-          throw new Error(error);
+          console.log(error);
         }
       }
     }
@@ -245,7 +245,7 @@ const Liquidity = ({
       const tokenBalance = await token.balanceOf(currentAccount);
       return ethers.utils.formatEther(tokenBalance);
     } catch (error) {
-      throw new Error(error);
+      console.log(error);
     }
   };
 
@@ -266,7 +266,7 @@ const Liquidity = ({
       setTokenBalance2(bal2);
       getLPBalance();
     } catch (error) {
-      throw new Error(error);
+      console.log(error);
     }
   };
 
@@ -276,7 +276,33 @@ const Liquidity = ({
       ERC20ABI,
       provider
     );
+    const contract2 = new ethers.Contract(
+      select2.address === "AVAX" ? WAVAX_ADDRESS : select2.address,
+      ERC20ABI,
+      provider
+    );
     if (select1.address !== "AVAX") {
+      const contract1 = new ethers.Contract(
+        select1.address,
+        ERC20ABI,
+        provider
+      );
+      const contractWithWallet = contract1.connect(signer);
+      const tx = await contractWithWallet.approve(
+        routerAddress,
+        contract1.totalSupply()
+      );
+      const txComplete = await provider.waitForTransaction(tx.hash);
+      if (txComplete) {
+        checkAllowance();
+      }
+    }
+    if (select1.address !== "AVAX") {
+      const contract1 = new ethers.Contract(
+        select1.address,
+        ERC20ABI,
+        provider
+      );
       const contractWithWallet = contract1.connect(signer);
       const tx = await contractWithWallet.approve(
         routerAddress,
@@ -309,48 +335,102 @@ const Liquidity = ({
         setCurrentAccount(accounts[0]);
       }
     } catch (error) {
-      throw new Error(error);
+      console.log(error);
     }
   };
 
   const checkAllowance = async () => {
-    if (select1.address === "AVAX") {
-      const contract2 = new ethers.Contract(select2.address, ERC20ABI, provider);
-      const allowance = await contract2.allowance(
-        signer.getAddress(),
-        routerAddress
-      );
-      const totalSupply = await contract2.totalSupply();
-      if (allowance < totalSupply || allowance === 0) {
-        setAllowanceState(false);
+    if (select1 && select2) {
+      if (select1.address === "AVAX") {
+        const contract2 = new ethers.Contract(
+          select2.address,
+          ERC20ABI,
+          provider
+        );
+        const allowanceWei = await contract2.allowance(
+          signer.getAddress(),
+          routerAddress
+        );
+        const allowance = ethers.utils.formatUnits(
+          allowanceWei,
+          await contract2.decimals()
+        );
+        if (allowance < value2 || allowance === 0) {
+          setAllowanceState(false);
+          setAllowanceToken(select2.symbol);
+        } else {
+          setAllowanceState(true);
+        }
+      } else if (select2.address === "AVAX") {
+        const contract1 = new ethers.Contract(
+          select1.address,
+          ERC20ABI,
+          provider
+        );
+        const allowanceWei = await contract1.allowance(
+          signer.getAddress(),
+          routerAddress
+        );
+        const allowance = ethers.utils.formatUnits(
+          allowanceWei,
+          await contract1.decimals()
+        );
+        const totalSupply = await contract1.totalSupply();
+        if (allowance < totalSupply || allowance === 0) {
+          setAllowanceState(false);
+          setAllowanceToken(select1.symbol);
+        } else {
+          setAllowanceState(true);
+        }
       } else {
-        setAllowanceState(true);
-      }
-    }
+        const contract1 = new ethers.Contract(
+          select1.address,
+          ERC20ABI,
+          provider
+        );
+        const contract2 = new ethers.Contract(
+          select2.address,
+          ERC20ABI,
+          provider
+        );
+        const allowance1 = ethers.utils.formatEther(
+          await contract1.allowance(signer.getAddress(), routerAddress)
+        );
+        const allowance2 = ethers.utils.formatEther(
+          await contract2.allowance(signer.getAddress(), routerAddress)
+        );
 
-    if (select2.address === "AVAX") {
-      const contract1 = new ethers.Contract(select1.address, ERC20ABI, provider);
-      const allowance = await contract1.allowance(
-        signer.getAddress(),
-        routerAddress
-      );
-      const totalSupply = await contract1.totalSupply();
-      if (allowance < totalSupply || allowance === 0) {
-        setAllowanceState(false);
-      } else {
-        setAllowanceState(true);
+        if (
+          select1 &&
+          select2 &&
+          (allowance1 < value1 ||
+            allowance1 === 0 ||
+            allowance2 < value2 ||
+            allowance2 === 0)
+        ) {
+          setAllowanceState(false);
+          console.log(allowance2);
+          console.log(value2);
+          if (allowance1 < value1 || allowance1 === 0) {
+            setAllowanceToken(select1.symbol);
+          } else if (allowance2 < value2 || allowance2 === 0) {
+            setAllowanceToken(select2.symbol);
+          }
+        } else {
+          setAllowanceState(true);
+        }
       }
-    }
-    if (liqMode === "remove") {
-      const LPContract = new ethers.Contract(getLPAddy(), ERC20ABI, provider);
-      const allowance = await LPContract.allowance(
-        signer.getAddress(),
-        routerAddress
-      );
-      if (ethers.utils.formatUnits(allowance) < liqValue || allowance === 0) {
-        setLpAllowanceState(false);
-      } else {
-        setLpAllowanceState(true);
+      if (liqMode === "remove") {
+        const LPContract = new ethers.Contract(getLPAddy(), ERC20ABI, provider);
+        const allowance = await LPContract.allowance(
+          signer.getAddress(),
+          routerAddress
+        );
+        if (ethers.utils.formatUnits(allowance) < liqValue || allowance === 0) {
+          setLpAllowanceState(false);
+        } else {
+          setLpAllowanceState(true);
+        }
       }
     }
   };
@@ -364,10 +444,12 @@ const Liquidity = ({
   };
 
   const getLPBalance = async () => {
-    const LPContract = new ethers.Contract(getLPAddy(), ERC20ABI, provider);
-    const LPBalance = await LPContract.balanceOf(currentAccount);
-    const formattedVal = ethers.utils.formatUnits(LPBalance);
-    setLiqBalance(formattedVal);
+    if (select1 && select2) {
+      const LPContract = new ethers.Contract(getLPAddy(), ERC20ABI, provider);
+      const LPBalance = await LPContract.balanceOf(currentAccount);
+      const formattedVal = ethers.utils.formatUnits(LPBalance);
+      setLiqBalance(formattedVal);
+    }
   };
 
   useEffect(() => {
@@ -613,7 +695,8 @@ const Liquidity = ({
           select1 &&
           select2 ? (
             <button id="swap" onClick={() => approveToken()}>
-              Approve {select1.address === "AVAX" ? select2.label : select1.label}
+              {`Approve ${allowanceToken}`}
+              {select1.address === "AVAX" ? select2.label : select1.label}
             </button>
           ) : null}
           {rightNetwork && connected && (!select1 || !select2) ? (
@@ -627,7 +710,9 @@ const Liquidity = ({
           <Select
             options={
               select2
-                ? optionsState.filter((option) => option.address !== select2.address)
+                ? optionsState.filter(
+                    (option) => option.address !== select2.address
+                  )
                 : optionsState
             }
             select={select1}
@@ -648,7 +733,9 @@ const Liquidity = ({
           <Select
             options={
               select1
-                ? optionsState.filter((option) => option.address !== select1.address)
+                ? optionsState.filter(
+                    (option) => option.address !== select1.address
+                  )
                 : optionsState
             }
             select={select2}
@@ -692,6 +779,7 @@ const Liquidity = ({
             setConnected={setConnected}
             setRightNetwork={setRightNetwork}
           ></CustomConnect>
+
           {rightNetwork &&
           connected &&
           allowanceState &&
@@ -735,6 +823,14 @@ const Liquidity = ({
           ) : null}
         </div>
       ) : null}
+      <button
+        onClick={() => {
+          console.log(select1);
+          console.log(select2);
+        }}
+      >
+        TEST
+      </button>
     </div>
   );
 };
