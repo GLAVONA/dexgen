@@ -7,7 +7,6 @@ import { CustomConnect } from "./CustomConnect";
 import "@rainbow-me/rainbowkit/styles.css";
 import SettingsModal from "./SettingsModal";
 import CurrencyInput from "react-currency-input-field";
-import { formatUnits, parseUnits } from "ethers/lib/utils.js";
 import qs from "qs";
 import { Triangle } from "react-loader-spinner";
 
@@ -27,6 +26,8 @@ const Swap = ({
   _0xAPI_URL,
   _0X_ADDRESS,
   setShouldReload,
+  connected,
+  setConnected
 }) => {
   const [tokenBalance1, setTokenBalance1] = useState();
   const [tokenBalance2, setTokenBalance2] = useState();
@@ -34,7 +35,6 @@ const Swap = ({
   const [select1, setSelect1] = useState();
   const [select2, setSelect2] = useState();
   const [optionsState, setOptionsState] = useState(tokenData.tokens);
-  const [connected, setConnected] = useState();
   const [showSettings, setShowSettings] = useState(false);
   const [value1, setValue1] = useState();
   const [value2, setValue2] = useState();
@@ -47,6 +47,44 @@ const Swap = ({
   const [isLPOurs, setIsLPOurs] = useState();
   const [loading, setLoading] = useState();
   const [params, setParams] = useState();
+
+  let style = {
+    input: (styles) => ({
+      ...styles,
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      width: "60px",
+      gap: "8px",
+      cursor: "grab",
+    }),
+    control: (styles) => ({
+      ...styles,
+      border: "none",
+      boxShadow: "none",
+    }),
+    container: (styles) => ({
+      ...styles,
+      maxWidth: "130px",
+    }),
+    indicatorsContainer: (styles) => ({
+      ...styles,
+      cursor: "grab",
+    }),
+    valueContainer: (styles) => ({
+      ...styles,
+      cursor: "grab",
+    }),
+    singleValue: (styles) => ({
+      ...styles,
+      cursor: "grab",
+    }),
+    menu: (styles) => ({
+      ...styles,
+      zIndex: "30",
+      top: "70%",
+    }),
+  };
 
   const getQuote = async () => {
     if (select1 && select2) {
@@ -423,24 +461,6 @@ const Swap = ({
     setShowSettings(false);
   };
 
-  useEffect(() => {
-    listAccounts();
-    setSelect1(optionsState[0]);
-    getCoinBalance();
-    setMode("swap");
-  }, []);
-
-  useEffect(() => {
-    if (fromTokenOne && value1 === undefined) {
-      setValue2(undefined);
-    }
-    if (!fromTokenOne && value2 === undefined) {
-      setValue1(undefined);
-    }
-    checkAllowance();
-    getQuote();
-  }, [value1, value2, select1, select2]);
-
   const getCoinBalance = async () => {
     const coinBalance = await provider.getBalance(currentAccount);
     const normalizeNumber = ethers.utils.formatEther(coinBalance);
@@ -477,6 +497,9 @@ const Swap = ({
   };
 
   const checkAllowance = async () => {
+    if (!select1 || !select2) {
+      return;
+    }
     if (select1.address === "AVAX") {
       setAllowanceState(true);
       return;
@@ -499,6 +522,9 @@ const Swap = ({
   };
 
   const updateTokenBalance = async () => {
+    if (!select1 || !select2) {
+      return;
+    }
     try {
       let bal1, bal2;
       if (select1.address === "AVAX") {
@@ -529,6 +555,39 @@ const Swap = ({
     setValue2("");
     setFromTokenOne(!fromTokenOne);
   };
+
+
+  const handleMax1 = (e) => {
+    if (e.target.textContent !== 0) {
+      setValue1(tokenBalance1);
+      setFromTokenOne(true);
+    }
+  };
+
+  const handleMax2 = (e) => {
+    if (e.target.textContent !== 0) {
+      setValue2(tokenBalance2);
+      setFromTokenOne(false);
+    }
+  };
+
+  useEffect(() => {
+    listAccounts();
+    setSelect1(optionsState[0]);
+    getCoinBalance();
+    setMode("swap");
+  }, []);
+
+  useEffect(() => {
+    if (fromTokenOne && value1 === undefined) {
+      setValue2(undefined);
+    }
+    if (!fromTokenOne && value2 === undefined) {
+      setValue1(undefined);
+    }
+    checkAllowance();
+    getQuote();
+  }, [value1, value2, select1, select2]);
 
   useEffect(() => {
     listAccounts();
@@ -587,58 +646,6 @@ const Swap = ({
       }
     } catch (error) {
       throw new Error(error);
-    }
-  };
-
-  let style = {
-    input: (styles) => ({
-      ...styles,
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      width: "60px",
-      gap: "8px",
-      cursor: "grab",
-    }),
-    control: (styles) => ({
-      ...styles,
-      border: "none",
-      boxShadow: "none",
-    }),
-    container: (styles) => ({
-      ...styles,
-      maxWidth: "130px",
-    }),
-    indicatorsContainer: (styles) => ({
-      ...styles,
-      cursor: "grab",
-    }),
-    valueContainer: (styles) => ({
-      ...styles,
-      cursor: "grab",
-    }),
-    singleValue: (styles) => ({
-      ...styles,
-      cursor: "grab",
-    }),
-    menu: (styles) => ({
-      ...styles,
-      zIndex: "30",
-      top: "70%",
-    }),
-  };
-
-  const handleMax1 = (e) => {
-    if (e.target.textContent !== 0) {
-      setValue1(tokenBalance1);
-      setFromTokenOne(true);
-    }
-  };
-
-  const handleMax2 = (e) => {
-    if (e.target.textContent !== 0) {
-      setValue2(tokenBalance2);
-      setFromTokenOne(false);
     }
   };
 
@@ -807,7 +814,7 @@ const Swap = ({
         <CustomConnect
           setConnected={setConnected}
           setRightNetwork={setRightNetwork}
-        ></CustomConnect>
+        />
         {rightNetwork && connected && allowanceState && select2 && select1 ? (
           <button id="swap" onClick={() => swap()} disabled={loading}>
             {loading ? (

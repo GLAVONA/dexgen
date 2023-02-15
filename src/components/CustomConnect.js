@@ -1,4 +1,5 @@
 import { ConnectButton } from "@rainbow-me/rainbowkit";
+
 export const CustomConnect = ({ setConnected, setRightNetwork }) => {
   return (
     <ConnectButton.Custom>
@@ -12,13 +13,8 @@ export const CustomConnect = ({ setConnected, setRightNetwork }) => {
       }) => {
         // Note: If your app doesn't use authentication, you
         // can remove all 'authenticationStatus' checks
-        const ready = mounted && authenticationStatus !== "loading";
-        const connected =
-          ready &&
-          account &&
-          chain &&
-          (!authenticationStatus || authenticationStatus === "authenticated");
-        setConnected(connected);
+        const ready = mounted;
+        const connected = ready && account && chain;
         return (
           <div
             {...(!ready && {
@@ -32,6 +28,7 @@ export const CustomConnect = ({ setConnected, setRightNetwork }) => {
           >
             {(() => {
               if (!connected) {
+                setConnected(false);
                 return (
                   <button
                     onClick={openConnectModal}
@@ -41,6 +38,8 @@ export const CustomConnect = ({ setConnected, setRightNetwork }) => {
                     Connect Wallet
                   </button>
                 );
+              } else {
+                setConnected(true);
               }
               if (chain.unsupported) {
                 setRightNetwork(false);

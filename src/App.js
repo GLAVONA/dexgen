@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { ethers } from "ethers";
 import Navbar from "./components/Navbar";
 import "./App.css";
@@ -6,49 +6,54 @@ import Swap from "./components/Swap";
 import Liquidity from "./components/Liquidity";
 
 import "@rainbow-me/rainbowkit/styles.css";
-import { getDefaultWallets, RainbowKitProvider } from "@rainbow-me/rainbowkit";
+import { ConnectButton, getDefaultWallets, RainbowKitProvider } from "@rainbow-me/rainbowkit";
 import { configureChains, createClient, WagmiConfig } from "wagmi";
 import { avalanche, avalancheFuji, localhost } from "wagmi/chains";
 import { publicProvider } from "wagmi/providers/public";
 import { Route, Routes } from "react-router";
 import { Link } from "react-router-dom";
 import ConnectButtonHOC from "./components/ConnectButtonHOC";
-
-const ROUTER_ABI = [
-  "function swapExactAVAXForTokensSupportingFeeOnTransferTokens(uint256,address[],address,uint256) payable",
-  "function getAmountsOut(uint256,address[]) view returns (uint256[])",
-  "function getAmountsIn(uint256,address[]) view returns (uint256[])",
-  "function swapAVAXForExactTokens( uint256, address[], address, uint256) external payable returns (uint256[] amounts)",
-  "function swapExactTokensForAVAXSupportingFeeOnTransferTokens( uint256, uint256, address[], address, uint256) ",
-  "function swapTokensForExactAVAX( uint256, uint256, address[], address, uint256) returns (uint256[])",
-  "function swapExactTokensForTokensSupportingFeeOnTransferTokens(uint256,uint256,address[],address,uint256)",
-  "function swapTokensForExactTokens(uint256,uint256,address[],address,uint256)",
-  "function addLiquidityAVAX(address,uint256,uint256,uint256,address,uint256) payable",
-  "function removeLiquidityAVAXSupportingFeeOnTransferTokens(address,uint256,uint256,uint256,address,uint256)",
-];
-
-const FACTORY_ABI = ["function getPair(address,address)view returns(address)"];
-
-const { chains, provider } = configureChains(
-  [avalancheFuji, localhost, avalanche],
-  [publicProvider()]
-);
-const { connectors } = getDefaultWallets({
-  appName: "DEXGEN",
-  chains,
-});
-
-const wagmiClient = createClient({
-  autoConnect: true,
-  connectors,
-  provider,
-});
+import { CustomConnect } from "./components/CustomConnect";
 
 const App = () => {
   const [mode, setMode] = useState();
   const [shouldReload, setShouldReload] = useState();
+  const [connected, setConnected] = useState();
 
-  const provider = new ethers.providers.Web3Provider(window.ethereum);
+
+  const ROUTER_ABI = [
+    "function swapExactAVAXForTokensSupportingFeeOnTransferTokens(uint256,address[],address,uint256) payable",
+    "function getAmountsOut(uint256,address[]) view returns (uint256[])",
+    "function getAmountsIn(uint256,address[]) view returns (uint256[])",
+    "function swapAVAXForExactTokens( uint256, address[], address, uint256) external payable returns (uint256[] amounts)",
+    "function swapExactTokensForAVAXSupportingFeeOnTransferTokens( uint256, uint256, address[], address, uint256) ",
+    "function swapTokensForExactAVAX( uint256, uint256, address[], address, uint256) returns (uint256[])",
+    "function swapExactTokensForTokensSupportingFeeOnTransferTokens(uint256,uint256,address[],address,uint256)",
+    "function swapTokensForExactTokens(uint256,uint256,address[],address,uint256)",
+    "function addLiquidityAVAX(address,uint256,uint256,uint256,address,uint256) payable",
+    "function removeLiquidityAVAXSupportingFeeOnTransferTokens(address,uint256,uint256,uint256,address,uint256)",
+  ];
+
+  const FACTORY_ABI = [
+    "function getPair(address,address)view returns(address)",
+  ];
+
+  const { chains, provider } = configureChains(
+    [avalancheFuji,  avalanche],
+    [publicProvider()]
+  );
+  const { connectors } = getDefaultWallets({
+    appName: "DEXGEN",
+    chains,
+  });
+
+  const wagmiClient = createClient({
+    autoConnect: true,
+    connectors,
+    provider,
+  });
+
+  const prov = new ethers.providers.Web3Provider(window.ethereum);
   const _0X_ADDRESS = "0xdef1c0ded9bec7f1a1670819833240f027b25eff";
   const factoryAddress = "0x14690446Db665B3d21B92fb6A8b94C73655b5149";
   const routerAddress = "0xecBdEe2285BE419B4fc4d171D9030E2255941329";
@@ -57,19 +62,19 @@ const App = () => {
   const TJFactoryContract = new ethers.Contract(
     TJFactoryAddress,
     FACTORY_ABI,
-    provider
+    prov
   );
   const routerContract = new ethers.Contract(
     routerAddress,
     ROUTER_ABI,
-    provider
+    prov
   );
   const factoryContract = new ethers.Contract(
     factoryAddress,
     FACTORY_ABI,
-    provider
+    prov
   );
-  const signer = provider.getSigner();
+  const signer = prov.getSigner();
   const routerContractWithWallet = routerContract.connect(signer);
   const factoryContractWithWallet = factoryContract.connect(signer);
   const TJFactoryContractWithWallet = TJFactoryContract.connect(signer);
@@ -115,7 +120,7 @@ const App = () => {
                 path="/"
                 element={
                   <Swap
-                    provider={provider}
+                    provider={prov}
                     routerContractWithWallet={routerContractWithWallet}
                     TJFactoryContractWithWallet={TJFactoryContractWithWallet}
                     factoryContractWithWallet={factoryContractWithWallet}
@@ -127,6 +132,8 @@ const App = () => {
                     _0xAPI_URL={_0xAPI_URL}
                     _0X_ADDRESS={_0X_ADDRESS}
                     setShouldReload={setShouldReload}
+                    connected = {connected}
+                    setConnected = {setConnected}
                   />
                 }
               />
@@ -134,7 +141,7 @@ const App = () => {
                 path="/liquidity"
                 element={
                   <Liquidity
-                    provider={provider}
+                    provider={prov}
                     routerContractWithWallet={routerContractWithWallet}
                     TJFactoryContractWithWallet={TJFactoryContractWithWallet}
                     factoryContractWithWallet={factoryContractWithWallet}
