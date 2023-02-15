@@ -1,9 +1,3 @@
-/**
- *Submitted for verification at snowtrace.io on 2021-11-05
-*/
-
-// File: contracts/traderjoe/interfaces/IJoeFactory.sol
-
 // SPDX-License-Identifier: GPL-3.0
 
 pragma solidity >=0.5.0;
