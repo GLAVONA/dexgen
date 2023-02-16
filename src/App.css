@@ -25,7 +25,7 @@
 #logo {
   font-family: LibreBaskerville;
   font-size: 3rem;
-  cursor: grab;
+  cursor: pointer;
 }
 
 #choose-mode {
@@ -65,7 +65,7 @@
   background-color: rgb(247, 248, 250);
   border-radius: 20px;
   padding: 0.3rem;
-  cursor: grab;
+  cursor: pointer;
   border: 1px solid transparent;
   user-select: none;
 }
@@ -75,7 +75,7 @@
   background-color: rgb(247, 248, 250);
   border-radius: 20px;
   padding: 0.3rem;
-  cursor: grab;
+  cursor: pointer;
   border: 1px solid transparent;
 }
 
@@ -97,7 +97,7 @@
   border: 4px solid rgb(255, 255, 255);
   background-color: rgb(247, 248, 250);
   z-index: 10;
-  cursor: grab;
+  cursor: pointer;
 }
 
 #swap {
@@ -107,7 +107,7 @@
   background-color: rgb(253, 234, 241);
   color: #d50066;
   border: 1px solid transparent;
-  cursor: grab;
+  cursor: pointer;
 }
 
 #swap-disabled {
@@ -117,7 +117,7 @@
   background-color: rgb(184, 184, 184);
   color: rgb(247, 247, 247);
   border: 1px solid transparent;
-  cursor: grab;
+  cursor: pointer;
 }
 
 #connect-wallet {
@@ -127,7 +127,7 @@
   background-color: rgb(253, 234, 241);
   color: rgb(213, 0, 102);
   border: 1px solid transparent;
-  cursor: grab;
+  cursor: pointer;
 }
 
 #wrong-chain {
@@ -137,7 +137,7 @@
   background-color: rgb(253, 234, 241);
   color: rgb(213, 0, 102);
   border: 1px solid transparent;
-  cursor: grab;
+  cursor: pointer;
 }
 
 #swap:hover {
@@ -217,7 +217,7 @@
   top: 5px;
   bottom: 0;
   margin-right: 15px;
-  cursor: grab;
+  cursor: pointer;
   height: 16px;
   font-size: 13px;
   padding: 5px;
@@ -277,15 +277,15 @@ body {
 }
 
 #react-select-3-input {
-  cursor: grab;
+  cursor: pointer;
 }
 
 #react-select-5-input {
-  cursor: grab;
+  cursor: pointer;
 }
 
 .head-button {
-  cursor: grab;
+  cursor: pointer;
 }
 
 .modal-backdrop {
@@ -468,7 +468,7 @@ a{
   background-color: rgb(247, 248, 250);
   border-radius: 20px;
   padding: 0.3rem;
-  cursor: grab;
+  cursor: pointer;
   border: 1px solid transparent;
   user-select: none;
 }
@@ -478,7 +478,7 @@ a{
   background-color: rgb(247, 248, 250);
   border-radius: 20px;
   padding: 0.3rem;
-  cursor: grab;
+  cursor: pointer;
   border: 1px solid transparent;
 }
 
@@ -501,7 +501,7 @@ a{
   top: 5px;
   bottom: 0;
   margin-right: 15px;
-  cursor: grab;
+  cursor: pointer;
   height: 16px;
   font-size: 13px;
   padding: 5px;
@@ -516,11 +516,11 @@ a{
 }
 
 #react-select-83-input{
-  cursor: grab;
+  cursor: pointer;
 }
 
 #react-select-85-input{
-  cursor: grab;
+  cursor: pointer;
 }
 
 
