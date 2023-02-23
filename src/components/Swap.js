@@ -27,7 +27,7 @@ const Swap = ({
   _0X_ADDRESS,
   setShouldReload,
   connected,
-  setConnected
+  setConnected,
 }) => {
   const [tokenBalance1, setTokenBalance1] = useState();
   const [tokenBalance2, setTokenBalance2] = useState();
@@ -126,7 +126,11 @@ const Swap = ({
               `${_0xAPI_URL}/price?${qs.stringify(params)}`
             );
             const priceJSON = await response.json();
-            setValue2(priceJSON.price * value1);
+            if (isNaN(priceJSON.price * value1)) {
+              setValue2(0);
+            } else {
+              setValue2(priceJSON.price * value1);
+            }
           } else if (!fromTokenOne && value2) {
             const value2wei = ethers.utils.parseUnits(
               value2,
@@ -142,7 +146,11 @@ const Swap = ({
               `${_0xAPI_URL}/price?${qs.stringify(params)}`
             );
             const priceJSON = await response.json();
-            setValue1(priceJSON.price * value2);
+            if (isNaN(priceJSON.price * value2)) {
+              setValue1(0);
+            } else {
+              setValue1(priceJSON.price * value2);
+            }
           }
         }
       }
@@ -555,7 +563,6 @@ const Swap = ({
     setValue2("");
     setFromTokenOne(!fromTokenOne);
   };
-
 
   const handleMax1 = (e) => {
     if (e.target.textContent !== 0) {
