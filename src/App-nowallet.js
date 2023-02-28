@@ -21,26 +21,7 @@ import { CustomConnect } from "./components/CustomConnect";
 
 const AppNoWallet = () => {
   const [mode, setMode] = useState("swap");
-
-  // let chains,wagmiClient,signer,prov;
-
-  // try{
-  // const {provider,webSocketProvider} = configureChains(
-  //   [avalancheFuji, avalanche],
-  //   [publicProvider()]
-  // );
-  // const { connectors } = getDefaultWallets({
-  //   appName: "DEXGEN",
-  //   chains,
-  // });
-
-  // wagmiClient = createClient({
-  //   autoConnect: true,
-  //   webSocketProvider,
-  // })}catch(error){
-  //   console.log(error)
-  // }
-
+  
   return (
         <div className="App">
           <Navbar>

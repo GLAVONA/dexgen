@@ -22,7 +22,9 @@ const App = () => {
 
   useEffect(()=>{
     window.ethereum.on('accountsChanged', function () {
-      setShouldReload(true);
+      setTimeout(() => {
+        setShouldReload(true);
+      }, 1000);
     })
   },[])
 
