@@ -1,7 +1,7 @@
 {
   "files": {
     "main.css": "/dexgen/static/css/main.fe6b0dd9.css",
-    "main.js": "/dexgen/static/js/main.439b2966.js",
+    "main.js": "/dexgen/static/js/main.6e8f50dd.js",
     "static/js/148.ad87c8d7.chunk.js": "/dexgen/static/js/148.ad87c8d7.chunk.js",
     "static/js/888.139ae3ad.chunk.js": "/dexgen/static/js/888.139ae3ad.chunk.js",
     "static/js/624.95a470fc.chunk.js": "/dexgen/static/js/624.95a470fc.chunk.js",
@@ -33,7 +33,7 @@
     "static/media/LibreBaskerville-Bold.ttf": "/dexgen/static/media/LibreBaskerville-Bold.6e5f70731aeed7c6e895.ttf",
     "index.html": "/dexgen/index.html",
     "main.fe6b0dd9.css.map": "/dexgen/static/css/main.fe6b0dd9.css.map",
-    "main.439b2966.js.map": "/dexgen/static/js/main.439b2966.js.map",
+    "main.6e8f50dd.js.map": "/dexgen/static/js/main.6e8f50dd.js.map",
     "148.ad87c8d7.chunk.js.map": "/dexgen/static/js/148.ad87c8d7.chunk.js.map",
     "888.139ae3ad.chunk.js.map": "/dexgen/static/js/888.139ae3ad.chunk.js.map",
     "624.95a470fc.chunk.js.map": "/dexgen/static/js/624.95a470fc.chunk.js.map",
@@ -63,6 +63,6 @@
   },
   "entrypoints": [
     "static/css/main.fe6b0dd9.css",
-    "static/js/main.439b2966.js"
+    "static/js/main.6e8f50dd.js"
   ]
 }
