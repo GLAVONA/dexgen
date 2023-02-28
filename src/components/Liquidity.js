@@ -823,14 +823,6 @@ const Liquidity = ({
           ) : null}
         </div>
       ) : null}
-      <button
-        onClick={() => {
-          console.log(select1);
-          console.log(select2);
-        }}
-      >
-        TEST
-      </button>
     </div>
   );
 };

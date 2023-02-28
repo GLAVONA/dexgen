@@ -840,7 +840,7 @@ const Swap = ({
         ) : null}
         {rightNetwork &&
         connected &&
-        !allowanceState &&
+        !allowanceState && select1 && select2&&
         select1?.address !== "AVAX" ? (
           <button id="swap" onClick={() => approveToken()}>
             Approve {select1?.symbol}
