@@ -20,6 +20,12 @@ const App = () => {
   const [shouldReload, setShouldReload] = useState();
   const [connected, setConnected] = useState();
 
+  useEffect(()=>{
+    window.ethereum.on('accountsChanged', function () {
+      setShouldReload(true);
+    })
+  },[])
+
 
   const ROUTER_ABI = [
     "function swapExactAVAXForTokensSupportingFeeOnTransferTokens(uint256,address[],address,uint256) payable",

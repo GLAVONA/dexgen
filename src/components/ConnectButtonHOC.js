@@ -5,18 +5,14 @@ const ConnectButtonHOC = ({ shouldReload, setShouldReload }) => {
     
   useEffect(() => {
     setShouldReload(false);
-  }, []);
+  }, [shouldReload]);
 
   return (
-    <>
-      {!shouldReload ? (
         <ConnectButton
           chainStatus={"icon"}
           accountStatus={"address"}
           id={"wallet-connect"}
         />
-      ) : null}
-    </>
   );
 };
 

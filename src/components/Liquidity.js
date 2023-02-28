@@ -46,11 +46,14 @@ const Liquidity = ({
   const [liqBalance, setLiqBalance] = useState();
   const [allowanceToken, setAllowanceToken] = useState();
 
-  const factoryContract = new ethers.Contract(
-    factoryAddress,
-    FACTORY_ABI,
-    provider
-  );
+  let factoryContract;
+  if (window.ethereum) {
+    factoryContract = new ethers.Contract(
+      factoryAddress,
+      FACTORY_ABI,
+      provider
+    );
+  }
 
   const getQuote = async () => {
     if (select1 && select2 && (value1 || value2)) {
@@ -680,10 +683,14 @@ const Liquidity = ({
               ? parseFloat(ethers.utils.formatUnits(minVal)).toFixed(5)
               : 0.0}
           </div>
-          <CustomConnect
-            setConnected={setConnected}
-            setRightNetwork={setRightNetwork}
-          ></CustomConnect>
+          {window.ethereum?
+            <CustomConnect
+              setConnected={setConnected}
+              setRightNetwork={setRightNetwork}
+            ></CustomConnect>
+            :
+            <div className="install-wallet">Please install a wallet</div>
+          }
           {rightNetwork && connected && allowanceState && select2 && select1 ? (
             <button id="swap" onClick={() => addLiquidityAVAX()}>
               Add Liquidity
@@ -775,11 +782,14 @@ const Liquidity = ({
             value={liqValue}
             disabled={select2 && select1 ? false : true}
           />
-          <CustomConnect
-            setConnected={setConnected}
-            setRightNetwork={setRightNetwork}
-          ></CustomConnect>
-
+          {window.ethereum?
+            <CustomConnect
+              setConnected={setConnected}
+              setRightNetwork={setRightNetwork}
+            ></CustomConnect>
+            :
+            <div className="install-wallet">Please install a wallet</div>
+          }
           {rightNetwork &&
           connected &&
           allowanceState &&

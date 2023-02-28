@@ -3,6 +3,7 @@ import { ethers } from "ethers";
 import Select from "./Select";
 import tokenData from "../data/options.json";
 
+import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { CustomConnect } from "./CustomConnect";
 import "@rainbow-me/rainbowkit/styles.css";
 import SettingsModal from "./SettingsModal";
@@ -818,10 +819,13 @@ const Swap = ({
             ? parseFloat(ethers.utils.formatUnits(minVal)).toFixed(5)
             : 0.0}
         </div>
+        {window.ethereum?
         <CustomConnect
           setConnected={setConnected}
           setRightNetwork={setRightNetwork}
-        />
+        />:
+        <div className="install-wallet">Please install a wallet</div>
+        }
         {rightNetwork && connected && allowanceState && select2 && select1 ? (
           <button id="swap" onClick={() => swap()} disabled={loading}>
             {loading ? (
