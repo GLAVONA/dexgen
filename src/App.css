@@ -12,7 +12,7 @@
 
 #navbar {
   display: flex;
-  justify-content: space-evenly;
+  justify-content: center;
   align-items: center;
   flex-wrap: wrap;
   grid-row: 1/2;
@@ -21,6 +21,7 @@
   z-index: 100;
   padding-bottom: 1rem;
 }
+
 
 #logo {
   font-family: LibreBaskerville;
@@ -610,4 +611,37 @@ a{
     color: #d50066;
     border: 1px solid transparent;
     user-select: none;
+}
+
+.nav-menu{
+  list-style: none;
+  display: flex;
+  padding: 0;
+  margin: 0;
+  gap: 0.5rem;
+  flex: 1;
+  justify-content: center;
+}
+
+.nav-item{
+  display: flex;
+  border: 1px solid transparent;
+  padding: 10px;
+}
+
+.nav-item.active{
+  background-color: rgb(253, 234, 241);
+  border: 1px solid palevioletred;
+  border-radius: 20px;
+}
+
+#navbar>.left{
+  flex: 1;
+  text-align: center;
+}
+
+#navbar>.right{
+  display: flex;
+  flex: 1;
+  justify-content: center;
 }

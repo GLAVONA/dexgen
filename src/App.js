@@ -11,7 +11,7 @@ import { configureChains, createClient, WagmiConfig } from "wagmi";
 import { avalanche, avalancheFuji, localhost } from "wagmi/chains";
 import { publicProvider } from "wagmi/providers/public";
 import { Route, Routes } from "react-router";
-import { Link } from "react-router-dom";
+import { Link, NavLink } from "react-router-dom";
 import ConnectButtonHOC from "./components/ConnectButtonHOC";
 import { CustomConnect } from "./components/CustomConnect";
 
@@ -24,7 +24,7 @@ const App = () => {
     window.ethereum.on('accountsChanged', function () {
       setTimeout(() => {
         setShouldReload(true);
-      }, 1000);
+      }, 2000);
     })
   },[])
 
@@ -93,12 +93,21 @@ const App = () => {
       <RainbowKitProvider chains={chains}>
         <div className="App">
           <Navbar>
-            <div id="logo">DEXGEN</div>
-            <div id="connect">
-              <ConnectButtonHOC
-                shouldReload={shouldReload}
-                setShouldReload={setShouldReload}
-              />
+            <div className="left">
+              <div id="logo">DEXGEN</div>
+            </div>
+              <ul className="nav-menu">
+                <li> <NavLink to="/" className={"nav-item"}>Trade</NavLink> </li>
+                <li> <NavLink to="/stake" className={"nav-item"}>Stake</NavLink> </li>
+                <li> <NavLink to="/farm" className={"nav-item"}>Farm</NavLink> </li>
+              </ul>
+            <div className="right">
+              <div id="connect">
+                <ConnectButtonHOC
+                  shouldReload={shouldReload}
+                  setShouldReload={setShouldReload}
+                />
+              </div>
             </div>
           </Navbar>
           <div id="choose-mode">
