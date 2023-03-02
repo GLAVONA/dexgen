@@ -248,7 +248,7 @@
 #swap-card>.head {
   position: relative;
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
   align-items: center;
   padding: 1rem 1.25rem 0.5rem;
 }

@@ -556,283 +556,278 @@ const Liquidity = ({
   };
 
   return (
-    <div id="liq-card">
-      <div className="head">
-        <div id="choose-liq-mode">
-          <div className="wrapper">
-            <div
-              className={`add-mode ${liqMode === "add" ? "active" : null}`}
-              onClick={() => setLiqMode("add")}
-            >
-              Add
-            </div>
-            <div
-              className={`remove-mode ${
-                liqMode === "remove" ? "active" : null
-              }`}
-              onClick={() => setLiqMode("remove")}
-            >
-              Remove
+    <div id="main">
+      <div id="liq-card">
+        <div className="head">
+          <div id="choose-liq-mode">
+            <div className="wrapper">
+              <div
+                className={`add-mode ${liqMode === "add" ? "active" : null}`}
+                onClick={() => setLiqMode("add")}
+              >
+                Add
+              </div>
+              <div
+                className={`remove-mode ${
+                  liqMode === "remove" ? "active" : null
+                }`}
+                onClick={() => setLiqMode("remove")}
+              >
+                Remove
+              </div>
             </div>
           </div>
         </div>
+        {liqMode === "add" ? (
+          <div className="body-add">
+            <div id="select-fields-liq">
+              <div className="select-field">
+                <Select
+                  options={
+                    select2
+                      ? optionsState.filter(
+                          (option) => option.address !== select2.address
+                        )
+                      : optionsState
+                  }
+                  select={select1}
+                  setSelect={setSelect1}
+                  optionsState={optionsState}
+                  setOptionsState={setOptionsState}
+                  styles={{
+                    ...style,
+                    container: (styles) => ({
+                      ...styles,
+                      border: select2 && !select1 ? "1px solid red" : null,
+                    }),
+                  }}
+                >
+                  <div
+                    className="balance"
+                    onClick={(e) => {
+                      handleMax1(e);
+                    }}
+                  >
+                    <span className="max-balance">Balance:</span>
+                    {select1 && tokenBalance1 > 0
+                      ? Number(tokenBalance1).toFixed(5)
+                      : 0}
+                  </div>
+                  <span id="from">Token 1:</span>
+                </Select>
+                <CurrencyInput
+                  decimalsLimit={18}
+                  allowNegativeValue={false}
+                  onValueChange={(e) => {
+                    setValue1(e);
+                  }}
+                  onKeyDown={() => setFromTokenOne(true)}
+                  className="amount-input"
+                  placeholder="0.0"
+                  value={value1}
+                />
+              </div>
+              <div className="select-field">
+                <Select
+                  options={
+                    select1
+                      ? optionsState.filter(
+                          (option) => option.address !== select1.address
+                        )
+                      : optionsState
+                  }
+                  select={select2}
+                  setSelect={setSelect2}
+                  optionsState={optionsState}
+                  setOptionsState={setOptionsState}
+                  styles={{
+                    ...style,
+                    container: (styles) => ({
+                      ...styles,
+                      border:
+                        select1 && value1 && !select2 ? "1px solid red" : null,
+                    }),
+                  }}
+                >
+                  {" "}
+                  <div
+                    className="balance"
+                    onClick={(e) => {
+                      handleMax2(e);
+                    }}
+                  >
+                    <span className="max-balance">Balance:</span>
+                    {select2 && tokenBalance2 > 0
+                      ? Number(tokenBalance2).toFixed(5)
+                      : 0}
+                  </div>{" "}
+                  <span id="to">Token 2:</span>
+                </Select>
+                <CurrencyInput
+                  decimalsLimit={18}
+                  allowNegativeValue={false}
+                  onValueChange={async (e) => {
+                    setValue2(e);
+                  }}
+                  onKeyDown={() => setFromTokenOne(false)}
+                  className="amount-input"
+                  placeholder="0.0"
+                  value={value2}
+                  disabled={select2 ? false : true}
+                />
+              </div>
+            </div>
+            {window.ethereum?
+              <CustomConnect
+                setConnected={setConnected}
+                setRightNetwork={setRightNetwork}
+              ></CustomConnect>
+              :
+              <div className="install-wallet">Please install a wallet</div>
+            }
+            {rightNetwork && connected && allowanceState && select2 && select1 ? (
+              <button id="swap" onClick={() => addLiquidityAVAX()}>
+                Add Liquidity
+              </button>
+            ) : null}
+            {rightNetwork &&
+            connected &&
+            !allowanceState &&
+            select1 &&
+            select2 ? (
+              <button id="swap" onClick={() => approveToken()}>
+                {`Approve ${allowanceToken}`}
+                {select1.address === "AVAX" ? select2.label : select1.label}
+              </button>
+            ) : null}
+            {rightNetwork && connected && (!select1 || !select2) ? (
+              <button id="swap-disabled">Add Liquidity</button>
+            ) : null}
+            {}
+          </div>
+        ) : null}
+        {liqMode === "remove" ? (
+          <div className="body-remove">
+            <Select
+              options={
+                select2
+                  ? optionsState.filter(
+                      (option) => option.address !== select2.address
+                    )
+                  : optionsState
+              }
+              select={select1}
+              setSelect={setSelect1}
+              optionsState={optionsState}
+              setOptionsState={setOptionsState}
+              styles={{
+                ...style,
+                container: (styles) => ({
+                  ...styles,
+                  border:
+                    select2 && !select1
+                      ? "1px solid red"
+                      : "1px solid rgb(237, 238, 242)",
+                }),
+              }}
+            ></Select>
+            <Select
+              options={
+                select1
+                  ? optionsState.filter(
+                      (option) => option.address !== select1.address
+                    )
+                  : optionsState
+              }
+              select={select2}
+              setSelect={setSelect2}
+              optionsState={optionsState}
+              setOptionsState={setOptionsState}
+              styles={{
+                ...style,
+                container: (styles) => ({
+                  ...styles,
+                  border:
+                    select1 && !select2
+                      ? "1px solid red"
+                      : "1px solid rgb(237, 238, 242)",
+                }),
+              }}
+            ></Select>
+            <div
+              className="lp-balance"
+              onClick={(e) => {
+                handleLiqMax(e);
+              }}
+            >
+              <span className="max-balance">Balance:</span>
+              {select1 && select2 && liqBalance > 0
+                ? Number(liqBalance).toFixed(5)
+                : 0}
+            </div>
+            <CurrencyInput
+              decimalsLimit={18}
+              allowNegativeValue={false}
+              onValueChange={async (e) => {
+                setLiqValue(e);
+              }}
+              className="liq-input"
+              placeholder="0.0"
+              value={liqValue}
+              disabled={select2 && select1 ? false : true}
+            />
+            {window.ethereum?
+              <CustomConnect
+                setConnected={setConnected}
+                setRightNetwork={setRightNetwork}
+              ></CustomConnect>
+              :
+              <div className="install-wallet">Please install a wallet</div>
+            }
+            {rightNetwork &&
+            connected &&
+            allowanceState &&
+            select2 &&
+            select1 &&
+            liqMode === "add" ? (
+              <button id="swap" onClick={() => addLiquidityAVAX()}>
+                Add Liquidity
+              </button>
+            ) : null}
+            {rightNetwork &&
+            connected &&
+            lpAllowanceState &&
+            select2 &&
+            select1 &&
+            liqMode === "remove" ? (
+              <button id="swap" onClick={() => removeLiquidityAvax()}>
+                Remove Liquidity
+              </button>
+            ) : null}
+            {rightNetwork &&
+            connected &&
+            !lpAllowanceState &&
+            select1 &&
+            select2 ? (
+              <button id="swap" onClick={() => approveLPToken()}>
+                Approve DLP
+              </button>
+            ) : null}
+            {rightNetwork &&
+            connected &&
+            (!select1 || !select2) &&
+            liqMode === "add" ? (
+              <button id="swap-disabled">Add Liquidity</button>
+            ) : null}
+            {rightNetwork &&
+            connected &&
+            (!select1 || !select2) &&
+            liqMode === "remove" ? (
+              <button id="swap-disabled">Remove Liquidity</button>
+            ) : null}
+          </div>
+        ) : null}
       </div>
-      {liqMode === "add" ? (
-        <div className="body-add">
-          <div id="select-fields-liq">
-            <div className="select-field">
-              <Select
-                options={
-                  select2
-                    ? optionsState.filter(
-                        (option) => option.address !== select2.address
-                      )
-                    : optionsState
-                }
-                select={select1}
-                setSelect={setSelect1}
-                optionsState={optionsState}
-                setOptionsState={setOptionsState}
-                styles={{
-                  ...style,
-                  container: (styles) => ({
-                    ...styles,
-                    border: select2 && !select1 ? "1px solid red" : null,
-                  }),
-                }}
-              >
-                <div
-                  className="balance"
-                  onClick={(e) => {
-                    handleMax1(e);
-                  }}
-                >
-                  <span className="max-balance">Balance:</span>
-                  {select1 && tokenBalance1 > 0
-                    ? Number(tokenBalance1).toFixed(5)
-                    : 0}
-                </div>
-                <span id="from">Token 1:</span>
-              </Select>
-              <CurrencyInput
-                decimalsLimit={18}
-                allowNegativeValue={false}
-                onValueChange={(e) => {
-                  setValue1(e);
-                }}
-                onKeyDown={() => setFromTokenOne(true)}
-                className="amount-input"
-                placeholder="0.0"
-                value={value1}
-              />
-            </div>
-
-            <div className="select-field">
-              <Select
-                options={
-                  select1
-                    ? optionsState.filter(
-                        (option) => option.address !== select1.address
-                      )
-                    : optionsState
-                }
-                select={select2}
-                setSelect={setSelect2}
-                optionsState={optionsState}
-                setOptionsState={setOptionsState}
-                styles={{
-                  ...style,
-                  container: (styles) => ({
-                    ...styles,
-                    border:
-                      select1 && value1 && !select2 ? "1px solid red" : null,
-                  }),
-                }}
-              >
-                {" "}
-                <div
-                  className="balance"
-                  onClick={(e) => {
-                    handleMax2(e);
-                  }}
-                >
-                  <span className="max-balance">Balance:</span>
-                  {select2 && tokenBalance2 > 0
-                    ? Number(tokenBalance2).toFixed(5)
-                    : 0}
-                </div>{" "}
-                <span id="to">Token 2:</span>
-              </Select>
-              <CurrencyInput
-                decimalsLimit={18}
-                allowNegativeValue={false}
-                onValueChange={async (e) => {
-                  setValue2(e);
-                }}
-                onKeyDown={() => setFromTokenOne(false)}
-                className="amount-input"
-                placeholder="0.0"
-                value={value2}
-                disabled={select2 ? false : true}
-              />
-            </div>
-          </div>
-          <div id="min-val">
-            Min:{" "}
-            {minVal
-              ? parseFloat(ethers.utils.formatUnits(minVal)).toFixed(5)
-              : 0.0}
-          </div>
-          {window.ethereum?
-            <CustomConnect
-              setConnected={setConnected}
-              setRightNetwork={setRightNetwork}
-            ></CustomConnect>
-            :
-            <div className="install-wallet">Please install a wallet</div>
-          }
-          {rightNetwork && connected && allowanceState && select2 && select1 ? (
-            <button id="swap" onClick={() => addLiquidityAVAX()}>
-              Add Liquidity
-            </button>
-          ) : null}
-          {rightNetwork &&
-          connected &&
-          !allowanceState &&
-          select1 &&
-          select2 ? (
-            <button id="swap" onClick={() => approveToken()}>
-              {`Approve ${allowanceToken}`}
-              {select1.address === "AVAX" ? select2.label : select1.label}
-            </button>
-          ) : null}
-          {rightNetwork && connected && (!select1 || !select2) ? (
-            <button id="swap-disabled">Add Liquidity</button>
-          ) : null}
-          {}
-        </div>
-      ) : null}
-      {liqMode === "remove" ? (
-        <div className="body-remove">
-          <Select
-            options={
-              select2
-                ? optionsState.filter(
-                    (option) => option.address !== select2.address
-                  )
-                : optionsState
-            }
-            select={select1}
-            setSelect={setSelect1}
-            optionsState={optionsState}
-            setOptionsState={setOptionsState}
-            styles={{
-              ...style,
-              container: (styles) => ({
-                ...styles,
-                border:
-                  select2 && !select1
-                    ? "1px solid red"
-                    : "1px solid rgb(237, 238, 242)",
-              }),
-            }}
-          ></Select>
-          <Select
-            options={
-              select1
-                ? optionsState.filter(
-                    (option) => option.address !== select1.address
-                  )
-                : optionsState
-            }
-            select={select2}
-            setSelect={setSelect2}
-            optionsState={optionsState}
-            setOptionsState={setOptionsState}
-            styles={{
-              ...style,
-              container: (styles) => ({
-                ...styles,
-                border:
-                  select1 && !select2
-                    ? "1px solid red"
-                    : "1px solid rgb(237, 238, 242)",
-              }),
-            }}
-          ></Select>
-          <div
-            className="lp-balance"
-            onClick={(e) => {
-              handleLiqMax(e);
-            }}
-          >
-            <span className="max-balance">Balance:</span>
-            {select1 && select2 && liqBalance > 0
-              ? Number(liqBalance).toFixed(5)
-              : 0}
-          </div>
-          <CurrencyInput
-            decimalsLimit={18}
-            allowNegativeValue={false}
-            onValueChange={async (e) => {
-              setLiqValue(e);
-            }}
-            className="liq-input"
-            placeholder="0.0"
-            value={liqValue}
-            disabled={select2 && select1 ? false : true}
-          />
-          {window.ethereum?
-            <CustomConnect
-              setConnected={setConnected}
-              setRightNetwork={setRightNetwork}
-            ></CustomConnect>
-            :
-            <div className="install-wallet">Please install a wallet</div>
-          }
-          {rightNetwork &&
-          connected &&
-          allowanceState &&
-          select2 &&
-          select1 &&
-          liqMode === "add" ? (
-            <button id="swap" onClick={() => addLiquidityAVAX()}>
-              Add Liquidity
-            </button>
-          ) : null}
-          {rightNetwork &&
-          connected &&
-          lpAllowanceState &&
-          select2 &&
-          select1 &&
-          liqMode === "remove" ? (
-            <button id="swap" onClick={() => removeLiquidityAvax()}>
-              Remove Liquidity
-            </button>
-          ) : null}
-          {rightNetwork &&
-          connected &&
-          !lpAllowanceState &&
-          select1 &&
-          select2 ? (
-            <button id="swap" onClick={() => approveLPToken()}>
-              Approve DLP
-            </button>
-          ) : null}
-          {rightNetwork &&
-          connected &&
-          (!select1 || !select2) &&
-          liqMode === "add" ? (
-            <button id="swap-disabled">Add Liquidity</button>
-          ) : null}
-          {rightNetwork &&
-          connected &&
-          (!select1 || !select2) &&
-          liqMode === "remove" ? (
-            <button id="swap-disabled">Remove Liquidity</button>
-          ) : null}
-        </div>
-      ) : null}
     </div>
   );
 };

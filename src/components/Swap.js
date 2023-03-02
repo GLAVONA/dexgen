@@ -658,201 +658,202 @@ const Swap = ({
   };
 
   return (
-    <div id="swap-card">
-      <div className="head">
-        <SettingsModal
-          close={closeSettings}
-          shown={showSettings}
-          slippage={slippage}
-          setSlippage={setSlippage}
-          deadline={deadline}
-          setDeadline={setDeadline}
-        >
-          {" "}
-        </SettingsModal>
-        <div className="head-title">Trade</div>
-        <div
-          className="head-button"
-          onClick={() => {
-            setShowSettings(!showSettings);
-          }}
-        >
-          <div>
+    <div id="main">
+      <div id="swap-card">
+        <div className="head">
+          <SettingsModal
+            close={closeSettings}
+            shown={showSettings}
+            slippage={slippage}
+            setSlippage={setSlippage}
+            deadline={deadline}
+            setDeadline={setDeadline}
+          >
             {" "}
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              class="sc-1ndknrv-0 fZuPAR"
-            >
-              <circle cx="12" cy="12" r="3"></circle>
-              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
-            </svg>
-          </div>
-        </div>
-      </div>
-      <div className="body">
-        <div id="select-fields">
-          <div className="select-field">
-            <Select
-              options={
-                select2
-                  ? optionsState.filter(
-                      (option) => option.address !== select2.address
-                    )
-                  : optionsState
-              }
-              select={select1}
-              setSelect={setSelect1}
-              optionsState={optionsState}
-              setOptionsState={setOptionsState}
-              styles={{
-                ...style,
-                container: () => ({
-                  border: select2 && !select1 ? "1px solid red" : null,
-                }),
-              }}
-              provider={provider}
-            >
-              <div
-                className="balance"
-                onClick={(e) => {
-                  handleMax1(e);
-                }}
-              >
-                <span className="max-balance">Balance:</span>
-                {select1 && tokenBalance1 > 0
-                  ? Number(tokenBalance1).toFixed(5)
-                  : 0}
-              </div>
-              <span id="from">From:</span>
-            </Select>
-            <CurrencyInput
-              decimalsLimit={18}
-              allowNegativeValue={false}
-              onValueChange={(e) => {
-                setValue1(e);
-              }}
-              onKeyDown={() => setFromTokenOne(true)}
-              className="amount-input"
-              placeholder="0.0"
-              value={value1}
-            />
-          </div>
-          {
-            <div id="switch-arrow" onClick={switchTokens}>
+          </SettingsModal>
+          <div
+            className="head-button"
+            onClick={() => {
+              setShowSettings(!showSettings);
+            }}
+          >
+            <div>
+              {" "}
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                width="16"
-                height="16"
+                width="24"
+                height="24"
                 viewBox="0 0 24 24"
                 fill="none"
-                stroke="#6E727D"
+                stroke="currentColor"
                 stroke-width="2"
                 stroke-linecap="round"
                 stroke-linejoin="round"
+                class="sc-1ndknrv-0 fZuPAR"
               >
-                <line x1="12" y1="5" x2="12" y2="19"></line>
-                <polyline points="19 12 12 19 5 12"></polyline>
+                <circle cx="12" cy="12" r="3"></circle>
+                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
               </svg>
             </div>
-          }{" "}
-          <div className="select-field">
-            <Select
-              options={
-                select1
-                  ? optionsState.filter(
-                      (option) => option.address !== select1.address
-                    )
-                  : optionsState
-              }
-              select={select2}
-              setSelect={setSelect2}
-              optionsState={optionsState}
-              setOptionsState={setOptionsState}
-              styles={{
-                ...style,
-                container: () => ({
-                  border:
-                    select1 && value1 && !select2 ? "1px solid red" : null,
-                }),
-              }}
-              provider={provider}
-            >
-              {" "}
-              <div
-                className="balance"
-                onClick={(e) => {
-                  handleMax2(e);
-                }}
-              >
-                <span className="max-balance">Balance:</span>
-                {select2 && tokenBalance2 > 0
-                  ? Number(tokenBalance2).toFixed(5)
-                  : 0}
-              </div>{" "}
-              <span id="to">To:</span>
-            </Select>
-            <CurrencyInput
-              decimalsLimit={18}
-              allowNegativeValue={false}
-              onValueChange={async (e) => {
-                setValue2(e);
-              }}
-              onKeyDown={() => setFromTokenOne(false)}
-              className="amount-input"
-              placeholder="0.0"
-              value={value2}
-              disabled={select2 ? false : true}
-            />
           </div>
         </div>
-        <div id="min-val">
-          Min:{" "}
-          {minVal
-            ? parseFloat(ethers.utils.formatUnits(minVal)).toFixed(5)
-            : 0.0}
-        </div>
-        {window.ethereum?
-        <CustomConnect
-          setConnected={setConnected}
-          setRightNetwork={setRightNetwork}
-        />:
-        <div className="install-wallet">Please install a wallet</div>
-        }
-        {rightNetwork && connected && allowanceState && select2 && select1 ? (
-          <button id="swap" onClick={() => swap()} disabled={loading}>
-            {loading ? (
-              <Triangle
-                height="18"
-                width="100%"
-                color="#d50066"
-                ariaLabel="triangle-loading"
-                wrapperClassName="triangle-loading"
-                visible={true}
+        <div className="body">
+          <div id="select-fields">
+            <div className="select-field">
+              <Select
+                options={
+                  select2
+                    ? optionsState.filter(
+                        (option) => option.address !== select2.address
+                      )
+                    : optionsState
+                }
+                select={select1}
+                setSelect={setSelect1}
+                optionsState={optionsState}
+                setOptionsState={setOptionsState}
+                styles={{
+                  ...style,
+                  container: () => ({
+                    border: select2 && !select1 ? "1px solid red" : null,
+                  }),
+                }}
+                provider={provider}
+              >
+                <div
+                  className="balance"
+                  onClick={(e) => {
+                    handleMax1(e);
+                  }}
+                >
+                  <span className="max-balance">Balance:</span>
+                  {select1 && tokenBalance1 > 0
+                    ? Number(tokenBalance1).toFixed(5)
+                    : 0}
+                </div>
+                <span id="from">From:</span>
+              </Select>
+              <CurrencyInput
+                decimalsLimit={18}
+                allowNegativeValue={false}
+                onValueChange={(e) => {
+                  setValue1(e);
+                }}
+                onKeyDown={() => setFromTokenOne(true)}
+                className="amount-input"
+                placeholder="0.0"
+                value={value1}
               />
-            ) : (
-              "Swap"
-            )}
-          </button>
-        ) : null}
-        {rightNetwork &&
-        connected &&
-        !allowanceState && select1 && select2&&
-        select1?.address !== "AVAX" ? (
-          <button id="swap" onClick={() => approveToken()}>
-            Approve {select1?.symbol}
-          </button>
-        ) : rightNetwork && connected && (!select1 || !select2) ? (
-          <button id="swap-disabled">Swap</button>
-        ) : null}
-        {}
+            </div>
+            {
+              <div id="switch-arrow" onClick={switchTokens}>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="#6E727D"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <line x1="12" y1="5" x2="12" y2="19"></line>
+                  <polyline points="19 12 12 19 5 12"></polyline>
+                </svg>
+              </div>
+            }{" "}
+            <div className="select-field">
+              <Select
+                options={
+                  select1
+                    ? optionsState.filter(
+                        (option) => option.address !== select1.address
+                      )
+                    : optionsState
+                }
+                select={select2}
+                setSelect={setSelect2}
+                optionsState={optionsState}
+                setOptionsState={setOptionsState}
+                styles={{
+                  ...style,
+                  container: () => ({
+                    border:
+                      select1 && value1 && !select2 ? "1px solid red" : null,
+                  }),
+                }}
+                provider={provider}
+              >
+                {" "}
+                <div
+                  className="balance"
+                  onClick={(e) => {
+                    handleMax2(e);
+                  }}
+                >
+                  <span className="max-balance">Balance:</span>
+                  {select2 && tokenBalance2 > 0
+                    ? Number(tokenBalance2).toFixed(5)
+                    : 0}
+                </div>{" "}
+                <span id="to">To:</span>
+              </Select>
+              <CurrencyInput
+                decimalsLimit={18}
+                allowNegativeValue={false}
+                onValueChange={async (e) => {
+                  setValue2(e);
+                }}
+                onKeyDown={() => setFromTokenOne(false)}
+                className="amount-input"
+                placeholder="0.0"
+                value={value2}
+                disabled={select2 ? false : true}
+              />
+            </div>
+          </div>
+          <div id="min-val">
+            Min:{" "}
+            {minVal
+              ? parseFloat(ethers.utils.formatUnits(minVal)).toFixed(5)
+              : 0.0}
+          </div>
+          {window.ethereum?
+          <CustomConnect
+            setConnected={setConnected}
+            setRightNetwork={setRightNetwork}
+          />:
+          <div className="install-wallet">Please install a wallet</div>
+          }
+          {rightNetwork && connected && allowanceState && select2 && select1 ? (
+            <button id="swap" onClick={() => swap()} disabled={loading}>
+              {loading ? (
+                <Triangle
+                  height="18"
+                  width="100%"
+                  color="#d50066"
+                  ariaLabel="triangle-loading"
+                  wrapperClassName="triangle-loading"
+                  visible={true}
+                />
+              ) : (
+                "Swap"
+              )}
+            </button>
+          ) : null}
+          {rightNetwork &&
+          connected &&
+          !allowanceState && select1 && select2&&
+          select1?.address !== "AVAX" ? (
+            <button id="swap" onClick={() => approveToken()}>
+              Approve {select1?.symbol}
+            </button>
+          ) : rightNetwork && connected && (!select1 || !select2) ? (
+            <button id="swap-disabled">Swap</button>
+          ) : null}
+          {}
+        </div>
       </div>
     </div>
   );
