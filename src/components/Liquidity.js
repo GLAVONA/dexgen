@@ -627,7 +627,7 @@ const Liquidity = ({
                   value={value1}
                 />
               </div>
-              <div className="select-field">
+              <div className="select-field bottom-select-field">
                 <Select
                   options={
                     select1
@@ -676,16 +676,21 @@ const Liquidity = ({
                   disabled={select2 ? false : true}
                 />
               </div>
+              <div id="min-val"></div>
             </div>
-            {window.ethereum?
+            {window.ethereum ? (
               <CustomConnect
                 setConnected={setConnected}
                 setRightNetwork={setRightNetwork}
               ></CustomConnect>
-              :
+            ) : (
               <div className="install-wallet">Please install a wallet</div>
-            }
-            {rightNetwork && connected && allowanceState && select2 && select1 ? (
+            )}
+            {rightNetwork &&
+            connected &&
+            allowanceState &&
+            select2 &&
+            select1 ? (
               <button id="swap" onClick={() => addLiquidityAVAX()}>
                 Add Liquidity
               </button>
@@ -776,14 +781,14 @@ const Liquidity = ({
               value={liqValue}
               disabled={select2 && select1 ? false : true}
             />
-            {window.ethereum?
+            {window.ethereum ? (
               <CustomConnect
                 setConnected={setConnected}
                 setRightNetwork={setRightNetwork}
               ></CustomConnect>
-              :
+            ) : (
               <div className="install-wallet">Please install a wallet</div>
-            }
+            )}
             {rightNetwork &&
             connected &&
             allowanceState &&

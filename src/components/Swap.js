@@ -117,12 +117,15 @@ const Swap = ({
               value1,
               contract1Decimals
             );
-            setParams({
+
+            let params = {
               sellToken: select1.address,
               buyToken: select2.address,
               sellAmount: value1wei.toString(),
-              takerAddress: currentAccount,
-            });
+            };
+            if (currentAccount) params.takerAddress = currentAccount;
+
+            setParams(params);
             const response = await fetch(
               `${_0xAPI_URL}/price?${qs.stringify(params)}`
             );
@@ -137,12 +140,14 @@ const Swap = ({
               value2,
               contract2Decimals
             );
-            setParams({
+            let params = {
               sellToken: select1.address,
               buyToken: select2.address,
-              buyAmount: value2wei.toString(),
-              takerAddress: currentAccount,
-            });
+              sellAmount: value2wei.toString(),
+            };
+            if (currentAccount) params.takerAddress = currentAccount;
+
+            setParams(params);
             const response = await fetch(
               `${_0xAPI_URL}/price?${qs.stringify(params)}`
             );
@@ -659,6 +664,13 @@ const Swap = ({
 
   return (
     <div id="main">
+      <button
+        onClick={() => {
+          console.log(currentAccount);
+        }}
+      >
+        test
+      </button>
       <div id="swap-card">
         <div className="head">
           <SettingsModal
@@ -819,13 +831,14 @@ const Swap = ({
               ? parseFloat(ethers.utils.formatUnits(minVal)).toFixed(5)
               : 0.0}
           </div>
-          {window.ethereum?
-          <CustomConnect
-            setConnected={setConnected}
-            setRightNetwork={setRightNetwork}
-          />:
-          <div className="install-wallet">Please install a wallet</div>
-          }
+          {window.ethereum ? (
+            <CustomConnect
+              setConnected={setConnected}
+              setRightNetwork={setRightNetwork}
+            />
+          ) : (
+            <div className="install-wallet">Please install a wallet</div>
+          )}
           {rightNetwork && connected && allowanceState && select2 && select1 ? (
             <button id="swap" onClick={() => swap()} disabled={loading}>
               {loading ? (
@@ -844,7 +857,9 @@ const Swap = ({
           ) : null}
           {rightNetwork &&
           connected &&
-          !allowanceState && select1 && select2&&
+          !allowanceState &&
+          select1 &&
+          select2 &&
           select1?.address !== "AVAX" ? (
             <button id="swap" onClick={() => approveToken()}>
               Approve {select1?.symbol}

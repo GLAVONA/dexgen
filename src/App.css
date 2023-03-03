@@ -312,6 +312,10 @@
   background-color: rgb(247, 248, 250);
 }
 
+.bottom-select-field{
+  margin-bottom: 16px;
+}
+
 .amount-input {
   flex: 1;
   text-align: right;
@@ -500,6 +504,8 @@ a{
   justify-content: center;
   align-items: center;
   padding: 10px 0 5px 0;
+  height: 52px;
+
 }
 
 
