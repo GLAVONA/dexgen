@@ -8,17 +8,15 @@ import ChooseMode from "./components/ChooseMode";
 
 import "@rainbow-me/rainbowkit/styles.css";
 import {
-  ConnectButton,
   getDefaultWallets,
   RainbowKitProvider,
 } from "@rainbow-me/rainbowkit";
 import { configureChains, createClient, WagmiConfig } from "wagmi";
-import { avalanche, avalancheFuji, localhost } from "wagmi/chains";
+import { avalanche, avalancheFuji } from "wagmi/chains";
 import { publicProvider } from "wagmi/providers/public";
 import { Route, Routes } from "react-router";
-import { Link, NavLink } from "react-router-dom";
+import {  NavLink } from "react-router-dom";
 import ConnectButtonHOC from "./components/ConnectButtonHOC";
-import { CustomConnect } from "./components/CustomConnect";
 
 const App = () => {
   const [mode, setMode] = useState("swap");

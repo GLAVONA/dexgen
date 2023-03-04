@@ -162,9 +162,6 @@ const Liquidity = ({
       );
       decimals = await contract1.decimals();
       tokenDesired = ethers.utils.parseUnits(value1.toString(), decimals);
-    } else {
-      alert("Please only add liquidity to AVAX pairs");
-      return;
     }
     const tx = await routerContractWithWallet.addLiquidityAVAX(
       tokenAddy,
@@ -220,7 +217,9 @@ const Liquidity = ({
   }, []);
 
   useEffect(() => {
-    getQuote();
+    if (select1 && select2 && (value1 || value2)) {
+      getQuote();
+    }
     getLPBalance();
     checkAllowance();
   }, [value1, value2, select1, select2, liqValue]);
@@ -351,87 +350,6 @@ const Liquidity = ({
         }
       });
 
-      // if (select1.address === "AVAX") {
-      //   const contract2 = new ethers.Contract(
-      //     select2.address,
-      //     ERC20ABI,
-      //     provider
-      //   );
-      //   const allowanceWei = await contract2.allowance(
-      //     signer.getAddress(),
-      //     routerAddress
-      //   );
-      //   const allowance = ethers.utils.formatUnits(
-      //     allowanceWei,
-      //     await contract2.decimals()
-      //   );
-      //   if (allowance < value2 || allowance === 0) {
-      //     setAllowanceState(false);
-      //     setAllowanceToken(select2.symbol);
-      //     return;
-      //   } else {
-      //     setAllowanceState(true);
-      //     return;
-      //   }
-      // } else if (select2.address === "AVAX") {
-      //   const contract1 = new ethers.Contract(
-      //     select1.address,
-      //     ERC20ABI,
-      //     provider
-      //   );
-      //   const allowanceWei = await contract1.allowance(
-      //     signer.getAddress(),
-      //     routerAddress
-      //   );
-      //   const allowance = ethers.utils.formatUnits(
-      //     allowanceWei,
-      //     await contract1.decimals()
-      //   );
-      //   const totalSupply = await contract1.totalSupply();
-      //   if (allowance < totalSupply || allowance === 0) {
-      //     setAllowanceState(false);
-      //     setAllowanceToken(select1.symbol);
-      //   } else {
-      //     setAllowanceState(true);
-      //   }
-      // } else {
-      //   const contract1 = new ethers.Contract(
-      //     select1.address,
-      //     ERC20ABI,
-      //     provider
-      //   );
-      //   const contract2 = new ethers.Contract(
-      //     select2.address,
-      //     ERC20ABI,
-      //     provider
-      //   );
-      //   const allowance1 = ethers.utils.formatEther(
-      //     await contract1.allowance(signer.getAddress(), routerAddress)
-      //   );
-      //   const allowance2 = ethers.utils.formatEther(
-      //     await contract2.allowance(signer.getAddress(), routerAddress)
-      //   );
-
-      //   if (
-      //     select1 &&
-      //     select2 &&
-      //     (allowance1 < value1 ||
-      //       allowance1 === 0 ||
-      //       allowance2 < value2 ||
-      //       allowance2 === 0)
-      //   ) {
-      //     setAllowanceState(false);
-      //     console.log(allowance2);
-      //     console.log(value2);
-      //     if (allowance1 < value1 || allowance1 === 0) {
-      //       setAllowanceToken(select1.symbol);
-      //     } else if (allowance2 < value2 || allowance2 === 0) {
-      //       setAllowanceToken(select2.symbol);
-      //     }
-      //   } else {
-      //     setAllowanceState(true);
-      //   }
-      // }
       if (liqMode === "remove") {
         const LPContract = new ethers.Contract(getLPAddy(), ERC20ABI, provider);
         const allowance = await LPContract.allowance(
@@ -695,31 +613,34 @@ const Liquidity = ({
             ) : (
               <div className="install-wallet">Please install a wallet</div>
             )}
+
             {rightNetwork &&
             connected &&
             allowanceState &&
             select2 &&
-            select1 ? (
+            select1 &&
+            value1 &&
+            value2 ? (
               <button id="swap" onClick={() => addLiquidityAVAX()}>
                 Add Liquidity
               </button>
-            ) : null}
-            {rightNetwork &&
-            connected &&
-            !allowanceState &&
-            select1 &&
-            select2 ? (
+            ) : !allowanceState && allowanceToken ? (
               <button id="swap" onClick={() => approveToken()}>
                 {`Approve ${allowanceToken}`}
-                {select1.address === "AVAX" ? select2.label : select1.label}
               </button>
-            ) : null}
-            {rightNetwork && connected && (!select1 || !select2) ? (
+            ) : (
               <button id="swap-disabled">Add Liquidity</button>
-            ) : null}
-            {}
+            )}
           </div>
         ) : null}
+        <button
+          onClick={() => {
+            console.log(value1);
+            console.log(value2);
+          }}
+        >
+          test
+        </button>
         {liqMode === "remove" ? (
           <div className="body-remove">
             <Select
