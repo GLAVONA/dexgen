@@ -34,7 +34,6 @@ const Liquidity = ({
   const [connected, setConnected] = useState();
   const [value1, setValue1] = useState();
   const [value2, setValue2] = useState();
-  const [minVal, setMinval] = useState();
   const [slippage, setSlippage] = useState(0.5);
   const [deadline, setDeadline] = useState(ethers.utils.parseUnits("30"));
   const [fromTokenOne, setFromTokenOne] = useState();
@@ -82,24 +81,13 @@ const Liquidity = ({
         }
         return;
       }
-
-      if (fromTokenOne) {
-        const val2 = value2 - (value2 * slippage) / 100;
-        setMinval(ethers.utils.parseUnits(val2.toString(), contract2Decimals));
-      }
-
-      if (!fromTokenOne) {
-        setMinval(
-          ethers.utils.parseUnits(value2.toString(), contract2Decimals)
-        );
-      }
-
       if (select1.address !== "AVAX") {
         checkAllowance();
       }
 
       let addyFrom = select1.address;
       let addyTo = select2.address;
+
       if (select1.address === "AVAX") {
         addyFrom = WAVAX_ADDRESS;
       }
@@ -111,6 +99,7 @@ const Liquidity = ({
       if (fromTokenOne && value1 !== "") {
         try {
           const value1wei = parseUnits(value1.toString(), contract1Decimals);
+          console.log(addys);
           let arrayOut = await routerContractWithWallet.getAmountsOut(
             value1wei,
             addys
@@ -300,22 +289,6 @@ const Liquidity = ({
         checkAllowance();
       }
     }
-    if (select1.address !== "AVAX") {
-      const contract1 = new ethers.Contract(
-        select1.address,
-        ERC20ABI,
-        provider
-      );
-      const contractWithWallet = contract1.connect(signer);
-      const tx = await contractWithWallet.approve(
-        routerAddress,
-        contract1.totalSupply()
-      );
-      const txComplete = await provider.waitForTransaction(tx.hash);
-      if (txComplete) {
-        checkAllowance();
-      }
-    }
   };
 
   const approveLPToken = async () => {
@@ -344,85 +317,121 @@ const Liquidity = ({
 
   const checkAllowance = async () => {
     if (select1 && select2) {
-      if (select1.address === "AVAX") {
-        const contract2 = new ethers.Contract(
-          select2.address,
-          ERC20ABI,
-          provider
-        );
-        const allowanceWei = await contract2.allowance(
-          signer.getAddress(),
-          routerAddress
-        );
-        const allowance = ethers.utils.formatUnits(
-          allowanceWei,
-          await contract2.decimals()
-        );
-        if (allowance < value2 || allowance === 0) {
-          setAllowanceState(false);
-          setAllowanceToken(select2.symbol);
-        } else {
-          setAllowanceState(true);
-        }
-      } else if (select2.address === "AVAX") {
-        const contract1 = new ethers.Contract(
-          select1.address,
-          ERC20ABI,
-          provider
-        );
-        const allowanceWei = await contract1.allowance(
-          signer.getAddress(),
-          routerAddress
-        );
-        const allowance = ethers.utils.formatUnits(
-          allowanceWei,
-          await contract1.decimals()
-        );
-        const totalSupply = await contract1.totalSupply();
-        if (allowance < totalSupply || allowance === 0) {
-          setAllowanceState(false);
-          setAllowanceToken(select1.symbol);
-        } else {
-          setAllowanceState(true);
-        }
-      } else {
-        const contract1 = new ethers.Contract(
-          select1.address,
-          ERC20ABI,
-          provider
-        );
-        const contract2 = new ethers.Contract(
-          select2.address,
-          ERC20ABI,
-          provider
-        );
-        const allowance1 = ethers.utils.formatEther(
-          await contract1.allowance(signer.getAddress(), routerAddress)
-        );
-        const allowance2 = ethers.utils.formatEther(
-          await contract2.allowance(signer.getAddress(), routerAddress)
-        );
+      const selArray = [select1, select2];
 
-        if (
-          select1 &&
-          select2 &&
-          (allowance1 < value1 ||
-            allowance1 === 0 ||
-            allowance2 < value2 ||
-            allowance2 === 0)
-        ) {
+      selArray.forEach(async (select, index) => {
+        if (select.address === "AVAX") return;
+        const contract = new ethers.Contract(
+          select.address,
+          ERC20ABI,
+          provider
+        );
+        const allowanceWei = await contract.allowance(
+          signer.getAddress(),
+          routerAddress
+        );
+        const allowance = ethers.utils.formatUnits(
+          allowanceWei,
+          await contract.decimals()
+        );
+        let value;
+        if (index === 0) {
+          value = value1;
+        } else if (index === 1) {
+          value = value2;
+        }
+
+        if (allowance < value || allowance === 0) {
           setAllowanceState(false);
-          console.log(allowance2);
-          console.log(value2);
-          if (allowance1 < value1 || allowance1 === 0) {
-            setAllowanceToken(select1.symbol);
-          } else if (allowance2 < value2 || allowance2 === 0) {
-            setAllowanceToken(select2.symbol);
-          }
+          setAllowanceToken(select.symbol);
+          return;
         } else {
           setAllowanceState(true);
+          return;
         }
-      }
+      });
+
+      // if (select1.address === "AVAX") {
+      //   const contract2 = new ethers.Contract(
+      //     select2.address,
+      //     ERC20ABI,
+      //     provider
+      //   );
+      //   const allowanceWei = await contract2.allowance(
+      //     signer.getAddress(),
+      //     routerAddress
+      //   );
+      //   const allowance = ethers.utils.formatUnits(
+      //     allowanceWei,
+      //     await contract2.decimals()
+      //   );
+      //   if (allowance < value2 || allowance === 0) {
+      //     setAllowanceState(false);
+      //     setAllowanceToken(select2.symbol);
+      //     return;
+      //   } else {
+      //     setAllowanceState(true);
+      //     return;
+      //   }
+      // } else if (select2.address === "AVAX") {
+      //   const contract1 = new ethers.Contract(
+      //     select1.address,
+      //     ERC20ABI,
+      //     provider
+      //   );
+      //   const allowanceWei = await contract1.allowance(
+      //     signer.getAddress(),
+      //     routerAddress
+      //   );
+      //   const allowance = ethers.utils.formatUnits(
+      //     allowanceWei,
+      //     await contract1.decimals()
+      //   );
+      //   const totalSupply = await contract1.totalSupply();
+      //   if (allowance < totalSupply || allowance === 0) {
+      //     setAllowanceState(false);
+      //     setAllowanceToken(select1.symbol);
+      //   } else {
+      //     setAllowanceState(true);
+      //   }
+      // } else {
+      //   const contract1 = new ethers.Contract(
+      //     select1.address,
+      //     ERC20ABI,
+      //     provider
+      //   );
+      //   const contract2 = new ethers.Contract(
+      //     select2.address,
+      //     ERC20ABI,
+      //     provider
+      //   );
+      //   const allowance1 = ethers.utils.formatEther(
+      //     await contract1.allowance(signer.getAddress(), routerAddress)
+      //   );
+      //   const allowance2 = ethers.utils.formatEther(
+      //     await contract2.allowance(signer.getAddress(), routerAddress)
+      //   );
+
+      //   if (
+      //     select1 &&
+      //     select2 &&
+      //     (allowance1 < value1 ||
+      //       allowance1 === 0 ||
+      //       allowance2 < value2 ||
+      //       allowance2 === 0)
+      //   ) {
+      //     setAllowanceState(false);
+      //     console.log(allowance2);
+      //     console.log(value2);
+      //     if (allowance1 < value1 || allowance1 === 0) {
+      //       setAllowanceToken(select1.symbol);
+      //     } else if (allowance2 < value2 || allowance2 === 0) {
+      //       setAllowanceToken(select2.symbol);
+      //     }
+      //   } else {
+      //     setAllowanceState(true);
+      //   }
+      // }
       if (liqMode === "remove") {
         const LPContract = new ethers.Contract(getLPAddy(), ERC20ABI, provider);
         const allowance = await LPContract.allowance(

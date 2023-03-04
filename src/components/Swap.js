@@ -3,7 +3,6 @@ import { ethers } from "ethers";
 import Select from "./Select";
 import tokenData from "../data/options.json";
 
-import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { CustomConnect } from "./CustomConnect";
 import "@rainbow-me/rainbowkit/styles.css";
 import SettingsModal from "./SettingsModal";
@@ -613,12 +612,6 @@ const Swap = ({
         const coinBalance = await getCoinBalance();
         setTokenBalance1(coinBalance);
         return;
-      } else {
-        const contr = new ethers.Contract(
-          select1.address === "AVAX" ? WAVAX_ADDRESS : select1.address,
-          ERC20ABI,
-          provider
-        );
       }
       const result = await getTokenBalance(select1.address);
       setTokenBalance1(result);
@@ -635,12 +628,6 @@ const Swap = ({
         const coinBalance = await getCoinBalance();
         setTokenBalance2(coinBalance);
         return;
-      } else {
-        const contr = new ethers.Contract(
-          select2.address === "AVAX" ? WAVAX_ADDRESS : select2.address,
-          ERC20ABI,
-          provider
-        );
       }
       const result = await getTokenBalance(select2.address);
       setTokenBalance2(result);
@@ -664,13 +651,6 @@ const Swap = ({
 
   return (
     <div id="main">
-      <button
-        onClick={() => {
-          console.log(currentAccount);
-        }}
-      >
-        test
-      </button>
       <div id="swap-card">
         <div className="head">
           <SettingsModal
