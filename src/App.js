@@ -68,7 +68,7 @@ const App = () => {
   const prov = new ethers.providers.Web3Provider(window.ethereum);
   const _0X_ADDRESS = "0xdef1c0ded9bec7f1a1670819833240f027b25eff";
   const factoryAddress = "0x14690446Db665B3d21B92fb6A8b94C73655b5149";
-  const routerAddress = "0x60aE616a2155Ee3d9A68541Ba4544862310933d4";
+  const routerAddress = "0x60aE616a2155Ee3d9A68541Ba4544862310933d4";   // TJ ROUTER ADDY (CHANGE ON LAUNCH)
   const TJFactoryAddress = "0x9Ad6C38BE94206cA50bb0d90783181662f0Cfa10";
   const WAVAX_ADDRESS = "0xb31f66aa3c1e785363f0875a1b74e27b85fd66c7";
   const TJFactoryContract = new ethers.Contract(
