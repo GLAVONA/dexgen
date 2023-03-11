@@ -3,6 +3,11 @@
   src: url(./fonts/LibreBaskerville-Bold.ttf);
 }
 
+#root{
+  user-select: none;
+}
+
+
 .App {
   display: grid;
   grid-template-columns: repeat(10, auto);
@@ -296,6 +301,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  user-select: none;
 }
 
 .balance:hover{
