@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { ethers } from "ethers";
-import Navbar from "./components/Navbar";
+import Navbar from "./components/utils/Navbar";
 import "./App.css";
 import Swap from "./components/Swap";
 import Liquidity from "./components/Liquidity";
-import ChooseMode from "./components/ChooseMode";
+import ChooseMode from "./components/utils/ChooseMode";
 
 import "@rainbow-me/rainbowkit/styles.css";
 import {
@@ -16,7 +16,7 @@ import { avalanche, avalancheFuji } from "wagmi/chains";
 import { publicProvider } from "wagmi/providers/public";
 import { Route, Routes } from "react-router";
 import {  NavLink } from "react-router-dom";
-import ConnectButtonHOC from "./components/ConnectButtonHOC";
+import ConnectButtonHOC from "./components/utils/ConnectButtonHOC";
 
 const App = () => {
   const [mode, setMode] = useState("swap");

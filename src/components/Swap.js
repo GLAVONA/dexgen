@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { ethers } from "ethers";
-import Select from "./Select";
+import Select from "./utils/Select";
 import tokenData from "../data/options.json";
 
-import { CustomConnect } from "./CustomConnect";
+import { CustomConnect } from "./utils/CustomConnect";
 import "@rainbow-me/rainbowkit/styles.css";
-import SettingsModal from "./SettingsModal";
+import SettingsModal from "./utils/SettingsModal";
 import CurrencyInput from "react-currency-input-field";
 import qs from "qs";
 import { Triangle } from "react-loader-spinner";

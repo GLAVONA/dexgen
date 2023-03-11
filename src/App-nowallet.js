@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { ethers } from "ethers";
-import Navbar from "./components/Navbar";
+import Navbar from "./components/utils/Navbar";
 import "./App.css";
 import Swap from "./components/Swap";
 import Liquidity from "./components/Liquidity";
@@ -16,8 +16,8 @@ import { avalanche, avalancheFuji, localhost } from "wagmi/chains";
 import { publicProvider } from "wagmi/providers/public";
 import { Route, Routes } from "react-router";
 import { Link, NavLink } from "react-router-dom";
-import ConnectButtonHOC from "./components/ConnectButtonHOC";
-import { CustomConnect } from "./components/CustomConnect";
+import ConnectButtonHOC from "./components/utils/ConnectButtonHOC";
+import { CustomConnect } from "./components/utils/CustomConnect";
 
 const AppNoWallet = () => {
   const [mode, setMode] = useState("swap");
