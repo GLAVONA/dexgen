@@ -24,6 +24,8 @@ const Liquidity = ({
   TJFactoryContractWithWallet,
   _0xAPI_URL,
   _0X_ADDRESS,
+  rightNetwork,
+  setRightNetwork
 }) => {
   const [tokenBalance1, setTokenBalance1] = useState();
   const [tokenBalance2, setTokenBalance2] = useState();
@@ -39,7 +41,6 @@ const Liquidity = ({
   const [fromTokenOne, setFromTokenOne] = useState();
   const [allowanceState, setAllowanceState] = useState(false);
   const [lpAllowanceState, setLpAllowanceState] = useState(false);
-  const [rightNetwork, setRightNetwork] = useState();
   const [liqMode, setLiqMode] = useState("add");
   const [liqValue, setLiqValue] = useState();
   const [liqBalance, setLiqBalance] = useState();
@@ -576,7 +577,6 @@ const Liquidity = ({
                     }),
                   }}
                 >
-                  {" "}
                   <div
                     className="balance"
                     onClick={(e) => {
@@ -587,7 +587,7 @@ const Liquidity = ({
                     {select2 && tokenBalance2 > 0
                       ? Number(tokenBalance2).toFixed(5)
                       : 0}
-                  </div>{" "}
+                  </div>
                   <span id="to">Token 2:</span>
                 </Select>
                 <CurrencyInput
@@ -633,14 +633,6 @@ const Liquidity = ({
             )}
           </div>
         ) : null}
-        <button
-          onClick={() => {
-            console.log(value1);
-            console.log(value2);
-          }}
-        >
-          test
-        </button>
         {liqMode === "remove" ? (
           <div className="body-remove">
             <Select

@@ -331,6 +331,18 @@
   border: 0;
   background-color: #0000;
 }
+
+.stake-amount-input{
+  background-color: rgb(247, 248, 250);
+  flex: 1;
+  text-align: right;
+  font-family: inherit;
+  font-size: inherit;
+  color: inherit;
+  border: 0;
+  border-radius: 20px;
+}
+
 input {
   font-family: inherit;
   font-size: inherit;

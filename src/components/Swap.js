@@ -49,6 +49,8 @@ const Swap = ({
   setShouldReload,
   connected,
   setConnected,
+  rightNetwork,
+  setRightNetwork
 }) => {
   const [tokenBalance1, setTokenBalance1] = useState();
   const [tokenBalance2, setTokenBalance2] = useState();
@@ -63,7 +65,6 @@ const Swap = ({
   const [slippage, setSlippage] = useState(0.5);
   const [deadline, setDeadline] = useState(ethers.utils.parseUnits("30"));
   const [fromTokenOne, setFromTokenOne] = useState();
-  const [rightNetwork, setRightNetwork] = useState();
   const [allowanceState, setAllowanceState] = useState();
   const [isLPOurs, setIsLPOurs] = useState();
   const [loading, setLoading] = useState();
@@ -518,8 +519,8 @@ const Swap = ({
       provider
     );
     if (select1.address !== "AVAX") {
-      const routerContractWithWallet = contract1.connect(signer);
-      const tx = await routerContractWithWallet.approve(
+      const contractWithWallet = contract1.connect(signer);
+      const tx = await contractWithWallet.approve(
         isLPOurs ? routerAddress : _0X_ADDRESS,
         contract1.totalSupply()
       );
@@ -681,9 +682,7 @@ const Swap = ({
             setSlippage={setSlippage}
             deadline={deadline}
             setDeadline={setDeadline}
-          >
-            {" "}
-          </SettingsModal>
+          ></SettingsModal>
           <div
             className="head-button"
             onClick={() => {
@@ -691,7 +690,6 @@ const Swap = ({
             }}
           >
             <div>
-              {" "}
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="24"
@@ -758,7 +756,7 @@ const Swap = ({
                 value={value1}
               />
             </div>
-            {<SwitchArrow switchTokens={switchTokens} />}{" "}
+            {<SwitchArrow switchTokens={switchTokens} />}
             <div className="select-field">
               <Select
                 options={
@@ -781,7 +779,6 @@ const Swap = ({
                 }}
                 provider={provider}
               >
-                {" "}
                 <div
                   className="balance"
                   onClick={(e) => {
@@ -792,7 +789,7 @@ const Swap = ({
                   {select2 && tokenBalance2 > 0
                     ? Number(tokenBalance2).toFixed(5)
                     : 0}
-                </div>{" "}
+                </div>
                 <span id="to">To:</span>
               </Select>
               <CurrencyInput
@@ -810,7 +807,7 @@ const Swap = ({
             </div>
           </div>
           <div id="min-val">
-            Min:{" "}
+            Min:
             {minVal
               ? parseFloat(ethers.utils.formatUnits(minVal)).toFixed(5)
               : 0.0}
@@ -823,7 +820,13 @@ const Swap = ({
           ) : (
             <div className="install-wallet">Please install a wallet</div>
           )}
-          {rightNetwork && connected && allowanceState && select2 && select1 ? (
+          {rightNetwork &&
+          connected &&
+          allowanceState &&
+          select2 &&
+          select1 &&
+          value1 &&
+          value2 ? (
             <button id="swap" onClick={() => swap()} disabled={loading}>
               {loading ? (
                 <Triangle
@@ -844,11 +847,15 @@ const Swap = ({
           !allowanceState &&
           select1 &&
           select2 &&
+          value1 &&
+          value2 &&
           select1?.address !== "AVAX" ? (
             <button id="swap" onClick={() => approveToken()}>
               Approve {select1?.symbol}
             </button>
-          ) : rightNetwork && connected && (!select1 || !select2) ? (
+          ) : (rightNetwork && connected && (!select1 || !select2)) ||
+            !value1 ||
+            !value2 ? (
             <button id="swap-disabled">Swap</button>
           ) : null}
           {}

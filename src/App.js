@@ -7,21 +7,20 @@ import Liquidity from "./components/Liquidity";
 import ChooseMode from "./components/utils/ChooseMode";
 
 import "@rainbow-me/rainbowkit/styles.css";
-import {
-  getDefaultWallets,
-  RainbowKitProvider,
-} from "@rainbow-me/rainbowkit";
+import { getDefaultWallets, RainbowKitProvider } from "@rainbow-me/rainbowkit";
 import { configureChains, createClient, WagmiConfig } from "wagmi";
 import { avalanche, avalancheFuji } from "wagmi/chains";
 import { publicProvider } from "wagmi/providers/public";
 import { Route, Routes } from "react-router";
-import {  NavLink } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import ConnectButtonHOC from "./components/utils/ConnectButtonHOC";
+import Stake from "./components/Stake";
 
 const App = () => {
   const [mode, setMode] = useState("swap");
   const [shouldReload, setShouldReload] = useState();
   const [connected, setConnected] = useState();
+  const [rightNetwork, setRightNetwork] = useState();
 
   useEffect(() => {
     window.ethereum.on("accountsChanged", function () {
@@ -66,7 +65,7 @@ const App = () => {
   const prov = new ethers.providers.Web3Provider(window.ethereum);
   const _0X_ADDRESS = "0xdef1c0ded9bec7f1a1670819833240f027b25eff";
   const factoryAddress = "0x14690446Db665B3d21B92fb6A8b94C73655b5149";
-  const routerAddress = "0x60aE616a2155Ee3d9A68541Ba4544862310933d4";   // TJ ROUTER ADDY (CHANGE ON LAUNCH)
+  const routerAddress = "0x60aE616a2155Ee3d9A68541Ba4544862310933d4"; // TJ ROUTER ADDY (CHANGE ON LAUNCH)
   const TJFactoryAddress = "0x9Ad6C38BE94206cA50bb0d90783181662f0Cfa10";
   const WAVAX_ADDRESS = "0xb31f66aa3c1e785363f0875a1b74e27b85fd66c7";
   const TJFactoryContract = new ethers.Contract(
@@ -96,22 +95,19 @@ const App = () => {
             </div>
             <ul className="nav-menu">
               <li>
-                {" "}
                 <NavLink to="/" className={"nav-item"}>
                   Trade
-                </NavLink>{" "}
+                </NavLink>
               </li>
               <li>
-                {" "}
                 <NavLink to="/stake" className={"nav-item"}>
                   Stake
-                </NavLink>{" "}
+                </NavLink>
               </li>
               <li>
-                {" "}
                 <NavLink to="/farm" className={"nav-item"}>
                   Farm
-                </NavLink>{" "}
+                </NavLink>
               </li>
             </ul>
             <div className="right">
@@ -124,7 +120,7 @@ const App = () => {
             </div>
           </Navbar>
 
-          <div id="main-bg"></div>
+          <div id="main-bg" />
           <Routes>
             <Route
               path="/"
@@ -147,6 +143,8 @@ const App = () => {
                       setShouldReload={setShouldReload}
                       connected={connected}
                       setConnected={setConnected}
+                      rightNetwork={rightNetwork}
+                      setRightNetwork={setRightNetwork}
                     />
                   </>
                 ) : (
@@ -164,9 +162,24 @@ const App = () => {
                       setMode={setMode}
                       _0xAPI_URL={_0xAPI_URL}
                       _0X_ADDRESS={_0X_ADDRESS}
+                      rightNetwork={rightNetwork}
+                      setRightNetwork={setRightNetwork}
                     />
                   </>
                 )
+              }
+            />
+            <Route
+              path="/stake"
+              element={
+                <Stake
+                  rightNetwork={rightNetwork}
+                  setRightNetwork={setRightNetwork}
+                  connected = {connected}
+                  setConnected={setConnected}
+                  provider={prov}
+                  signer={signer}
+                />
               }
             />
           </Routes>
